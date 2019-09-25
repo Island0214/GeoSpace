@@ -1,0 +1,179 @@
+﻿using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract class GeoElement
+{
+    public string name;
+    public int color;
+    public int style;
+
+    public bool isBased;
+
+    public GeoElement(int color, int style, bool isBased = false)
+    {
+        this.color = color;
+        this.style = style;
+        this.isBased = isBased;
+    }
+
+    public abstract void AddObserveElements();
+
+    public abstract void RemoveObserveElements();
+}
+
+public class GeoVertex : GeoElement
+{
+    private VertexUnit vertex;
+    public bool isFixed;
+    public bool isSpace;
+
+    public GeoVertex(VertexUnit vertex, bool isBased = false) : base(0, 0, isBased)
+    {
+        name = "Vertex";
+
+        this.vertex = vertex;
+
+        this.isFixed = vertex.isFixed;
+        this.isSpace = vertex is VertexSpace;
+    }
+
+    public int Id
+    {
+        get
+        {
+            return vertex.id;
+        }
+    }
+
+    public Vertex Vertex()
+    {
+        return new Vertex(vertex.Position());
+    }
+
+    public override string ToString()
+    {
+        return string.Format("vertex {0}", vertex.id);
+    }
+
+    public override void AddObserveElements()
+    {
+        vertex.AddObserveElement(this);
+    }
+
+    public override void RemoveObserveElements()
+    {
+        vertex.RemoveObserveElement(this);
+    }
+}
+
+public class GeoEdge : GeoElement
+{
+    private VertexUnit vertex1;
+    private VertexUnit vertex2;
+
+    public GeoEdge(VertexUnit vertex1, VertexUnit vertex2, bool isBased = false) : base(0, 0, isBased)
+    {
+        name = "Edge";
+
+        this.vertex1 = vertex1;
+        this.vertex2 = vertex2;
+    }
+
+    public int Id1
+    {
+        get
+        {
+            return vertex1.id;
+        }
+    }
+
+    public int Id2
+    {
+        get
+        {
+            return vertex2.id;
+        }
+    }
+
+    public Edge Edge()
+    {
+        return new Edge(vertex1.Position(), vertex2.Position());
+    }
+
+    public override string ToString()
+    {
+        return string.Format("edge {0} {1}", vertex1.id, vertex2.id);
+    }
+
+    public override void AddObserveElements()
+    {
+        vertex1.AddObserveElement(this);
+        vertex2.AddObserveElement(this);
+    }
+
+    public override void RemoveObserveElements()
+    {
+        vertex1.RemoveObserveElement(this);
+        vertex2.RemoveObserveElement(this);
+    }
+}
+
+public class GeoFace : GeoElement
+{
+    private VertexUnit[] vertices;
+
+    private int[] ids;
+
+    public GeoFace(VertexUnit[] vertices, bool isBased = false) : base(0, 0, isBased)
+    {
+        name = "Face";
+
+        this.vertices = vertices;
+
+        this.ids = vertices.Select(v => v.id).ToArray();
+    }
+
+    // public int VertexCount()
+    // {
+    //     return vertices.Length;
+    // }
+
+    // public int Id(int i)
+    // {
+    //     return vertices[i].id;
+    // }
+
+    public int[] Ids
+    {
+        get
+        {
+            return ids;
+        }
+    }
+
+    public Face Face()
+    {
+        return new Face(vertices.Select(v => v.Position()).ToArray());
+    }
+
+    public override string ToString()
+    {
+        return string.Format("face {0}", string.Join(" ", ids));
+    }
+
+
+    public override void AddObserveElements()
+    {
+        foreach (VertexUnit vertex in vertices)
+            vertex.AddObserveElement(this);
+    }
+
+    public override void RemoveObserveElements()
+    {
+        foreach (VertexUnit vertex in vertices)
+            vertex.RemoveObserveElement(this);
+    }
+}
