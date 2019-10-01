@@ -30,6 +30,10 @@ MonoBehaviour:
       Name: Free
       Description: "\u81EA\u7531\u6784\u5EFA"
       Type: 0
+    - Icon: {fileID: 21300000, guid: 39857099206fe4249a900ebe9d2af84b, type: 3}
+      Name: ResolvedBody
+      Description: "\u65CB\u8F6C\u4F53"
+      Type: 0
   ConditionGroup:
     Icon: {fileID: 21300000, guid: 0ea1222560b66423db8eb508886e6ff6, type: 3}
     Name: Condition

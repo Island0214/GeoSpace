@@ -7,8 +7,10 @@ using System.Linq;
 public enum GeometryType
 {
     Common,
+    General,
     Cubio,
     TriPyd,
+    ResolvedBody,
 }
 
 public abstract class Geometry
