@@ -44,51 +44,60 @@ public class AddConditionOperation : Operation
             return;
         }
 
-        inputPanel.SetFormForInput(conditionTool.FormInput());
-
-        inputPanel.OnValidate = (form) =>
+        FormInput formInput = conditionTool.FormInput();
+        if (formInput != null)
         {
-            return conditionTool.ValidateInput(geometry, form);
-        };
+            inputPanel.SetFormForInput(conditionTool.FormInput());
 
-        inputPanel.OnClickSubmit = (form) =>
-        {
-            Condition condition = conditionTool.GenerateCondition(geometry, form);
-
-            bool result = geometry.Constructor.AddCondition(condition);
-
-            if (result)
+            inputPanel.OnValidate = (form) =>
             {
-                AddState(condition);
-                geometryBehaviour.UpdateElements();
-                geometryBehaviour.UpdateSignsPosition();
-                geometryBehaviour.UpdateGizmos();
+                return conditionTool.ValidateInput(geometry, form);
+            };
 
-                Gizmo[] gizmos = condition.gizmos;
-                if (gizmos != null)
+            inputPanel.OnClickSubmit = (form) =>
+            {
+                addCondition(geometry, form);
+            };
+
+            inputPanel.OnClickCancel = (form) =>
+            {
+                geoController.EndOperation();
+            };
+        } else {
+            addCondition(geometry, null);
+        }
+    }
+
+    public void addCondition(Geometry geometry, FormInput form)
+    {
+        Condition condition = conditionTool.GenerateCondition(geometry, form);
+
+        bool result = geometry.Constructor.AddCondition(condition);
+        if (result)
+        {
+            AddState(condition);
+            geometryBehaviour.UpdateElements();
+            geometryBehaviour.UpdateSignsPosition();
+            geometryBehaviour.UpdateGizmos();
+
+            Gizmo[] gizmos = condition.gizmos;
+            if (gizmos != null)
+            {
+                foreach (Gizmo gizmo in gizmos)
                 {
-                    foreach (Gizmo gizmo in gizmos)
-                    {
-                        geometry.AddGizmo(gizmo);
-                        geometryBehaviour.AddGizmo(gizmo);
-                    }
+                    geometry.AddGizmo(gizmo);
+                    geometryBehaviour.AddGizmo(gizmo);
                 }
-
-                stateController.RefreshStateCells();
-            }
-            else
-            {
-                // TODO
             }
 
-            geoController.EndOperation();
-        };
-
-        inputPanel.OnClickCancel = (form) =>
+            stateController.RefreshStateCells();
+        }
+        else
         {
-            geoController.EndOperation();
-        };
+            // TODO
+        }
 
+        geoController.EndOperation();
     }
 
     public override void End()
