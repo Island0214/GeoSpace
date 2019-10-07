@@ -15,6 +15,7 @@ public abstract class ResolvedBodyConditionTool : ConditionTool
 public class ResolvedBodyConstructor : Constructor
 {
     private RectangleCondition rectangleCondition;
+	private TriangleCondition triangleCondition;
 
     new ResolvedBody geometry;
 
@@ -47,11 +48,19 @@ public class ResolvedBodyConstructor : Constructor
             rectangleCondition = null;
             return true;
         }
+		if (condition is TriangleCondition) {
+            if (triangleCondition != (TriangleCondition)condition) {
+                return false;
+            }
+            triangleCondition = null;
+            return true;
+        }
         return false;
     }
 
     public override void ClearConditions() {
         rectangleCondition = null;
+		triangleCondition = null;
     }
 
     private bool CheckAddCondition(ResolvedBodyCondition condition)
@@ -59,10 +68,21 @@ public class ResolvedBodyConstructor : Constructor
 
         if (condition is ResolvedBodyCondition)
         {
-            if (rectangleCondition != null)
-                return false;
-            rectangleCondition = (RectangleCondition)condition;
-            return true;
+            if (condition is RectangleCondition)
+            {
+                if (rectangleCondition != null)
+                    return false;
+                rectangleCondition = (RectangleCondition)condition;
+                return true;
+            }
+            if (condition is TriangleCondition)
+            {
+                if (triangleCondition != null)
+                    return false;
+                triangleCondition = (TriangleCondition)condition;
+                return true;
+            }
+
         }
 
         return false;
@@ -74,6 +94,12 @@ public class ResolvedBodyConstructor : Constructor
         if (rectangleCondition != null){
             Vector2 position = new Vector2(rectangleCondition.height, rectangleCondition.width);
             geometry.SetRectangle(position);
+            geometryBehaviour.InitGeometry(geometry);
+            geometry.isSpinned = true;
+        }
+		if (triangleCondition != null) {
+            Vector2 position = new Vector2(triangleCondition.height, triangleCondition.width);
+            geometry.SetTriangle(position);
             geometryBehaviour.InitGeometry(geometry);
             geometry.isSpinned = true;
         }
