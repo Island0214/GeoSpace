@@ -26,6 +26,8 @@ public class GeometryBehaviour : MonoBehaviour
     Dictionary<GeoVertex, VertexBehaviour> vertexMap;
     Dictionary<GeoEdge, EdgeBehaviour> edgeMap;
     Dictionary<GeoFace, FaceBehaviour> faceMap;
+    Dictionary<GeoCircle, CircleBehaviour> circleMap;
+    Dictionary<GeoCircular, CircularBehaviour> circularMap;
     Dictionary<int, SignBehaviour> signMap;
 
     Dictionary<Gizmo, GizmoBehaviour> gizmoMap;
@@ -58,6 +60,8 @@ public class GeometryBehaviour : MonoBehaviour
         vertexMap = new Dictionary<GeoVertex, VertexBehaviour>();
         edgeMap = new Dictionary<GeoEdge, EdgeBehaviour>();
         faceMap = new Dictionary<GeoFace, FaceBehaviour>();
+        circleMap = new Dictionary<GeoCircle, CircleBehaviour>();
+        circularMap = new Dictionary<GeoCircular, CircularBehaviour>();
         signMap = new Dictionary<int, SignBehaviour>();
         gizmoMap = new Dictionary<Gizmo, GizmoBehaviour>();
 
@@ -73,6 +77,8 @@ public class GeometryBehaviour : MonoBehaviour
         GeoVertex[] vertices = geometry.GeoVertices();
         GeoEdge[] edges = geometry.GeoEdges();
         GeoFace[] faces = geometry.GeoFaces();
+        GeoCircle[] circles = geometry.GeoCircles();
+        GeoCircular[] circulars = geometry.GeoCirculars();
 
         // New Geometry
         // mesh = GeometryToMesh();
@@ -102,6 +108,14 @@ public class GeometryBehaviour : MonoBehaviour
         // New Face
         for (int i = 0; i < faces.Length; i++)
             AddFace(faces[i]);
+
+        // New Circles
+        for (int i = 0; i < circles.Length; i++)
+            AddCircle(circles[i]);
+
+        // New Circulars
+        for (int i = 0; i < circulars.Length; i++)
+            AddCircular(circulars[i]);
 
         // New Signs
         for (int i = 0; i < geometry.UnitCount(); i++)
@@ -133,6 +147,16 @@ public class GeometryBehaviour : MonoBehaviour
         foreach (KeyValuePair<GeoFace, FaceBehaviour> pair in faceMap)
             Destroy(pair.Value.gameObject);
         faceMap.Clear();
+
+        // Clear Circle
+        foreach (KeyValuePair<GeoCircle, CircleBehaviour> pair in circleMap)
+            Destroy(pair.Value.gameObject);
+        circleMap.Clear();
+
+        // Clear Circular
+        foreach (KeyValuePair<GeoCircular, CircularBehaviour> pair in circularMap)
+            Destroy(pair.Value.gameObject);
+        circularMap.Clear();
 
         // Clear Signs
         foreach (KeyValuePair<int, SignBehaviour> pair in signMap)
@@ -196,6 +220,35 @@ public class GeometryBehaviour : MonoBehaviour
         elementMap.Add(geoFace, faceBehaviour);
     }
 
+    private void AddCircle(GeoCircle geoCircle)
+    {
+        GameObject planeObject = new GameObject(geoCircle.ToString());
+        planeObject.transform.SetParent(faceWrapper.transform);
+
+        CircleBehaviour circleBehaviour = planeObject.AddComponent<CircleBehaviour>();
+        circleBehaviour.Init(geoCircle);
+
+        circleBehaviour.SetData(geometry.Circle(geoCircle));
+
+        circleMap.Add(geoCircle, circleBehaviour);
+        elementMap.Add(geoCircle, circleBehaviour);
+    }
+
+    private void AddCircular(GeoCircular geoCircular)
+    {
+        GameObject planeObject = new GameObject(geoCircular.ToString());
+        planeObject.transform.SetParent(faceWrapper.transform);
+
+        CircularBehaviour circularBehaviour = planeObject.AddComponent<CircularBehaviour>();
+        circularBehaviour.Init(geoCircular);
+
+        circularBehaviour.SetData(geometry.Circular(geoCircular));
+
+        circularMap.Add(geoCircular, circularBehaviour);
+        elementMap.Add(geoCircular, circularBehaviour);
+    }
+
+
     private void UpdateVertex(GeoVertex geoVertex)
     {
         VertexBehaviour vertexBehaviour = vertexMap[geoVertex];
@@ -212,6 +265,18 @@ public class GeometryBehaviour : MonoBehaviour
     {
         FaceBehaviour faceBehaviour = faceMap[geoFace];
         faceBehaviour.SetData(geometry.Face(geoFace));
+    }
+
+    private void UpdateCircle(GeoCircle geoCircle)
+    {
+        CircleBehaviour circleBehaviour = circleMap[geoCircle];
+        circleBehaviour.SetData(geometry.Circle(geoCircle));
+    }
+
+    private void UpdateCircular(GeoCircular geoCircular)
+    {
+        CircularBehaviour circularBehaviour = circularMap[geoCircular];
+        circularBehaviour.SetData(geometry.Circular(geoCircular));
     }
 
     private void RemoveVertex(GeoVertex geoVertex)
@@ -235,6 +300,19 @@ public class GeometryBehaviour : MonoBehaviour
         faceMap.Remove(geoFace);
     }
 
+    private void RemoveCircle(GeoCircle geoCircle)
+    {
+        CircleBehaviour circleBehaviour = circleMap[geoCircle];
+        Destroy(circleBehaviour.gameObject);
+        circleMap.Remove(geoCircle);
+    }
+
+    private void RemoveCircular(GeoCircular geoCircular)
+    {
+        CircularBehaviour circularBehaviour = circularMap[geoCircular];
+        Destroy(circularBehaviour.gameObject);
+        circularMap.Remove(geoCircular);
+    }
     #endregion
 
     #region Sign
@@ -539,6 +617,10 @@ public class GeometryBehaviour : MonoBehaviour
             AddEdge((GeoEdge)geoElement);
         else if (geoElement is GeoFace)
             AddFace((GeoFace)geoElement);
+        else if (geoElement is GeoCircle)
+            AddCircle((GeoCircle)geoElement);
+        else if (geoElement is GeoCircular)
+            AddCircular((GeoCircular)geoElement);
     }
 
     public void UpdateElement(GeoElement geoElement)
@@ -549,6 +631,10 @@ public class GeometryBehaviour : MonoBehaviour
             UpdateEdge((GeoEdge)geoElement);
         else if (geoElement is GeoFace)
             UpdateFace((GeoFace)geoElement);
+        else if (geoElement is GeoCircle)
+            UpdateCircle((GeoCircle)geoElement);
+        else if (geoElement is GeoCircular)
+            UpdateCircular((GeoCircular)geoElement);
     }
 
     public void RemoveElement(GeoElement geoElement)
@@ -559,6 +645,10 @@ public class GeometryBehaviour : MonoBehaviour
             RemoveEdge((GeoEdge)geoElement);
         else if (geoElement is GeoFace)
             RemoveFace((GeoFace)geoElement);
+        else if (geoElement is GeoCircle)
+            RemoveCircle((GeoCircle)geoElement);
+        else if (geoElement is GeoCircular)
+            RemoveCircular((GeoCircular)geoElement);
     }
 
     public void AddGizmo(Gizmo gizmo)

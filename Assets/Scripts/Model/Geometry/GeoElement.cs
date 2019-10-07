@@ -177,3 +177,82 @@ public class GeoFace : GeoElement
             vertex.RemoveObserveElement(this);
     }
 }
+
+
+public class GeoCircle : GeoElement
+{
+    private VertexUnit vertex;
+    private float radius; 
+
+    public GeoCircle(VertexUnit vertex, float radius, bool isBased = false) : base(0, 0, isBased)
+    {
+        name = "Circle";
+
+        this.vertex = vertex;
+        this.radius = radius;
+    }
+
+    public Circle Circle()
+    {
+        return new Circle(vertex.Position(), radius);
+    }
+
+    public override string ToString()
+    {
+        return string.Format("circular");
+    }
+
+    public override void AddObserveElements()
+    {
+        vertex.AddObserveElement(this);
+    }
+
+    public override void RemoveObserveElements()
+    {
+        vertex.RemoveObserveElement(this);
+    }
+}
+
+public enum CircularType
+{
+    Cylinder,
+    Cone,
+}
+
+public class GeoCircular : GeoElement
+{
+    private VertexUnit[] vertexs;
+    private float radius; 
+    private CircularType type;
+
+    public GeoCircular(VertexUnit[] vertexs, float radius, CircularType type, bool isBased = false) : base(0, 0, isBased)
+    {
+        name = "Circular";
+
+        this.vertexs = vertexs;
+        this.radius = radius;
+        this.type = type;
+    }
+
+    public Circular Circular()
+    {
+        return new Circular(vertexs.Select(v => v.Position()).ToArray(), radius, type);
+    }
+
+    public override string ToString()
+    {
+        return string.Format("circular");
+    }
+
+    public override void AddObserveElements()
+    {
+        foreach (VertexUnit vertex in vertexs)
+            vertex.AddObserveElement(this);
+    }
+
+    public override void RemoveObserveElements()
+    {
+        foreach (VertexUnit vertex in vertexs)
+            vertex.RemoveObserveElement(this);
+    }
+}

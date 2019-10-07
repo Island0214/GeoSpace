@@ -26,6 +26,8 @@ public abstract class Geometry
     private List<GeoVertex> geoVertices;
     private List<GeoEdge> geoEdges;
     private List<GeoFace> geoFaces;
+    private List<GeoCircle> geoCircles;
+    private List<GeoCircular> geoCirculars;
 
     private Vector3 center;
 
@@ -48,6 +50,8 @@ public abstract class Geometry
         geoVertices = new List<GeoVertex>();
         geoEdges = new List<GeoEdge>();
         geoFaces = new List<GeoFace>();
+        geoCircles = new List<GeoCircle>();
+        geoCirculars = new List<GeoCircular>();
 
         signVertexMap = new Dictionary<string, int>();
         vertexSignMap = new Dictionary<int, string>();
@@ -186,6 +190,17 @@ public abstract class Geometry
         return geoFaces.ToArray();
     }
 
+    public GeoCircle[] GeoCircles()
+    {
+        return geoCircles.ToArray();
+    }
+
+    public GeoCircular[] GeoCirculars()
+    {
+        return geoCirculars.ToArray();
+    }
+
+
     public void AddElement(GeoElement element)
     {
         if (element is GeoVertex)
@@ -194,6 +209,10 @@ public abstract class Geometry
             AddGeoEdge((GeoEdge)element);
         else if (element is GeoFace)
             AddGeoFace((GeoFace)element);
+        else if (element is GeoCircle)
+            AddGeoCircle((GeoCircle)element);
+        else if (element is GeoCircular)
+            AddGeoCircular((GeoCircular)element);
     }
 
     public void AddGeoVertex(GeoVertex vertex)
@@ -214,6 +233,18 @@ public abstract class Geometry
         face.AddObserveElements();
     }
 
+    public void AddGeoCircle(GeoCircle circle)
+    {
+        geoCircles.Add(circle);
+        circle.AddObserveElements();
+    }
+
+    public void AddGeoCircular(GeoCircular circular)
+    {
+        geoCirculars.Add(circular);
+        circular.AddObserveElements();
+    }
+
     public void RemoveElement(GeoElement element)
     {
         if (element is GeoVertex)
@@ -222,6 +253,10 @@ public abstract class Geometry
             RemoveGeoEdge((GeoEdge)element);
         else if (element is GeoFace)
             RemoveGeoFace((GeoFace)element);
+        else if (element is GeoCircle)
+            RemoveGeoCircle((GeoCircle)element);
+        else if (element is GeoCircular)
+            RemoveGeoCircular((GeoCircular)element);
     }
 
     public void RemoveGeoVertex(GeoVertex vertex)
@@ -240,6 +275,18 @@ public abstract class Geometry
     {
         geoFaces.Remove(face);
         face.RemoveObserveElements();
+    }
+
+    public void RemoveGeoCircle(GeoCircle circle)
+    {
+        geoCircles.Remove(circle);
+        circle.RemoveObserveElements();
+    }
+
+    public void RemoveGeoCircular(GeoCircular circular)
+    {
+        geoCirculars.Remove(circular);
+        circular.RemoveObserveElements();
     }
 
     public void SetElementColor(GeoElement element, int i)
@@ -311,6 +358,16 @@ public abstract class Geometry
     public Face Face(GeoFace face)
     {
         return face.Face();
+    }
+
+    public Circle Circle(GeoCircle circle)
+    {
+        return circle.Circle();
+    }
+
+    public Circular Circular(GeoCircular circular)
+    {
+        return circular.Circular();
     }
 
     public Vector3 Direction(int from, int to)
