@@ -22,13 +22,13 @@ public class ResolvedBody : Geometry
     {
         Vector3 faceNormal = Vector3.right;
 
-        VertexFace u0 = new VertexFace(0, position.y / 2, 0, faceNormal);
+        VertexFace u0 = new VertexFace(0, position.x / 2, 0, faceNormal);
         u0.isFixed = true;
-        VertexFace u1 = new VertexFace(0, -position.y / 2, 0, faceNormal);
+        VertexFace u1 = new VertexFace(0, -position.x / 2, 0, faceNormal);
         u1.isFixed = true;
-        VertexFace u2 = new VertexFace(0, -position.y / 2, position.x, faceNormal);
+        VertexFace u2 = new VertexFace(0, -position.x / 2, position.y, faceNormal);
         u2.isFixed = true;
-        VertexFace u3 = new VertexFace(0, position.y / 2, position.x, faceNormal);
+        VertexFace u3 = new VertexFace(0, position.x / 2, position.y, faceNormal);
         u3.isFixed = true;
         AddBaseVertex(u0);
         AddBaseVertex(u1);
@@ -56,26 +56,17 @@ public class ResolvedBody : Geometry
         GeoFace f0 = new GeoFace(new VertexUnit[] { u0, u1, u2, u3 }, true);
         AddGeoFace(f0);
 
-        VertexSpace vertex1 = new VertexSpace(0, position.y / 2, 0);
-        VertexSpace vertex2 = new VertexSpace(0, -position.y / 2, 0);
-        float radius = position.x;
-
-        GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2 }, radius, CircularType.Cylinder);
-        AddGeoCircular(circular);
-        GeoCircle circle = new GeoCircle(vertex1, radius);
-        AddGeoCircle(circle);
         InitDatas();
     }
 	
 	public void SetTriangle(Vector2 position) {
-        // Debug.Log(position);
         Vector3 faceNormal = Vector3.right;
 
-        VertexFace u0 = new VertexFace(0, position.y / 2, 0, faceNormal);
+        VertexFace u0 = new VertexFace(0, position.x / 2, 0, faceNormal);
 		u0.isFixed = true;
-        VertexFace u1 = new VertexFace(0, -position.y / 2, 0, faceNormal);
+        VertexFace u1 = new VertexFace(0, -position.x / 2, 0, faceNormal);
 		u1.isFixed = true;
-        VertexFace u2 = new VertexFace(0, -position.y / 2, position.x, faceNormal);
+        VertexFace u2 = new VertexFace(0, -position.x / 2, position.y, faceNormal);
 		u2.isFixed = true;
         AddBaseVertex(u0);
         AddBaseVertex(u1);
@@ -97,15 +88,6 @@ public class ResolvedBody : Geometry
 
         GeoFace f0 = new GeoFace(new VertexUnit[] { u0, u1, u2 }, true);
         AddGeoFace(f0);
-
-//		VertexSpace vertex1 = new VertexSpace(0, position.y / 2, 0);
-//      VertexSpace vertex2 = new VertexSpace(0, -position.y / 2, 0);
-//      float radius = position.x;
-
-//      GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2 }, radius, CircularType.Cylinder);
-//      AddGeoCircular(circular);
-//      GeoCircle circle = new GeoCircle(vertex1, radius);
-//      AddGeoCircle(circle);
 
         InitDatas();
     }

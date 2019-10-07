@@ -5,77 +5,27 @@ using UnityEngine.EventSystems;
 
 public class CircleBehaviour : ElementBehaviour
 {
-
-    const float LINE_RADIUS = 0.02f;
-    const float LINE_LENGTH = 1.0f;
-
-    const float LINE_COLLIDER_SIZE = 0.1f;
-    const float LINE_COLLIDER_OFFSET = 0.2f;
-
-    private GeoCamera geoCamera;
-    private GeoController geoController;
-    private Mesh mesh; // Because of vertex color use for normal
-    private MeshRenderer meshRenderer;
-    private BoxCollider meshCollider;
     private GeoCircle geoCircle;
     private Circle circle;
-    private Vector3 normal;
-    public int Segments = 60;   // Segment count
+    public int Segments = 32;   // Segment count
+    private GeometryBehaviour geometryBehaviour;
 
     public void Init(GeoCircle geoCircle)
     {
-        geoController = GameObject.Find("/GeoController").GetComponent<GeoController>();
-
         this.geoCircle = geoCircle;
-        mesh = new Mesh();
-
-
-        MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
-        meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        meshCollider = gameObject.AddComponent<BoxCollider>();
-        meshFilter.sharedMesh = mesh;
-        meshCollider.size = new Vector3(1 - LINE_COLLIDER_OFFSET, LINE_COLLIDER_SIZE, LINE_COLLIDER_SIZE);
-
-        SetColorIndex(0);
-        SetStyleIndex(0);
-
-        StyleManager.OnStyleChange += () =>
-        {
-            SetColorIndex(0);
-            SetStyleIndex(0);
-        };
-
         visiable = true;
+        geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
     }
 
     public void SetData(Circle c)
     {
         circle = c;
-        normal = Vector3.up.normalized;
-        Vector3 wrapNormal = normal * 0.5f + new Vector3(0.5f, 0.5f, 0.5f);
-
-        Color color = new Color(wrapNormal.x, wrapNormal.y, wrapNormal.z, 1);
-        Color[] colors = new Color[] { color, color, color, color };
-        mesh.colors = colors;
-
-        CircleMesh(mesh, circle);
+        CircleMesh(circle);
     }
 
-    public override void SetColorIndex(int index)
+    private void CircleMesh(Circle circle)
     {
-        base.SetColorIndex(index);
-        StyleManager.SetLineProperty(meshRenderer, colorIndex);
-    }
-
-    public override void SetStyleIndex(int index)
-    {
-        base.SetStyleIndex(index);
-        meshRenderer.sharedMaterial = ConfigManager.EdgeStyle[styleIndex].Material;
-    }
-
-    private void CircleMesh(Mesh mesh, Circle circle)
-    {
-        float Radius = circle.radius;
+        float Radius = circle.radius + 0.02f;
         int segments = Segments;
         Vector3 vertice = circle.Vertice;
 
@@ -96,37 +46,21 @@ public class CircleBehaviour : ElementBehaviour
             vertices[i] = new Vector3(Radius * cosA, y, Radius * sinA);
             angleCur -= angledelta;
         }
-        mesh.vertices = vertices;
-        mesh.RecalculateNormals();
 
-        int[] triangles = new int[vertices.Length * 6];
-        
-    }
-
-    private Mesh LineMesh()
-    {
-        Mesh mesh = new Mesh();
-        Vector3[] vertices = new Vector3[4];
-        vertices[0] = new Vector3(-0.5f, 0, 0) + LINE_RADIUS * new Vector3(0, -1, 0);
-        vertices[1] = new Vector3(-0.5f, 0, 0) + LINE_RADIUS * new Vector3(0, 1, 0);
-        vertices[2] = new Vector3(0.5f, 0, 0) + LINE_RADIUS * new Vector3(0, 1, 0);
-        vertices[3] = new Vector3(0.5f, 0, 0) + LINE_RADIUS * new Vector3(0, -1, 0);
-
-        Vector2[] uv = new Vector2[4];
-        uv[0] = new Vector2(0, 0);
-        uv[1] = new Vector2(0, 1);
-        uv[2] = new Vector2(1, 1);
-        uv[3] = new Vector2(1, 0);
-
-        int[] triangles = new int[] { 0, 1, 2, 0, 2, 3 };
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uv;
-
-        mesh.RecalculateNormals();
-
-        return mesh;
+        VertexSpace v1;
+        VertexSpace v2;
+        GeoEdge edge;
+        for (int i = 1; i < vertices_count - 1; i++)
+        {
+            v1 = new VertexSpace(vertices[i]);
+            v2 = new VertexSpace(vertices[i + 1]);
+            edge = new GeoEdge(v1, v2);
+            geometryBehaviour.AddElement(edge);
+        }
+        v1 = new VertexSpace(vertices[1]);
+        v2 = new VertexSpace(vertices[vertices_count - 1]);
+        edge = new GeoEdge(v1, v2);
+        geometryBehaviour.AddElement(edge);
     }
 
 }

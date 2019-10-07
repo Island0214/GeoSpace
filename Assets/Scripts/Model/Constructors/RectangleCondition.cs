@@ -23,11 +23,11 @@ public class RectangleConditionTool : ResolvedBodyConditionTool
     {
         FormInput formInput = new FormInput(7);
 
-        formInput.inputs[0] = new FormText("长");
+        formInput.inputs[0] = new FormText("垂直边长");
         formInput.inputs[1] = new FormText("=");
         formInput.inputs[2] = new FormNum();
         formInput.inputs[3] = new FormText("，");
-        formInput.inputs[4] = new FormText("宽");
+        formInput.inputs[4] = new FormText("水平边长");
         formInput.inputs[5] = new FormText("=");
         formInput.inputs[6] = new FormNum();
         return formInput;

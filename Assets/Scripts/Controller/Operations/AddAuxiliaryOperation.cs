@@ -41,69 +41,82 @@ public class AddAuxiliaryOperation : Operation
             geoController.EndOperation();
             return;
         }
+        FormInput formInput = auxiliaryTool.FormInput();
 
-        inputPanel.SetFormForInput(auxiliaryTool.FormInput());
-
-        inputPanel.OnValidate = (form) =>
+        if (formInput != null)
         {
-            return auxiliaryTool.ValidateInput(geometry, form);
-        };
+            inputPanel.SetFormForInput(formInput);
 
-        inputPanel.OnClickSubmit = (form) =>
-        {
-            Auxiliary auxiliary = auxiliaryTool.GenerateAuxiliary(geometry, form);
-            auxiliary.InitWithGeometry(geometry);
-            
-            VertexUnit[] units = auxiliary.units;
-            GeoElement[] elements = auxiliary.elements;
-
-            bool result = geometry.Assistor.AddAuxiliary(auxiliary);
-
-            if (result)
+            inputPanel.OnValidate = (form) =>
             {
-                foreach (VertexUnit unit in units)
-                    geometry.AddVertexUnit(unit);
+                return auxiliaryTool.ValidateInput(geometry, form);
+            };
 
-                foreach (GeoElement element in elements)
-                    geometry.AddElement(element);
+            inputPanel.OnClickSubmit = (form) =>
+            {
+                addAuxiliary(geometry, form);
+            };
 
-                AddState(auxiliary);
+            inputPanel.OnClickCancel = (form) =>
+            {
+                geoController.EndOperation();
+            };
+        }
+        else
+        {
+            addAuxiliary(geometry, null);
+        }
 
-                geometryBehaviour.UpdateElements();
-                foreach (GeoElement element in elements)
-                    geometryBehaviour.AddElement(element);
+    }
 
-                geometryBehaviour.UpdateSignsPosition();
-                foreach (VertexUnit unit in units)
-                    geometryBehaviour.AddSign(unit.id);
+    public void addAuxiliary(Geometry geometry, FormInput form)
+    {
+        Auxiliary auxiliary = auxiliaryTool.GenerateAuxiliary(geometry, form);
+        auxiliary.InitWithGeometry(geometry);
+
+        VertexUnit[] units = auxiliary.units;
+        GeoElement[] elements = auxiliary.elements;
+
+        bool result = geometry.Assistor.AddAuxiliary(auxiliary);
+
+        if (result)
+        {
+            foreach (VertexUnit unit in units)
+                geometry.AddVertexUnit(unit);
+
+            foreach (GeoElement element in elements)
+                geometry.AddElement(element);
+
+            AddState(auxiliary);
+
+            geometryBehaviour.UpdateElements();
+            foreach (GeoElement element in elements)
+                geometryBehaviour.AddElement(element);
+
+            geometryBehaviour.UpdateSignsPosition();
+            foreach (VertexUnit unit in units)
+                geometryBehaviour.AddSign(unit.id);
 
 
-                Gizmo[] gizmos = auxiliary.gizmos;
-                if (gizmos != null)
+            Gizmo[] gizmos = auxiliary.gizmos;
+            if (gizmos != null)
+            {
+                foreach (Gizmo gizmo in gizmos)
                 {
-                    foreach (Gizmo gizmo in gizmos)
-                    {
-                        geometry.AddGizmo(gizmo);
-                        geometryBehaviour.AddGizmo(gizmo);
-                    }
+                    geometry.AddGizmo(gizmo);
+                    geometryBehaviour.AddGizmo(gizmo);
                 }
-
-                geometryBehaviour.UpdateGeometryShade();
-
-            }
-            else
-            {
-                // TODO
             }
 
-            geoController.EndOperation();
-        };
+            geometryBehaviour.UpdateGeometryShade();
 
-        inputPanel.OnClickCancel = (form) =>
+        }
+        else
         {
-            geoController.EndOperation();
-        };
+            // TODO
+        }
 
+        geoController.EndOperation();
     }
 
     public override void End()

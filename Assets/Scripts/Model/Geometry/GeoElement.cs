@@ -53,6 +53,10 @@ public class GeoVertex : GeoElement
         return new Vertex(vertex.Position());
     }
 
+    public VertexUnit VertexUnit() {
+        return vertex;
+    }
+
     public override string ToString()
     {
         return string.Format("vertex {0}", vertex.id);

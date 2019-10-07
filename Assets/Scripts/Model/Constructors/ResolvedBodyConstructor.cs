@@ -16,17 +16,20 @@ public class ResolvedBodyConstructor : Constructor
 {
     private RectangleCondition rectangleCondition;
 	private TriangleCondition triangleCondition;
-
     new ResolvedBody geometry;
+    private bool geometrySetted;
+
 
     public ResolvedBodyConstructor(Geometry geometry) : base(geometry)
     {
         if (geometry is ResolvedBody)
             this.geometry = (ResolvedBody)geometry;
+
+        geometrySetted = false;
     }
 
     public override bool AddCondition(Condition condition) {
-        if (!(condition is ResolvedBodyCondition))
+        if (!(condition is ResolvedBodyCondition) || geometrySetted)
             return false;
 
         if (CheckAddCondition((ResolvedBodyCondition)condition))
@@ -96,12 +99,14 @@ public class ResolvedBodyConstructor : Constructor
             geometry.SetRectangle(position);
             geometryBehaviour.InitGeometry(geometry);
             geometry.isSpinned = true;
+            geometrySetted = true;
         }
 		if (triangleCondition != null) {
             Vector2 position = new Vector2(triangleCondition.height, triangleCondition.width);
             geometry.SetTriangle(position);
             geometryBehaviour.InitGeometry(geometry);
             geometry.isSpinned = true;
+            geometrySetted = true;
         }
     }
 
