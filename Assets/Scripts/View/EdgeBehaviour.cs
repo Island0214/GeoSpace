@@ -8,7 +8,7 @@ public class EdgeBehaviour : ElementBehaviour, IPointerEnterHandler, IPointerExi
     const float LINE_RADIUS = 0.02f;
     const float LINE_LENGTH = 1.0f;
 
-    const float LINE_COLLIDER_SIZE = 0.1f;
+    const float LINE_COLLIDER_SIZE = 0.2f;
     const float LINE_COLLIDER_OFFSET = 0.2f;
 
     private GeoCamera geoCamera;

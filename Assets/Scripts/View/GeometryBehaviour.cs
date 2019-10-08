@@ -240,7 +240,7 @@ public class GeometryBehaviour : MonoBehaviour
         planeObject.transform.SetParent(faceWrapper.transform);
 
         CircularBehaviour circularBehaviour = planeObject.AddComponent<CircularBehaviour>();
-        circularBehaviour.Init(geoCircular);
+        circularBehaviour.Init(geoCircular, geoCamera);
 
         circularBehaviour.SetData(geometry.Circular(geoCircular));
 
@@ -312,6 +312,10 @@ public class GeometryBehaviour : MonoBehaviour
         CircularBehaviour circularBehaviour = circularMap[geoCircular];
         Destroy(circularBehaviour.gameObject);
         circularMap.Remove(geoCircular);
+    }
+
+    public int EdgeSize() {
+        return edgeMap.Count;
     }
     #endregion
 

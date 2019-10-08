@@ -6,30 +6,28 @@ using UnityEngine.EventSystems;
 public class CircularBehaviour : ElementBehaviour
 {
 
-    const float PLANE_COLLIDER_SIZE = 0.01f;
-    const float PLANE_COLLIDER_OFFSET = 0.1f;
-    const float LINE_RADIUS = 0.01f;
-    const float LINE_LENGTH = 1.0f;
-    const float LINE_COLLIDER_SIZE = 0.1f;
-    const float LINE_COLLIDER_OFFSET = 0.2f;
+    const float PLANE_COLLIDER_SIZE = 0.005f;
+    const float PLANE_COLLIDER_OFFSET = 0.05f;
     private GeoController geoController;
+    private GeoCamera geoCamera;
     private Mesh mesh; // Because of vertex color use for normal
     private Mesh colliderMesh;
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
     private GeoCircular geoCircular;
     private Circular circular;
-    public int Segments = 60;   // Segment count
+    public int Segments = 32;   // Segment count
     public Vector3[] vertexs;
     private int[] triangles;
-    private GeoCamera geoCamera;
     private GeometryBehaviour geometryBehaviour;
+    private List<GeoEdge> geoEdges;
 
-    public void Init(GeoCircular geoCircular)
+    public void Init(GeoCircular geoCircular, GeoCamera camera)
     {
         geoController = GameObject.Find("/GeoController").GetComponent<GeoController>();
-        geoCamera = GameObject.Find("/3D/GeoCamera").GetComponent<GeoCamera>();
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
+        geoCamera = camera;
+        geoCamera.OnRotate += OnCameraRotate;
 
         this.geoCircular = geoCircular;
 
@@ -66,12 +64,13 @@ public class CircularBehaviour : ElementBehaviour
         if (circular.type == CircularType.Cylinder)
         {
             CylinderMesh(mesh, circular);
-        } else if (circular.type == CircularType.Cone)
+        }
+        else if (circular.type == CircularType.Cone)
         {
             Vector3[] vertices = circular.Vertices;
             ConeMesh(mesh, circular);
         }
-
+        OnCameraRotate();
         meshCollider.enabled = true;
         meshCollider.convex = true;
     }
@@ -90,13 +89,14 @@ public class CircularBehaviour : ElementBehaviour
 
     private void CylinderMesh(Mesh mesh, Circular circular)
     {
-        float Radius = circular.radius;
+        float Radius = circular.radius - 0.02f;
         int segments = Segments;
         Vector3 vertice1 = circular.Vertices[0];
         Vector3 vertice2 = circular.Vertices[1];
 
         int vertices_count = Segments + 1;
         Vector3[] vertices = new Vector3[vertices_count * 2];
+        vertexs = new Vector3[Segments * 2]; ;
         vertices[0] = vertice1;
         vertices[vertices_count] = vertice2;
         float angledegree = 360.0f;
@@ -113,7 +113,8 @@ public class CircularBehaviour : ElementBehaviour
 
             vertices[i] = new Vector3(Radius * cosA, y1, Radius * sinA);
             vertices[vertices_count + i] = new Vector3(Radius * cosA, y2, Radius * sinA);
-            // geometryBehaviour.AddElement(new GeoEdge(new VertexSpace(vertices[i]), new VertexSpace(vertices[vertices_count + i])));
+            vertexs[i - 1] = new Vector3(circular.radius * cosA, y1, circular.radius * sinA);
+            vertexs[Segments + i - 1] = new Vector3(circular.radius * cosA, y2, circular.radius * sinA);
             angleCur -= angledelta;
         }
         mesh.vertices = vertices;
@@ -148,7 +149,7 @@ public class CircularBehaviour : ElementBehaviour
             else
             {
                 vertex_indexs[0] = 1;
-                vertex_indexs[1] = vertices_count + 1 ;
+                vertex_indexs[1] = vertices_count + 1;
                 vertex_indexs[2] = vertices_count + i;
                 vertex_indexs[3] = i;
             }
@@ -168,7 +169,8 @@ public class CircularBehaviour : ElementBehaviour
         mesh.uv = uvs;
     }
 
-    private void ConeMesh(Mesh mesh, Circular circular) {
+    private void ConeMesh(Mesh mesh, Circular circular)
+    {
         float Radius = circular.radius;
         int segments = Segments;
         Vector3 vertice1 = circular.Vertices[0];
@@ -239,7 +241,7 @@ public class CircularBehaviour : ElementBehaviour
 
     private void GetRectangleTriangles(int[] vertex_indexs, int triangle_start)
     {
-       for (int i = 1; i < vertex_indexs.Length - 1; i++)
+        for (int i = 1; i < vertex_indexs.Length - 1; i++)
         {
             triangles[triangle_start + i * 3 - 3] = vertex_indexs[0];
             triangles[triangle_start + i * 3 - 2] = vertex_indexs[i];
@@ -290,4 +292,50 @@ public class CircularBehaviour : ElementBehaviour
         colliderMesh.RecalculateNormals();
     }
 
+    private void OnCameraRotate()
+    {
+        if (geoEdges == null)
+        {
+            geoEdges = new List<GeoEdge>();
+        }
+        else
+        {
+            if (geometryBehaviour.EdgeSize() == 0)
+            {
+                geoEdges.Clear();
+            }
+            foreach (GeoEdge edge in geoEdges)
+            {
+                geometryBehaviour.RemoveElement(edge);
+            }
+            geoEdges.Clear();
+        }
+        Vector3 cameraView = geoCamera.transform.position.normalized;
+        // calculate vertical vector
+        float x = Mathf.Sqrt(Mathf.Pow(circular.radius, 2) / (1 + Mathf.Pow(cameraView.x / cameraView.z, 2)));
+        float z = -cameraView.x * x / cameraView.z;
+
+        if (circular.type == CircularType.Cylinder)
+        {
+            Vector3 vertice1 = new Vector3(x, circular.Vertices[0].y, z);
+            Vector3 vertice2 = new Vector3(x, circular.Vertices[1].y, z);
+            addBorderLine(vertice1, vertice2);
+            Vector3 vertice3 = new Vector3(-x, circular.Vertices[0].y, -z);
+            Vector3 vertice4 = new Vector3(-x, circular.Vertices[1].y, -z);
+            addBorderLine(vertice3, vertice4);
+        } else if (circular.type == CircularType.Cone)
+        {
+            Vector3 vertice1 = new Vector3(x, circular.Vertices[2].y, z);
+            addBorderLine(circular.Vertices[0], vertice1);
+            Vector3 vertice2 = new Vector3(-x, circular.Vertices[2].y, -z);
+            addBorderLine(circular.Vertices[0], vertice2);
+        }
+    }
+
+    private void addBorderLine(Vector3 vertice1, Vector3 vertice2)
+    {
+            GeoEdge geoEdge = new GeoEdge(new VertexSpace(vertice1), new VertexSpace(vertice2));
+            geoEdges.Add(geoEdge);
+            geometryBehaviour.AddElement(geoEdge);
+    }
 }

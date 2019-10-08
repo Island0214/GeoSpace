@@ -25,7 +25,7 @@ public class CircleBehaviour : ElementBehaviour
 
     private void CircleMesh(Circle circle)
     {
-        float Radius = circle.radius + 0.02f;
+        float Radius = circle.radius;
         int segments = Segments;
         Vector3 vertice = circle.Vertice;
 
