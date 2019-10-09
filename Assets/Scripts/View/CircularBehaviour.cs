@@ -64,11 +64,12 @@ public class CircularBehaviour : ElementBehaviour
         if (circular.type == CircularType.Cylinder)
         {
             CylinderMesh(mesh, circular);
+            transformCamera();
         }
         else if (circular.type == CircularType.Cone)
         {
-            Vector3[] vertices = circular.Vertices;
             ConeMesh(mesh, circular);
+            transformCamera();
         }
         OnCameraRotate();
         meshCollider.enabled = true;
@@ -294,19 +295,20 @@ public class CircularBehaviour : ElementBehaviour
 
     private void OnCameraRotate()
     {
+        if (geometryBehaviour.GetGeometryType() != GeometryType.ResolvedBody)
+            return;
         if (geoEdges == null)
         {
             geoEdges = new List<GeoEdge>();
         }
         else
         {
-            if (geometryBehaviour.EdgeSize() == 0)
-            {
-                geoEdges.Clear();
-            }
             foreach (GeoEdge edge in geoEdges)
             {
-                geometryBehaviour.RemoveElement(edge);
+                if (geometryBehaviour.ContainsEdge(edge))
+                {
+                    geometryBehaviour.RemoveElement(edge);
+                }
             }
             geoEdges.Clear();
         }
@@ -323,7 +325,8 @@ public class CircularBehaviour : ElementBehaviour
             Vector3 vertice3 = new Vector3(-x, circular.Vertices[0].y, -z);
             Vector3 vertice4 = new Vector3(-x, circular.Vertices[1].y, -z);
             addBorderLine(vertice3, vertice4);
-        } else if (circular.type == CircularType.Cone)
+        }
+        else if (circular.type == CircularType.Cone)
         {
             Vector3 vertice1 = new Vector3(x, circular.Vertices[2].y, z);
             addBorderLine(circular.Vertices[0], vertice1);
@@ -332,10 +335,28 @@ public class CircularBehaviour : ElementBehaviour
         }
     }
 
+    public void OnDestroy()
+    {
+        foreach (GeoEdge edge in geoEdges)
+        {
+            if (geometryBehaviour.ContainsEdge(edge))
+            {
+                geometryBehaviour.RemoveElement(edge);
+            }
+        }
+        geoEdges.Clear();
+        geoCamera.OnRotate -= OnCameraRotate;
+    }
+
     private void addBorderLine(Vector3 vertice1, Vector3 vertice2)
     {
-            GeoEdge geoEdge = new GeoEdge(new VertexSpace(vertice1), new VertexSpace(vertice2));
-            geoEdges.Add(geoEdge);
-            geometryBehaviour.AddElement(geoEdge);
+        GeoEdge geoEdge = new GeoEdge(new VertexSpace(vertice1), new VertexSpace(vertice2));
+        geoEdges.Add(geoEdge);
+        geometryBehaviour.AddElement(geoEdge);
+    }
+
+    private void transformCamera()
+    {
+        geoCamera.TriggerCenterRAnimation();
     }
 }

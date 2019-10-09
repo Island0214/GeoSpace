@@ -69,17 +69,30 @@ public class GeometryBehaviour : MonoBehaviour
 
     public void InitGeometry(Geometry geo)
     {
+        if (!(geo is ResolvedBody))
+            geoCamera.TriggerCenterRAnimation();
         if (geometry != null)
             Clear();
 
         geometry = geo;
 
+        AddElements();
+    }
+
+    public GeometryType GetGeometryType() {
+        if (geometry == null)
+            return GeometryType.Common;
+        return geometry.Type;
+    }
+
+    public void AddElements()
+    {
         GeoVertex[] vertices = geometry.GeoVertices();
         GeoEdge[] edges = geometry.GeoEdges();
         GeoFace[] faces = geometry.GeoFaces();
         GeoCircle[] circles = geometry.GeoCircles();
         GeoCircular[] circulars = geometry.GeoCirculars();
-
+        
         // New Geometry
         // mesh = GeometryToMesh();
 
@@ -120,8 +133,6 @@ public class GeometryBehaviour : MonoBehaviour
         // New Signs
         for (int i = 0; i < geometry.UnitCount(); i++)
             AddSign(i);
-
-        // New Gizmos
     }
 
     public void Clear()
@@ -129,9 +140,24 @@ public class GeometryBehaviour : MonoBehaviour
         geometry = null;
 
         // Clear Element
+        clearElements();
+    }
+
+    public void clearElements()
+    {
         elementMap.Clear();
 
         hideElements.Clear();
+
+        // Clear Circle
+        foreach (KeyValuePair<GeoCircle, CircleBehaviour> pair in circleMap)
+            Destroy(pair.Value.gameObject);
+        circleMap.Clear();
+
+        // Clear Circular
+        foreach (KeyValuePair<GeoCircular, CircularBehaviour> pair in circularMap)
+            Destroy(pair.Value.gameObject);
+        circularMap.Clear();
 
         // Clear Vertex
         foreach (KeyValuePair<GeoVertex, VertexBehaviour> pair in vertexMap)
@@ -148,16 +174,6 @@ public class GeometryBehaviour : MonoBehaviour
             Destroy(pair.Value.gameObject);
         faceMap.Clear();
 
-        // Clear Circle
-        foreach (KeyValuePair<GeoCircle, CircleBehaviour> pair in circleMap)
-            Destroy(pair.Value.gameObject);
-        circleMap.Clear();
-
-        // Clear Circular
-        foreach (KeyValuePair<GeoCircular, CircularBehaviour> pair in circularMap)
-            Destroy(pair.Value.gameObject);
-        circularMap.Clear();
-
         // Clear Signs
         foreach (KeyValuePair<int, SignBehaviour> pair in signMap)
             Destroy(pair.Value.gameObject);
@@ -167,6 +183,12 @@ public class GeometryBehaviour : MonoBehaviour
         foreach (KeyValuePair<Gizmo, GizmoBehaviour> pair in gizmoMap)
             Destroy(pair.Value.gameObject);
         gizmoMap.Clear();
+    }
+
+    public void clearExtraElements() 
+    {
+        clearElements();
+        AddElements();
     }
 
     private GameObject InitWrapper(string name)
@@ -316,6 +338,10 @@ public class GeometryBehaviour : MonoBehaviour
 
     public int EdgeSize() {
         return edgeMap.Count;
+    }
+
+    public bool ContainsEdge(GeoEdge edge) {
+        return edgeMap.ContainsKey(edge);
     }
     #endregion
 

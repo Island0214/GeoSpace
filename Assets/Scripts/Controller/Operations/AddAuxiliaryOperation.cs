@@ -72,6 +72,10 @@ public class AddAuxiliaryOperation : Operation
     public void addAuxiliary(Geometry geometry, FormInput form)
     {
         Auxiliary auxiliary = auxiliaryTool.GenerateAuxiliary(geometry, form);
+        if (auxiliary == null) {
+            geoController.EndOperation();
+            return;
+        }
         auxiliary.InitWithGeometry(geometry);
 
         VertexUnit[] units = auxiliary.units;

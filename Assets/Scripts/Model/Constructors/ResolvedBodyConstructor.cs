@@ -98,14 +98,12 @@ public class ResolvedBodyConstructor : Constructor
             Vector2 position = new Vector2(rectangleCondition.height, rectangleCondition.width);
             geometry.SetRectangle(position);
             geometryBehaviour.InitGeometry(geometry);
-            geometry.isSpinned = true;
             geometrySetted = true;
         }
 		if (triangleCondition != null) {
             Vector2 position = new Vector2(triangleCondition.height, triangleCondition.width);
             geometry.SetTriangle(position);
             geometryBehaviour.InitGeometry(geometry);
-            geometry.isSpinned = true;
             geometrySetted = true;
         }
     }

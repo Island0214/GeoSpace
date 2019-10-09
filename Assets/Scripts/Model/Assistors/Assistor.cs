@@ -14,7 +14,6 @@ public class Assistor
     public Assistor(Geometry geometry)
     {
         this.geometry = geometry;
-
         auxiliaries = new List<Auxiliary>();
         vertexObservers = new Dictionary<VertexUnit, List<Auxiliary>>();
         vertexAuxiliaryMap = new Dictionary<VertexUnit, Auxiliary>();
@@ -23,6 +22,15 @@ public class Assistor
 
     public bool AddAuxiliary(Auxiliary auxiliary)
     {
+        foreach (Auxiliary curAuxiliary in auxiliaries) 
+        {
+            if (curAuxiliary is SpreadAuxiliary && auxiliary is SpreadAuxiliary) {
+                return false;
+            }
+            if (curAuxiliary is SpinAuxiliary && auxiliary is SpinAuxiliary) {
+                return false;
+            }
+        }
         auxiliaries.Add(auxiliary);
         AddObservers(auxiliary);
 
@@ -33,6 +41,12 @@ public class Assistor
     public bool RemoveAuxiliary(Auxiliary auxiliary)
     {
         RemoveObservers(auxiliary);
+
+        if(auxiliary is SpreadAuxiliary)
+        {
+            SpreadAuxiliary spreadAuxiliary = (SpreadAuxiliary)auxiliary;
+            spreadAuxiliary.RemovePlaneGraph();
+        }
 
         return auxiliaries.Remove(auxiliary);
     }
