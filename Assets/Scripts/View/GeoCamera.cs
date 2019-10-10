@@ -306,6 +306,36 @@ public class GeoCamera : MonoBehaviour
         OnRotate();
     }
 
+    public void SetCameraAttributes(float rotateX, float rotateY, float rotateZ) {
+        Vector3 cameraPosition = _camera.transform.position;
+        Vector3 cameraRotation = _camera.transform.eulerAngles;
+
+        cameraRotation.x = rotateX;
+        cameraRotation.y = rotateY;
+        cameraRotation.z = rotateZ;
+
+        float rotateYRad = rotateY * Mathf.Deg2Rad;
+        float rotateXRad = rotateX * Mathf.Deg2Rad;
+
+        float deltaDistance = defaultDistance * (1 - Mathf.Cos(rotateXRad));  //rotate vertical
+
+        cameraPosition.x = (deltaDistance - defaultDistance) * Mathf.Sin(rotateYRad);
+        cameraPosition.z = (deltaDistance - defaultDistance) * Mathf.Cos(rotateYRad);
+        cameraPosition.y = defaultDistance * Mathf.Sin(rotateXRad) + positionY;
+
+        _camera.transform.position = cameraPosition;
+        _camera.transform.eulerAngles = cameraRotation;
+
+        orthographic = Mathf.Clamp(orthographic, orthographicMin, orthographicMax);
+        _camera.orthographicSize = orthographic;
+
+        RefreshBounds();
+
+        OnRotate();
+
+
+    }
+
     public bool IsInViewport()
     {
         Vector2 point = _camera.ScreenToViewportPoint(Input.mousePosition);

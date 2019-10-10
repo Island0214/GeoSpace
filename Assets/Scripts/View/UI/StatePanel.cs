@@ -26,7 +26,13 @@ public class StatePanel : MonoBehaviour
             if (state.OnClickDelete != null)
                 state.OnClickDelete();
         };
-
+        
+        stateCell.DoubleClick = () =>
+        {
+            if(state.DoubleClick != null)
+                state.DoubleClick();
+        };
+        
         RefreshStateCell(state);
 
         SetCellTintColor(stateCell, color);

@@ -8,6 +8,8 @@ public class AddAuxiliaryOperation : Operation
     GeoController geoController;
     StateController stateController;
 
+    GeoCamera geoCamera;
+
     Geometry geometry;
     GeometryBehaviour geometryBehaviour;
     InputPanel inputPanel;
@@ -16,12 +18,15 @@ public class AddAuxiliaryOperation : Operation
     AuxiliaryTool auxiliaryTool;
 
 
-    public AddAuxiliaryOperation(GeoController geoController, StateController stateController, Geometry geometry, GeometryBehaviour geometryBehaviour, GeoUI geoUI, Tool tool)
+    public AddAuxiliaryOperation(GeoController geoController,GeoCamera geoCamera, StateController stateController, Geometry geometry, GeometryBehaviour geometryBehaviour, GeoUI geoUI, Tool tool)
     {
         CanRotateCamera = true;
         CanActiveElement = true;
 
         this.geoController = geoController;
+
+        this.geoCamera = geoCamera;
+
         this.stateController = stateController;
         this.geometry = geometry;
         this.geometryBehaviour = geometryBehaviour;
@@ -87,7 +92,7 @@ public class AddAuxiliaryOperation : Operation
             foreach (GeoElement element in elements)
                 geometry.AddElement(element);
 
-            AddState(auxiliary);
+            AddState(auxiliary,form);
 
             geometryBehaviour.UpdateElements();
             foreach (GeoElement element in elements)
@@ -137,16 +142,84 @@ public class AddAuxiliaryOperation : Operation
             inputPanel.InputFields(form.fields);
     }
 
-    private void AddState(Auxiliary auxiliary)
+    private void AddState(Auxiliary auxiliary,FormInput form)
     {
         Type type = Type.GetType(tool.Name + "AuxiliaryState");
         if (type != null)
         {
             AuxiliaryState auxiliaryState = (AuxiliaryState)Activator.CreateInstance(type, tool, auxiliary, geometry);
             auxiliaryState.OnClickDelete = () => geoController.RemoveAuxiliaryOperation(auxiliary);
+            //state单击
+            //float rotateX = angle.x;
+            //float rotateY = angle.y;
+            //float rotateZ = angle.z;
+            Debug.Log(form.inputs[1]);
+            String faceName = form.inputs[1].ToString();
+            Debug.Log(faceName);
+            Debug.Log(auxiliary.elements[0]);//  face 7 5 0
+            Debug.Log(auxiliary.elements[0].name);//  Face 
+            Debug.Log(auxiliary.dependencies.ToArray()[0].Position());
 
+            Vector3 rotateAngle = new Vector3(0,0,0);
+            if (auxiliary.elements[0].name == "Face") {
+                rotateAngle = ChangeCameraDirection(auxiliary);
+                Debug.Log("change");
+            }
+
+            float rotateX = rotateAngle.x;
+            float rotateY = rotateAngle.y;
+            float rotateZ = rotateAngle.z;
+            auxiliaryState.DoubleClick = () => geoCamera.SetCameraAttributes(rotateY,-90f-rotateX,0f);
+            //auxiliaryState.DoubleClick = () => geoCamera.SetCameraAttributes(45f, -90f-10f, 0f);//y ,x,z  向上45度，向右10度
             stateController.AddAuxiliaryState(auxiliaryState);
         }
+    }
+
+    public Vector3 ChangeCameraDirection(Auxiliary auxiliary)
+    {
+        VertexUnit[] units = auxiliary.dependencies.ToArray();
+        //平面三个不共线点
+        Vector3 A = new Vector3();
+        Vector3 B = new Vector3();
+        Vector3 C = new Vector3();
+        //if (auxiliary is PlaneAuxiliary)
+        //{
+        GeoElement[] elements = auxiliary.elements;
+        Vector3[] vertexs = new Vector3[units.Length];
+        for (int i = 0; i < units.Length; i++)
+        {
+            vertexs[i] = units[i].Position();
+        }
+        for (int i = 0; i < units.Length - 2; i++)
+        {
+            A = vertexs[i];
+            B = vertexs[i + 1];
+            C = vertexs[i + 2];
+            if (((B.x - A.x) / (C.x - A.x) == (B.y - A.y) / (C.y - A.y)) && ((B.x - A.x) / (C.x - A.x) == (B.z - A.z) / (C.z - A.z)))
+            {
+                continue;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        //求平面法线
+        Vector3 normalVector;  //平面法向量
+        Vector3 AB = new Vector3(B.x - A.x, B.y - A.y, B.z - A.z);
+        Vector3 AC = new Vector3(C.x - A.x, C.y - A.y, C.z - A.z);
+        normalVector.x = AB.y * AC.z - AC.y * AB.z;
+        normalVector.y = AB.z * AC.x - AB.x * AC.z;
+        normalVector.z = AB.x * AC.y - AB.y * AC.x;
+
+        float rotateX = 90f - Vector3.Angle(new Vector3(1, 0, 0), new Vector3(normalVector.x,0f,normalVector.z));
+        float rotateY = 90f - Vector3.Angle(new Vector3(0, 1, 0), normalVector);
+        //float rotateZ = 90f - Vector3.Angle(new Vector3(0, 0, 1), normalVector);
+        float rotateZ = 0f;
+
+        Debug.Log(rotateX);
+        return new Vector3(rotateX, rotateY, rotateZ);
     }
 
 }

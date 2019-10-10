@@ -14,10 +14,12 @@ public enum StateCellState
 public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public Action OnClickDelete;
+    public Action DoubleClick;
     // StateCellState state;
     RectTransform rectTransform;
     GameObject btnToggleObject;
     GameObject btnDeleteObject;
+    //DoubleClickButton btnToggle;
     Button btnToggle;
     Button btnDelete;
     Text text;
@@ -29,14 +31,16 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         btnToggleObject = transform.Find("ButtonToggle").gameObject;
         btnDeleteObject = transform.Find("ButtonDelete").gameObject;
 
+        //btnToggle = btnToggleObject.GetComponent<DoubleClickButton>();
         btnToggle = btnToggleObject.GetComponent<Button>();
         btnDelete = btnDeleteObject.GetComponent<Button>();
-
-        btnToggle.onClick.AddListener(ToggleButtonClicked);
+    
+        btnToggle.onClick.AddListener(ToggleButtonDoubleClicked);
         btnDelete.onClick.AddListener(DeleteButtonClicked);
 
         text = transform.Find("Text").GetComponent<Text>();
     }
+
 
     public void SetText(string str)
     {
@@ -87,19 +91,21 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         btnDeleteObject.SetActive(false);
     }
-
-    void ToggleButtonClicked()
-    {
-        SetState(StateCellState.Close);
-    }
-
     void DeleteButtonClicked()
     {
         if (OnClickDelete != null)
             OnClickDelete();
     }
 
-    void SetState(StateCellState s)
+    void ToggleButtonDoubleClicked()
+    {
+        //SetState(StateCellState.Close);
+        if (DoubleClick != null)
+            DoubleClick();
+        
+    }
+
+        void SetState(StateCellState s)
     {
         // state = s;
         // btnWrap.SetActive(state == ButtonGroupState.Open);
@@ -112,3 +118,4 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     }
 
 }
+

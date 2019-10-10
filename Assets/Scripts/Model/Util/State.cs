@@ -8,6 +8,7 @@ public abstract class State
     public Tool tool;
 
     public Action OnClickDelete;
+    public Action DoubleClick;
 
     public State(Tool tool)
     {

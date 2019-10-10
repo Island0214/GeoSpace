@@ -618,7 +618,7 @@ public class GeoController : MonoBehaviour
             return;
         SetState(GeoState.Auxiliary);
 
-        currentOperation = new AddAuxiliaryOperation(this, stateController, geometry, geometryBehaviour, geoUI, tool);
+        currentOperation = new AddAuxiliaryOperation(this,geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
         currentOperation.Start();
     }
 
