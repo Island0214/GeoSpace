@@ -49,6 +49,12 @@ public class SpinAuxiliaryTool : AuxiliaryTool
         if (!valid)
             return null;
 
+        ResolvedBody resolvedBody;
+        if (geometry is ResolvedBody)
+            resolvedBody = (ResolvedBody)geometry;
+        else
+            return null;
+
         SpinAuxiliary auxiliary = new SpinAuxiliary();
         auxiliary.InitWithGeometry(geometry);
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
@@ -60,9 +66,10 @@ public class SpinAuxiliaryTool : AuxiliaryTool
             VertexUnit vertex2 = vertexUnits[1];
             float radius = vertexUnits[2].Position().z;
             GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2 }, radius, CircularType.Cylinder);
-            geometryBehaviour.AddElement(circular);
-            geometryBehaviour.AddElement(new GeoCircle(vertex1, radius));
-            geometryBehaviour.AddElement(new GeoCircle(vertex2, radius));
+            geometry.AddGeoCircular(circular);
+            geometry.AddGeoCircle(new GeoCircle(vertex1, radius));
+            geometry.AddGeoCircle(new GeoCircle(vertex2, radius));
+            resolvedBody.isSpinned = true;
         }
         // Cone
         else if (vertexUnits.Length == 3)
@@ -72,9 +79,11 @@ public class SpinAuxiliaryTool : AuxiliaryTool
             VertexUnit vertex3 = vertexUnits[2];
             float radius = vertexUnits[2].Position().z;
             GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2, vertex3 }, radius, CircularType.Cone);
-            geometryBehaviour.AddElement(circular);
-            geometryBehaviour.AddElement(new GeoCircle(vertex2, radius));
+            geometry.AddGeoCircular(circular);
+            geometry.AddGeoCircle(new GeoCircle(vertex2, radius));
+            resolvedBody.isSpinned = true;
         }
+        geometryBehaviour.InitGeometry(geometry);
         return auxiliary;
     }
 }

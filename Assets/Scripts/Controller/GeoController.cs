@@ -321,13 +321,13 @@ public class GeoController : MonoBehaviour
     public void HandleClickUpButton()
     {
         geoUI.cameraPanel.SetCenterButtonActive(true);
-        geoCamera.TriggerMoveAnimation(0.5f);
+        geoCamera.TriggerMoveYAnimation(0.5f);
     }
 
     public void HandleClickDownButton()
     {
         geoUI.cameraPanel.SetCenterButtonActive(true);
-        geoCamera.TriggerMoveAnimation(-0.5f);
+        geoCamera.TriggerMoveYAnimation(-0.5f);
     }
 
     public void HandleClickTool(ToolGroupType type, Tool tool)

@@ -173,26 +173,31 @@ public class FaceBehaviour : ElementBehaviour, IPointerEnterHandler, IPointerExi
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        geoController.ClickFace(geoFace);
+        if (face.Canselected)
+            geoController.ClickFace(geoFace);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        OnHover(true);
+        if (face.Canselected)
+            OnHover(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        OnHover(false);
+        if (face.Canselected)
+            OnHover(false);
     }
 
     private void OnClick()
     {
-        geoController.ClickFace(geoFace);
+        if (face.Canselected)
+            geoController.ClickFace(geoFace);
     }
     private void OnHover(bool hover)
     {
-        geoController.HoverFace(geoFace, hover);
+        if (face.Canselected)
+            geoController.HoverFace(geoFace, hover);
     }
 
     public void SetHighlight(bool highlight)

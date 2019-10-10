@@ -102,6 +102,10 @@ public class ResolvedBodyGeometryTool : GeometryTool
         geo.Assistor = new Assistor(geo);
         geo.Implement = new Implement(geo);
         geo.Init();
+        // transform camera
+        NavAxisBehaviour axis = GameObject.Find("X").GetComponent<NavAxisBehaviour>();
+        PointerEventData data = new PointerEventData(EventSystem.current);
+        axis.OnPointerClick(data);
 
         return geo;
     }
@@ -122,12 +126,6 @@ public class ResolvedBodyGeometryState : GeometryState
         // add state
         FormInput formInput = new FormInput(1);
         formInput.inputs[0] = new FormText("旋转体");
-
-        // transform camera
-        GameObject obj = GameObject.Find("X");
-        NavAxisBehaviour axis = obj.GetComponent<NavAxisBehaviour>();
-        PointerEventData data = new PointerEventData(EventSystem.current);
-        axis.OnPointerClick(data);
 
         return formInput;
     }

@@ -39,8 +39,10 @@ public class GeoCamera : MonoBehaviour
             AnimateRotate();
         if (isZoomAnimated)
             AnimateZoom();
-        if (isMoveAnimated)
-            AnimateMove();
+        if (isMoveYAnimated)
+            AnimateYMove();
+        if (isMoveZAnimated)
+            AnimateZMove();
         if (isCenterRAnimated)
             AnimateCenterR();
         if (isCenterZMAnimated)
@@ -74,7 +76,8 @@ public class GeoCamera : MonoBehaviour
 
     private bool isRotateAnimated = false;
     private bool isZoomAnimated = false;
-    private bool isMoveAnimated = false;
+    private bool isMoveYAnimated = false;
+    private bool isMoveZAnimated = false;
     private bool isCenterRAnimated = false;
     private bool isCenterZMAnimated = false;
 
@@ -82,13 +85,14 @@ public class GeoCamera : MonoBehaviour
     private float iRotateY = 0;
     private float iRotateX = 0;
     private float iPositionY = 0;
+    private float iPositionZ = 0;
     private float iZoom = 0;
 
     private const float ANIMATE_COUNT = 5;
 
     private bool IsAnimated()
     {
-        return isRotateAnimated || isZoomAnimated || isMoveAnimated || isCenterRAnimated || isCenterZMAnimated;
+        return isRotateAnimated || isZoomAnimated || isMoveYAnimated || isMoveZAnimated || isCenterRAnimated || isCenterZMAnimated;
     }
 
     // dRotateY 目标RotateY
@@ -122,12 +126,26 @@ public class GeoCamera : MonoBehaviour
         iZoom = dZoom / count;
     }
 
-    public void TriggerMoveAnimation(float dPositionY)
+    public void TriggerMoveZAnimation(float dRotateY, float dRotateX, float dPositionZ)
     {
         if (IsAnimated())
             return;
 
-        isMoveAnimated = true;
+        isMoveZAnimated = true;
+
+        count = ANIMATE_COUNT;
+        iPositionZ = dPositionZ / count;
+        float deltaHorizontal = Math.Mod(dRotateY - rotateY + 180, 360) - 180;
+        iRotateY = deltaHorizontal / count;
+        iRotateX = (dRotateX - rotateX) / count;
+    }
+
+    public void TriggerMoveYAnimation(float dPositionY)
+    {
+        if (IsAnimated())
+            return;
+
+        isMoveYAnimated = true;
 
         count = ANIMATE_COUNT;
         iPositionY = dPositionY / count;
@@ -146,7 +164,6 @@ public class GeoCamera : MonoBehaviour
         float dRotateY = defaultRotationY - rotateY;
         dRotateY = Math.Mod(dRotateY + 180, 360) - 180;
         float dRotateX = defaultRotationX - rotateX;
-
         iRotateY = dRotateY / count;
         iRotateX = dRotateX / count;
     }
@@ -162,6 +179,7 @@ public class GeoCamera : MonoBehaviour
         count = ANIMATE_COUNT;
         iZoom = (defaultOrthographic - orthographic) / count;
         iPositionY = (defaultPositionY - positionY) / count;
+        iPositionZ = (defaultPositionZ - positionZ) / count;
     }
 
     private void AnimateRotate()
@@ -185,20 +203,34 @@ public class GeoCamera : MonoBehaviour
             isZoomAnimated = false;
     }
 
-    private void AnimateMove()
+    private void AnimateYMove()
     {
         positionY += iPositionY;
         SetCameraAttributes();
         count--;
 
         if (count == 0)
-            isMoveAnimated = false;
+            isMoveYAnimated = false;
+    }
+
+    private void AnimateZMove()
+    {
+        positionZ += iPositionZ;
+        rotateY += iRotateY;
+        rotateX += iRotateX;
+        SetCameraAttributes();
+        count--;
+
+        if (count == 0)
+            isMoveZAnimated = false;
     }
 
     private void AnimateCenterR()
     {
         rotateY += iRotateY;
         rotateX += iRotateX;
+        if (positionZ != 0)
+            positionZ -= iPositionZ;
         SetCameraAttributes();
         count--;
 
@@ -258,11 +290,13 @@ public class GeoCamera : MonoBehaviour
     private float rotateY = 0;
     private float rotateX = 0;
     private float positionY = 0;
+    private float positionZ = 0;
     private float orthographic = 0;
     private float defaultRotationY = 225f;
     private float defaultRotationX = 30f;
     private float defaultDistance = Mathf.Sqrt(2) * 6f;
     private float defaultPositionY = 0f;
+    private float defaultPositionZ = 0f;
     private float defaultOrthographic = 3f;
     private float orthographicMin = 1.0f;
     private float orthographicMax = 5.0f;
@@ -272,6 +306,7 @@ public class GeoCamera : MonoBehaviour
         rotateX = defaultRotationX;
         rotateY = defaultRotationY;
         positionY = defaultPositionY;
+        positionZ = defaultPositionZ;
         orthographic = defaultOrthographic;
 
         SetCameraAttributes();
@@ -292,7 +327,7 @@ public class GeoCamera : MonoBehaviour
         float deltaDistance = defaultDistance * (1 - Mathf.Cos(rotateXRad));  //rotate vertical
 
         cameraPosition.x = (deltaDistance - defaultDistance) * Mathf.Sin(rotateYRad);
-        cameraPosition.z = (deltaDistance - defaultDistance) * Mathf.Cos(rotateYRad);
+        cameraPosition.z = (deltaDistance - defaultDistance) * Mathf.Cos(rotateYRad) + positionZ;
         cameraPosition.y = defaultDistance * Mathf.Sin(rotateXRad) + positionY;
 
         _camera.transform.position = cameraPosition;
