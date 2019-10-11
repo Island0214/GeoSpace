@@ -40,49 +40,60 @@ public class AddMeasureOperation : Operation
             geoController.EndOperation();
             return;
         }
-
-        inputPanel.SetFormForInput(measureTool.FormInput());
-
-        inputPanel.OnValidate = (form) =>
+        FormInput formInput = measureTool.FormInput();
+        if (formInput != null)
         {
-            return measureTool.ValidateInput(geometry, form);
-        };
+            inputPanel.SetFormForInput(formInput);
 
-        inputPanel.OnClickSubmit = (form) =>
-        {
-            Measure measure = measureTool.GenerateMeasure(geometry, form);
-            measure.InitWithGeometry(geometry);
-
-
-            bool result = geometry.Implement.AddMeasure(measure);
-
-            if (result)
+            inputPanel.OnValidate = (form) =>
             {
-                AddState(measure);
+                return measureTool.ValidateInput(geometry, form);
+            };
 
-                Gizmo[] gizmos = measure.gizmos;
-                if (gizmos != null)
+            inputPanel.OnClickSubmit = (form) =>
+            {
+                AddMeasure(geometry, form);
+            };
+
+            inputPanel.OnClickCancel = (form) =>
+            {
+                geoController.EndOperation();
+            };
+        }
+        else
+        {
+            AddMeasure(geometry, null);
+        }
+    }
+
+    public void AddMeasure(Geometry geometry, FormInput form)
+    {
+        Measure measure = measureTool.GenerateMeasure(geometry, form);
+        measure.InitWithGeometry(geometry);
+
+
+        bool result = geometry.Implement.AddMeasure(measure);
+
+        if (result)
+        {
+            AddState(measure);
+
+            Gizmo[] gizmos = measure.gizmos;
+            if (gizmos != null)
+            {
+                foreach (Gizmo gizmo in gizmos)
                 {
-                    foreach (Gizmo gizmo in gizmos)
-                    {
-                        geometry.AddGizmo(gizmo);
-                        geometryBehaviour.AddGizmo(gizmo);
-                    }
+                    geometry.AddGizmo(gizmo);
+                    geometryBehaviour.AddGizmo(gizmo);
                 }
             }
-            else
-            {
-                // TODO
-            }
-
-            geoController.EndOperation();
-        };
-
-        inputPanel.OnClickCancel = (form) =>
+        }
+        else
         {
-            geoController.EndOperation();
-        };
+            // TODO
+        }
 
+        geoController.EndOperation();
     }
 
     public override void End()

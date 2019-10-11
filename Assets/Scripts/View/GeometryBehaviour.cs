@@ -141,6 +141,11 @@ public class GeometryBehaviour : MonoBehaviour
 
         // Clear Element
         clearElements();
+
+        // Clear Gizmos
+        foreach (KeyValuePair<Gizmo, GizmoBehaviour> pair in gizmoMap)
+            Destroy(pair.Value.gameObject);
+        gizmoMap.Clear();
     }
 
     public void clearElements()
@@ -178,11 +183,6 @@ public class GeometryBehaviour : MonoBehaviour
         foreach (KeyValuePair<int, SignBehaviour> pair in signMap)
             Destroy(pair.Value.gameObject);
         signMap.Clear();
-
-        // Clear Gizmos
-        foreach (KeyValuePair<Gizmo, GizmoBehaviour> pair in gizmoMap)
-            Destroy(pair.Value.gameObject);
-        gizmoMap.Clear();
     }
 
     public void clearExtraElements() 
@@ -481,6 +481,84 @@ public class GeometryBehaviour : MonoBehaviour
         gizmoMap.Add(gizmoArea, areaBehaviour);
     }
 
+    public void AddGizmoSurface(Gizmo gizmo)
+    {
+        if (!(gizmo is GizmoSurface))
+            return;
+        GizmoSurface gizmoSurface = (GizmoSurface)gizmo;
+
+        GameObject gizmoObject = new GameObject("surface");
+        gizmoObject.transform.SetParent(gizmoWrapper.transform);
+
+        SurfaceBehaviour surfaceBehaviour = gizmoObject.AddComponent<SurfaceBehaviour>();
+        surfaceBehaviour.Init(geoCamera);
+
+        FaceRefer face = gizmoSurface.face;
+        if (face.ids.Length < 3) 
+            return; 
+        Vector3 center = geometry.Center();
+        Vector3 v1 = geometry.UnitVector(face.ids[0]);
+        Vector3 v2 = geometry.UnitVector(face.ids[1]);
+        Vector3 v3 = geometry.UnitVector(face.ids[2]);
+        float radius = v3.z - v2.z;
+        int pointCount = 4;
+        Vector3[] vectors = new Vector3[pointCount];
+        float angledegree = 360.0f;
+        float angleRad = Mathf.Deg2Rad * angledegree;
+        float angleCur = angleRad;
+        float angledelta = angleRad / pointCount;
+        for (int i = 0; i < pointCount; i++) {
+            float cosA = Mathf.Cos(angleCur);
+            float sinA = Mathf.Sin(angleCur);
+            vectors[i] = new Vector3(radius * cosA, v2.y, radius * sinA);
+            angleCur -= angledelta;
+        }
+
+        string area = geometry.SurfaceArea(face.ids);
+        surfaceBehaviour.SetData(center, vectors, area);
+
+        gizmoMap.Add(gizmoSurface, surfaceBehaviour);
+    }
+
+    public void AddGizmoVolume(Gizmo gizmo)
+    {
+        if (!(gizmo is GizmoVolume))
+            return;
+        GizmoVolume gizmoVolume = (GizmoVolume)gizmo;
+
+        GameObject gizmoObject = new GameObject("volume");
+        gizmoObject.transform.SetParent(gizmoWrapper.transform);
+
+        VolumeBehaviour volumeBehaviour = gizmoObject.AddComponent<VolumeBehaviour>();
+        volumeBehaviour.Init(geoCamera);
+
+        FaceRefer face = gizmoVolume.face;
+        if (face.ids.Length < 3) 
+            return;
+        Vector3 center = geometry.Center();
+        Vector3 v1 = geometry.UnitVector(face.ids[0]);
+        Vector3 v2 = geometry.UnitVector(face.ids[1]);
+        Vector3 v3 = geometry.UnitVector(face.ids[2]);
+        float radius = v3.z - v2.z;
+        int pointCount = 4;
+        Vector3[] vectors = new Vector3[pointCount];
+        float angledegree = 360.0f;
+        float angleRad = Mathf.Deg2Rad * angledegree;
+        float angleCur = angleRad;
+        float angledelta = angleRad / pointCount;
+        for (int i = 0; i < pointCount; i++) {
+            float cosA = Mathf.Cos(angleCur);
+            float sinA = Mathf.Sin(angleCur);
+            vectors[i] = new Vector3(radius * cosA, v1.y, radius * sinA);
+            angleCur -= angledelta;
+        }
+
+        string area = geometry.Volume(face.ids);
+        volumeBehaviour.SetData(center, vectors, area);
+
+        gizmoMap.Add(gizmoVolume, volumeBehaviour);
+    }
+
     public void UpdateGizmoRight(Gizmo gizmo)
     {
         if (!(gizmo is GizmoRight))
@@ -620,6 +698,29 @@ public class GeometryBehaviour : MonoBehaviour
         gizmoMap.Remove(gizmoArea);
     }
 
+    public void RemoveGizmoSurface(Gizmo gizmo)
+    {
+        if (!(gizmo is GizmoSurface))
+            return;
+        GizmoSurface gizmoSurface = (GizmoSurface)gizmo;
+
+        SurfaceBehaviour surfaceBehaviour = (SurfaceBehaviour)gizmoMap[gizmoSurface];
+        Destroy(surfaceBehaviour.gameObject);
+
+        gizmoMap.Remove(gizmoSurface);
+    }
+
+    public void RemoveGizmoVolume(Gizmo gizmo)
+    {
+        if (!(gizmo is GizmoVolume))
+            return;
+        GizmoVolume gizmoVolume = (GizmoVolume)gizmo;
+
+        VolumeBehaviour volumeBehaviour = (VolumeBehaviour)gizmoMap[gizmoVolume];
+        Destroy(volumeBehaviour.gameObject);
+
+        gizmoMap.Remove(gizmoVolume);
+    }
     #endregion
 
     #region Operation

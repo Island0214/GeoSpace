@@ -131,3 +131,49 @@ public class GizmoArea : Gizmo
         return face.ids;
     }
 }
+
+public class GizmoSurface : Gizmo
+{
+    public FaceRefer face;
+    public GizmoSurface(FaceRefer face)
+    {
+        name = "GizmoSurface";
+
+        this.face = face;
+    }
+
+    public GizmoSurface(int[] ids)
+    {
+        name = "GizmoSurface";
+
+        face = new FaceRefer(ids);
+    }
+
+    public override int[] DependentIds()
+    {
+        return face.ids;
+    }
+}
+
+public class GizmoVolume : Gizmo
+{
+    public FaceRefer face;
+    public GizmoVolume(FaceRefer face)
+    {
+        name = "GizmoVolume";
+
+        this.face = face;
+    }
+
+    public GizmoVolume(int[] ids)
+    {
+        name = "GizmoVolume";
+
+        face = new FaceRefer(ids);
+    }
+
+    public override int[] DependentIds()
+    {
+        return face.ids;
+    }
+}

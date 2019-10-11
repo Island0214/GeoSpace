@@ -419,6 +419,58 @@ public abstract class Geometry
         return area;
     }
 
+    public String SurfaceArea(int[] ids)
+    {
+        int count = ids.Length;
+        float surface = 0;
+        if (count < 3) {
+            return surface.ToString(UIConstants.AreaFormat);
+        }
+        Vector3 v1 = UnitVector(ids[0]);
+        Vector3 v2 = UnitVector(ids[1]);
+        Vector3 v3 = UnitVector(ids[2]);
+        if (count == 3)
+        {
+            float radius = v3.z - v2.z;
+            float height = v1.y - v2.y;
+            float circleArea = radius * radius;
+            float sideRadius = Mathf.Sqrt(radius * radius + circleArea * circleArea);
+            float sideArea = radius * sideRadius;
+            surface = sideArea + circleArea;
+        }
+        else if (count == 4)
+        {
+            Vector3 v4 = UnitVector(ids[3]);
+            float radius = v4.z - v1.z;
+            float height = v1.y - v2.y;
+            float circleArea = radius * radius;
+            float sideArea = 2 * radius * height;
+            surface = sideArea + 2 * circleArea;
+        }
+        return surface.ToString(UIConstants.AreaFormat) + " π";
+    }
+
+    public String Volume(int[] ids)
+    {
+        int count = ids.Length;
+        float volume = 0;
+        if (count < 3)
+        {
+            return volume.ToString();
+        }
+        Vector3 v1 = UnitVector(ids[0]);
+        Vector3 v2 = UnitVector(ids[1]);
+        Vector3 v3 = UnitVector(ids[2]);
+        float radius = v3.z - v2.z;
+        float height = v1.y - v2.y;
+        volume = radius * radius * height;
+        if (count == 3)
+        {
+            volume /= 3;
+        }
+        return volume.ToString(UIConstants.AreaFormat) + " π";
+    }
+
     public bool IsEdge(int id1, int id2)
     {
         foreach (GeoEdge geoEdge in geoEdges)
