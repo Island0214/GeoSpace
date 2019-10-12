@@ -14,7 +14,11 @@ public enum StateCellState
 public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public Action OnClickDelete;
+
     // StateCellState state;
+
+    public Action OnElementHighlight;  //ElementPanel的OnElementClickColor
+
     RectTransform rectTransform;
     GameObject btnToggleObject;
     GameObject btnDeleteObject;
@@ -90,13 +94,14 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void ToggleButtonClicked()
     {
-        SetState(StateCellState.Close);
+        if (OnElementHighlight != null)
+            OnElementHighlight(); 
     }
 
     void DeleteButtonClicked()
     {
         if (OnClickDelete != null)
-            OnClickDelete();
+            OnClickDelete(); 
     }
 
     void SetState(StateCellState s)

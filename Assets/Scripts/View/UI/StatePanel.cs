@@ -27,6 +27,13 @@ public class StatePanel : MonoBehaviour
                 state.OnClickDelete();
         };
 
+        stateCell.OnElementHighlight = () =>
+        {
+            if (state.OnElementHighlight != null)
+                state.OnElementHighlight();
+        };
+        
+
         RefreshStateCell(state);
 
         SetCellTintColor(stateCell, color);

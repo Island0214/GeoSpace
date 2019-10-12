@@ -15,6 +15,8 @@ public class AddAuxiliaryOperation : Operation
 
     AuxiliaryTool auxiliaryTool;
 
+    GeoUI geoUI;
+
 
     public AddAuxiliaryOperation(GeoController geoController, StateController stateController, Geometry geometry, GeometryBehaviour geometryBehaviour, GeoUI geoUI, Tool tool)
     {
@@ -27,7 +29,7 @@ public class AddAuxiliaryOperation : Operation
         this.geometryBehaviour = geometryBehaviour;
         this.inputPanel = geoUI.inputPanel;
         this.tool = tool;
-
+        this.geoUI = geoUI;
         Type type = Type.GetType(tool.Name + "AuxiliaryTool");
         if (type != null)
             auxiliaryTool = (AuxiliaryTool)Activator.CreateInstance(type);
@@ -132,7 +134,145 @@ public class AddAuxiliaryOperation : Operation
             AuxiliaryState auxiliaryState = (AuxiliaryState)Activator.CreateInstance(type, tool, auxiliary, geometry);
             auxiliaryState.OnClickDelete = () => geoController.RemoveAuxiliaryOperation(auxiliary);
 
+            //Action OnElementHighLight实现  0925需求一
+            auxiliaryState.OnElementHighlight = () =>   
+            {
+            //改变颜色
+             geometry.SetElementColor(auxiliary.elements[0], 1);  
+             geometryBehaviour.GeometryElementColorChange(auxiliary.elements[0], 1);
+            
+            //隐藏坐标轴
+            geoUI.navPanel.OnCoordinateButtonClick(1);
+            geoUI.navPanel.SetCoordinateButtonStatus(1); //改变BUTTON状态
+
+            //隐藏grid
+            geoUI.navPanel.OnGridButtonClick(1);
+            geoUI.navPanel.SetGridButtonStatus(1);  
+
+            
+            //显示各边长
+            if(auxiliary.elements[0] is GeoFace) 
+            {
+                GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+                for(int i = 0;i < geoFace.Ids.Length; i++)
+                {
+
+                int vertex1 = i;
+                int vertex2 = (i+1) % geoFace.Ids.Length;
+
+                LineLengthMeasure measure = new LineLengthMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2]);
+
+                measure.InitWithGeometry(geometry);
+                bool result = geometry.Implement.AddMeasure(measure);
+                if (result)
+                {
+                    List<ToolGroup> toolGroups = geoUI.toolPanel.ToolGroups();
+                    Tool lineLengthMeasureTool = toolGroups[3].Tools[0];
+                    AddState_Measure(measure,lineLengthMeasureTool);
+
+                    Gizmo[] gizmos = measure.gizmos;
+                    if (gizmos != null)
+                    {
+                        foreach (Gizmo gizmo in gizmos)
+                        {
+                            geometry.AddGizmo(gizmo);
+                            geometryBehaviour.AddGizmo(gizmo);
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO
+                }
+
+                }
+            }
+            //显示各角度
+            if(auxiliary.elements[0] is GeoFace) 
+            {
+                GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+                for(int i = 0;i < geoFace.Ids.Length; i++) 
+                {
+                int vertex1 = i;
+                int vertex2 = (i+1)%geoFace.Ids.Length;
+                int vertex3 = (i+2)%geoFace.Ids.Length;
+
+                CornerAngleMeasure measure = new CornerAngleMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2], geoFace.Ids[vertex3]);
+
+                measure.InitWithGeometry(geometry);
+
+
+                bool result = geometry.Implement.AddMeasure(measure);
+
+                if (result)
+                {
+                    List<ToolGroup> toolGroups = geoUI.toolPanel.ToolGroups();
+                    Tool cornerAngleMeasureTool = toolGroups[3].Tools[1];
+                    AddState_Measure(measure,cornerAngleMeasureTool);
+
+                    Gizmo[] gizmos = measure.gizmos;
+                    if (gizmos != null)
+                    {
+                        foreach (Gizmo gizmo in gizmos)
+                        {
+                            geometry.AddGizmo(gizmo);
+                            geometryBehaviour.AddGizmo(gizmo);
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO
+                } 
+                }  
+            }        
+            //显示面积
+            if(auxiliary.elements[0] is GeoFace) 
+            {
+                GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+
+                Measure measure = new PlaneAreaMeasure(geoFace.Ids);
+                measure.InitWithGeometry(geometry);
+
+
+                bool result = geometry.Implement.AddMeasure(measure);
+
+                if (result)
+                {
+                    List<ToolGroup> toolGroups = geoUI.toolPanel.ToolGroups();
+                    Tool planeAreaMeasureTool = toolGroups[3].Tools[2];
+                    AddState_Measure(measure,planeAreaMeasureTool);
+
+                    Gizmo[] gizmos = measure.gizmos;
+                    if (gizmos != null)
+                    {
+                        foreach (Gizmo gizmo in gizmos)
+                        {
+                            geometry.AddGizmo(gizmo);
+                            geometryBehaviour.AddGizmo(gizmo);
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO
+                }
+            }
+            };
+
             stateController.AddAuxiliaryState(auxiliaryState);
+        }
+    }
+
+        private void AddState_Measure(Measure measure,Tool tool)
+    {
+        Type type = Type.GetType(tool.Name + "MeasureState");
+        if (type != null)
+        {
+            MeasureState measureState = (MeasureState)Activator.CreateInstance(type, tool, measure, geometry);
+            measureState.OnClickDelete = () => geoController.RemoveMeasureOperation(measure);
+
+            stateController.AddMeasureState(measureState);
         }
     }
 

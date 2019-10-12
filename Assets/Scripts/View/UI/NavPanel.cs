@@ -82,5 +82,13 @@ public class NavPanel : MonoBehaviour
     {
         displayButton.SetStatus(status);
     }
+    public void SetCoordinateButtonStatus(int status)
+    {
+        coordinatButton.SetStatus(status);
+    }
+    public void SetGridButtonStatus(int status)
+    {
+        gridButton.SetStatus(status);
+    }
 
 }

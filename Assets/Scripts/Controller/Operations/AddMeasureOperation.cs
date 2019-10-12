@@ -74,8 +74,12 @@ public class AddMeasureOperation : Operation
             {
                 // TODO
             }
-
+            // foreach(FormItem item in form.inputs) 
+            // {
+            // Debug.Log(item);
+            // }
             geoController.EndOperation();
+
         };
 
         inputPanel.OnClickCancel = (form) =>

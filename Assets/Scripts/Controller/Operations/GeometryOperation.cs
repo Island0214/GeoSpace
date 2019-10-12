@@ -15,13 +15,15 @@ public class GeometryOperation : Operation
 
     Geometry geometry;
 
-    public GeometryOperation(GeoController geoController, ToolController toolController, StateController stateController, Tool tool)
+    GeometryBehaviour geometryBehaviour;
+    public GeometryOperation(GeoController geoController, ToolController toolController, StateController stateController, Tool tool,GeometryBehaviour geometryBehaviour)
     {
         this.geoController = geoController;
         this.toolController = toolController;
         this.stateController = stateController;
 
         this.tool = tool;
+        this.geometryBehaviour = geometryBehaviour;
 
         Type type = Type.GetType(tool.Name + "GeometryTool");
         if (type != null)
