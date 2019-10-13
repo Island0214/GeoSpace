@@ -153,33 +153,43 @@ public class AddAuxiliaryOperation : Operation
         {
             AuxiliaryState auxiliaryState = (AuxiliaryState)Activator.CreateInstance(type, tool, auxiliary, geometry);
             auxiliaryState.OnClickDelete = () => geoController.RemoveAuxiliaryOperation(auxiliary);
+
             //state单击
-            //float rotateX = angle.x;
-            //float rotateY = angle.y;
-            //float rotateZ = angle.z;
-            Debug.Log(form.inputs[1]);
-            String faceName = form.inputs[1].ToString();
-            Debug.Log(faceName);
-            Debug.Log(auxiliary.elements[0]);//  face 7 5 0
-            Debug.Log(auxiliary.elements[0].name);//  Face 
-            Debug.Log(auxiliary.dependencies.ToArray()[0].Position());
+            auxiliaryState.DoubleClick = () => this.TurnToFront(auxiliary,form);
+            //auxiliaryState.DoubleClick = () => geoCamera.TriggerRotateAnimation(45,10); //动画旋转角度到某个位置
 
-            Vector3 rotateAngle = new Vector3(0,0,0);
-            if (auxiliary.elements[0].name == "Face") {
-                rotateAngle = ChangeCameraDirection(auxiliary);
-                Debug.Log("change");
-            }
-
-            float rotateX = rotateAngle.x;
-            float rotateY = rotateAngle.y;
-            float rotateZ = rotateAngle.z;
-            auxiliaryState.DoubleClick = () => geoCamera.SetCameraAttributes(rotateY,-90f-rotateX,0f);
-            //auxiliaryState.DoubleClick = () => geoCamera.SetCameraAttributes(45f, -90f-10f, 0f);//y ,x,z  向上45度，向右10度
             stateController.AddAuxiliaryState(auxiliaryState);
         }
     }
 
-    public Vector3 ChangeCameraDirection(Auxiliary auxiliary)
+    public void TurnToFront(Auxiliary auxiliary,FormInput form) {
+        Debug.Log(form.inputs[1]);// 辅助面名
+        //String faceName = form.inputs[1].ToString();
+        //Debug.Log(faceName);
+        //Debug.Log(auxiliary.elements[0]);//  face 7 5 0
+        //Debug.Log(auxiliary.elements[0].name);//  Face 
+        //Debug.Log(auxiliary.dependencies.ToArray()[0].Position());//辅助面第一个点的坐标
+
+        Vector3 rotateAngle = new Vector3(0, 0, 0);
+        if (auxiliary.elements[0].name == "Face")
+        {
+            rotateAngle = GetRotateAngle(auxiliary);
+            Debug.Log("change");
+        }
+
+        float rotateX = rotateAngle.x;
+        float rotateY = rotateAngle.y;
+        float rotateZ = rotateAngle.z;
+        Debug.Log("rotateX:" + rotateX);
+        Debug.Log("rotateY:" + rotateY);
+        //Debug.Log("rotateZ:" + rotateZ);
+        //geoCamera.SetCameraAttributes(rotateY, -90f - rotateX, 0f);
+         //geoCamera.SetCameraAttributes(45f, -90f-10f, 0f);//y ,x,z  向上45度，向右10度
+        geoCamera.TriggerRotateAnimation(rotateAngle.x,rotateAngle.y);
+     
+    }
+
+    public Vector3 GetRotateAngle(Auxiliary auxiliary)
     {
         VertexUnit[] units = auxiliary.dependencies.ToArray();
         //平面三个不共线点
@@ -216,14 +226,22 @@ public class AddAuxiliaryOperation : Operation
         normalVector.x = AB.y * AC.z - AC.y * AB.z;
         normalVector.y = AB.z * AC.x - AB.x * AC.z;
         normalVector.z = AB.x * AC.y - AB.y * AC.x;
-
-        float rotateX = 90f - Vector3.Angle(new Vector3(1, 0, 0), new Vector3(normalVector.x,0f,normalVector.z));
+        if (normalVector.x < 0) {
+            normalVector.x = -normalVector.x;
+            normalVector.y = -normalVector.y;
+            normalVector.z = -normalVector.z;
+        }
+        float rotateX = Vector3.Angle(new Vector3(1, 0, 0), new Vector3(normalVector.x,0f,normalVector.z));
         float rotateY = 90f - Vector3.Angle(new Vector3(0, 1, 0), normalVector);
         //float rotateZ = 90f - Vector3.Angle(new Vector3(0, 0, 1), normalVector);
         float rotateZ = 0f;
+        if (normalVector.z < 0) {
+            rotateX = -rotateX;
+        }
+        
+        //return new Vector3(rotateX, rotateY, rotateZ);
+        return new Vector3(-rotateX-90,rotateY,0f);
 
-        Debug.Log(rotateX);
-        return new Vector3(rotateX, rotateY, rotateZ);
     }
 
 }
