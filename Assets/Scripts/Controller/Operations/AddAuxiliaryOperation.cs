@@ -177,15 +177,15 @@ public class AddAuxiliaryOperation : Operation
             Debug.Log("change");
         }
 
-        float rotateX = rotateAngle.x;
-        float rotateY = rotateAngle.y;
-        float rotateZ = rotateAngle.z;
-        Debug.Log("rotateX:" + rotateX);
-        Debug.Log("rotateY:" + rotateY);
+        //float rotateX = rotateAngle.x;
+        //float rotateY = rotateAngle.y;
+        //float rotateZ = rotateAngle.z;
+        Debug.Log("rotateX:" + rotateAngle.x);
+        Debug.Log("rotateY:" + rotateAngle.y);
         //Debug.Log("rotateZ:" + rotateZ);
-        //geoCamera.SetCameraAttributes(rotateY, -90f - rotateX, 0f);
+        //geoCamera.SetCameraAttributes(rotateY, -90f - rotateX, 0f);  //直接跳转镜头
          //geoCamera.SetCameraAttributes(45f, -90f-10f, 0f);//y ,x,z  向上45度，向右10度
-        geoCamera.TriggerRotateAnimation(rotateAngle.x,rotateAngle.y);
+        geoCamera.TriggerRotateAnimation(rotateAngle.x,rotateAngle.y);  //动画旋转镜头
      
     }
 
@@ -234,10 +234,10 @@ public class AddAuxiliaryOperation : Operation
         float rotateX = Vector3.Angle(new Vector3(1, 0, 0), new Vector3(normalVector.x,0f,normalVector.z));
         float rotateY = 90f - Vector3.Angle(new Vector3(0, 1, 0), normalVector);
         //float rotateZ = 90f - Vector3.Angle(new Vector3(0, 0, 1), normalVector);
-        float rotateZ = 0f;
-        if (normalVector.z < 0) {
-            rotateX = -rotateX;
-        }
+        //float rotateZ = 0f;
+        //if (normalVector.z < 0) {
+          //  rotateX = -rotateX;
+        //}
         
         //return new Vector3(rotateX, rotateY, rotateZ);
         return new Vector3(-rotateX-90,rotateY,0f);
