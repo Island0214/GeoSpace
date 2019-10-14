@@ -303,6 +303,7 @@ public class AddAuxiliaryOperation : Operation
 
             stateController.AddMeasureState(measureState);
         }
+    }
 
     public void TurnToFront(Auxiliary auxiliary,FormInput form) {
         Debug.Log(form.inputs[1]);// 辅助面名

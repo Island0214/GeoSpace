@@ -100,11 +100,7 @@ public class AddMeasureOperation : Operation
 
         };
 
-        inputPanel.OnClickCancel = (form) =>
-        
-        {
-        geoController.EndOperation();
-        };
+
     }
 
     public override void End()
