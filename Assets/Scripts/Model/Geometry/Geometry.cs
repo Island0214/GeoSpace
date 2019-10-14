@@ -7,8 +7,10 @@ using System.Linq;
 public enum GeometryType
 {
     Common,
+    General,
     Cubio,
     TriPyd,
+    ResolvedBody,
 }
 
 public abstract class Geometry
@@ -24,6 +26,8 @@ public abstract class Geometry
     private List<GeoVertex> geoVertices;
     private List<GeoEdge> geoEdges;
     private List<GeoFace> geoFaces;
+    private List<GeoCircle> geoCircles;
+    private List<GeoCircular> geoCirculars;
 
     private Vector3 center;
 
@@ -46,6 +50,8 @@ public abstract class Geometry
         geoVertices = new List<GeoVertex>();
         geoEdges = new List<GeoEdge>();
         geoFaces = new List<GeoFace>();
+        geoCircles = new List<GeoCircle>();
+        geoCirculars = new List<GeoCircular>();
 
         signVertexMap = new Dictionary<string, int>();
         vertexSignMap = new Dictionary<int, string>();
@@ -184,6 +190,17 @@ public abstract class Geometry
         return geoFaces.ToArray();
     }
 
+    public GeoCircle[] GeoCircles()
+    {
+        return geoCircles.ToArray();
+    }
+
+    public GeoCircular[] GeoCirculars()
+    {
+        return geoCirculars.ToArray();
+    }
+
+
     public void AddElement(GeoElement element)
     {
         if (element is GeoVertex)
@@ -192,6 +209,10 @@ public abstract class Geometry
             AddGeoEdge((GeoEdge)element);
         else if (element is GeoFace)
             AddGeoFace((GeoFace)element);
+        else if (element is GeoCircle)
+            AddGeoCircle((GeoCircle)element);
+        else if (element is GeoCircular)
+            AddGeoCircular((GeoCircular)element);
     }
 
     public void AddGeoVertex(GeoVertex vertex)
@@ -212,6 +233,18 @@ public abstract class Geometry
         face.AddObserveElements();
     }
 
+    public void AddGeoCircle(GeoCircle circle)
+    {
+        geoCircles.Add(circle);
+        circle.AddObserveElements();
+    }
+
+    public void AddGeoCircular(GeoCircular circular)
+    {
+        geoCirculars.Add(circular);
+        circular.AddObserveElements();
+    }
+
     public void RemoveElement(GeoElement element)
     {
         if (element is GeoVertex)
@@ -220,6 +253,10 @@ public abstract class Geometry
             RemoveGeoEdge((GeoEdge)element);
         else if (element is GeoFace)
             RemoveGeoFace((GeoFace)element);
+        else if (element is GeoCircle)
+            RemoveGeoCircle((GeoCircle)element);
+        else if (element is GeoCircular)
+            RemoveGeoCircular((GeoCircular)element);
     }
 
     public void RemoveGeoVertex(GeoVertex vertex)
@@ -238,6 +275,18 @@ public abstract class Geometry
     {
         geoFaces.Remove(face);
         face.RemoveObserveElements();
+    }
+
+    public void RemoveGeoCircle(GeoCircle circle)
+    {
+        geoCircles.Remove(circle);
+        circle.RemoveObserveElements();
+    }
+
+    public void RemoveGeoCircular(GeoCircular circular)
+    {
+        geoCirculars.Remove(circular);
+        circular.RemoveObserveElements();
     }
 
     public void SetElementColor(GeoElement element, int i)
@@ -311,6 +360,16 @@ public abstract class Geometry
         return face.Face();
     }
 
+    public Circle Circle(GeoCircle circle)
+    {
+        return circle.Circle();
+    }
+
+    public Circular Circular(GeoCircular circular)
+    {
+        return circular.Circular();
+    }
+
     public Vector3 Direction(int from, int to)
     {
         Vector3 dir = UnitVector(to) - UnitVector(from);
@@ -358,6 +417,58 @@ public abstract class Geometry
         }
 
         return area;
+    }
+
+    public String SurfaceArea(int[] ids)
+    {
+        int count = ids.Length;
+        float surface = 0;
+        if (count < 3) {
+            return surface.ToString(UIConstants.AreaFormat);
+        }
+        Vector3 v1 = UnitVector(ids[0]);
+        Vector3 v2 = UnitVector(ids[1]);
+        Vector3 v3 = UnitVector(ids[2]);
+        if (count == 3)
+        {
+            float radius = v3.z - v2.z;
+            float height = v1.y - v2.y;
+            float circleArea = radius * radius;
+            float sideRadius = Mathf.Sqrt(radius * radius + circleArea * circleArea);
+            float sideArea = radius * sideRadius;
+            surface = sideArea + circleArea;
+        }
+        else if (count == 4)
+        {
+            Vector3 v4 = UnitVector(ids[3]);
+            float radius = v4.z - v1.z;
+            float height = v1.y - v2.y;
+            float circleArea = radius * radius;
+            float sideArea = 2 * radius * height;
+            surface = sideArea + 2 * circleArea;
+        }
+        return surface.ToString(UIConstants.AreaFormat) + " π";
+    }
+
+    public String Volume(int[] ids)
+    {
+        int count = ids.Length;
+        float volume = 0;
+        if (count < 3)
+        {
+            return volume.ToString();
+        }
+        Vector3 v1 = UnitVector(ids[0]);
+        Vector3 v2 = UnitVector(ids[1]);
+        Vector3 v3 = UnitVector(ids[2]);
+        float radius = v3.z - v2.z;
+        float height = v1.y - v2.y;
+        volume = radius * radius * height;
+        if (count == 3)
+        {
+            volume /= 3;
+        }
+        return volume.ToString(UIConstants.AreaFormat) + " π";
     }
 
     public bool IsEdge(int id1, int id2)

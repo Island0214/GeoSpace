@@ -27,10 +27,20 @@ public class StatePanel : MonoBehaviour
                 state.OnClickDelete();
         };
 
+
         stateCell.OnElementHighlight = () =>
         {
             if (state.OnElementHighlight != null)
                 state.OnElementHighlight();
+        };
+        
+
+
+        
+        stateCell.DoubleClick = () =>
+        {
+            if(state.DoubleClick != null)
+                state.DoubleClick();
         };
         
 

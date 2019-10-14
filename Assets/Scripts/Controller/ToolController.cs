@@ -45,7 +45,7 @@ public class ToolController : MonoBehaviour
 
             foreach (Tool tool in toolGroup.Tools)
             {
-                if (tool.Type == GeometryType.Common || tool.Type == toolType)
+                if (tool.Type == toolType || (tool.Type == GeometryType.General && toolType != GeometryType.ResolvedBody) || tool.Type == GeometryType.Common)
                     filterToolGroup.Tools.Add(tool);
             }
             if (filterToolGroup.Tools.Count > 0)

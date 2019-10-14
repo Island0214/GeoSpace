@@ -8,7 +8,7 @@ public class EdgeBehaviour : ElementBehaviour, IPointerEnterHandler, IPointerExi
     const float LINE_RADIUS = 0.02f;
     const float LINE_LENGTH = 1.0f;
 
-    const float LINE_COLLIDER_SIZE = 0.1f;
+    const float LINE_COLLIDER_SIZE = 0.2f;
     const float LINE_COLLIDER_OFFSET = 0.2f;
 
     private GeoCamera geoCamera;
@@ -159,26 +159,31 @@ public class EdgeBehaviour : ElementBehaviour, IPointerEnterHandler, IPointerExi
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        geoController.ClickEdge(geoEdge);
+        if (edge.CanSelected)
+            geoController.ClickEdge(geoEdge);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        OnHover(true);
+        if (edge.CanSelected)
+            OnHover(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        OnHover(false);
+        if (edge.CanSelected)
+            OnHover(false);
     }
 
     private void OnClick()
     {
-        geoController.ClickEdge(geoEdge);
+        if (edge.CanSelected)
+            geoController.ClickEdge(geoEdge);
     }
     private void OnHover(bool hover)
     {
-        geoController.HoverEdge(geoEdge, hover);
+        if (edge.CanSelected)
+            geoController.HoverEdge(geoEdge, hover);
     }
 
     public void SetHighlight(bool highlight)

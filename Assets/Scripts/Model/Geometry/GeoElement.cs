@@ -54,6 +54,10 @@ public class GeoVertex : GeoElement
         return new Vertex(vertex.Position());
     }
 
+    public VertexUnit VertexUnit() {
+        return vertex;
+    }
+
     public override string ToString()
     {
         return string.Format("vertex {0}", vertex.id);
@@ -74,13 +78,14 @@ public class GeoEdge : GeoElement
 {
     private VertexUnit vertex1;
     private VertexUnit vertex2;
-
-    public GeoEdge(VertexUnit vertex1, VertexUnit vertex2, bool isBased = false) : base(0, 0, isBased)
+    private bool CanSelected;
+    public GeoEdge(VertexUnit vertex1, VertexUnit vertex2, bool CanSelected = false, bool isBased = false) : base(0, 0, isBased)
     {
         name = "Edge";
 
         this.vertex1 = vertex1;
         this.vertex2 = vertex2;
+        this.CanSelected = CanSelected;
     }
 
     public int Id1
@@ -101,7 +106,7 @@ public class GeoEdge : GeoElement
 
     public Edge Edge()
     {
-        return new Edge(vertex1.Position(), vertex2.Position());
+        return new Edge(vertex1.Position(), vertex2.Position(), CanSelected);
     }
 
     public override string ToString()
@@ -126,13 +131,17 @@ public class GeoFace : GeoElement
 {
     private VertexUnit[] vertices;
 
+    public bool Canselected;
+
     private int[] ids;
 
-    public GeoFace(VertexUnit[] vertices, bool isBased = false) : base(0, 0, isBased)
+    public GeoFace(VertexUnit[] vertices, bool Canselected = true, bool isBased = false) : base(0, 0, isBased)
     {
         name = "Face";
 
         this.vertices = vertices;
+
+        this.Canselected = Canselected;
 
         this.ids = vertices.Select(v => v.id).ToArray();
     }
@@ -157,7 +166,7 @@ public class GeoFace : GeoElement
 
     public Face Face()
     {
-        return new Face(vertices.Select(v => v.Position()).ToArray());
+        return new Face(vertices.Select(v => v.Position()).ToArray(), Canselected);
     }
 
     public override string ToString()
@@ -175,6 +184,89 @@ public class GeoFace : GeoElement
     public override void RemoveObserveElements()
     {
         foreach (VertexUnit vertex in vertices)
+            vertex.RemoveObserveElement(this);
+    }
+}
+
+
+public class GeoCircle : GeoElement
+{
+    private VertexUnit vertex;
+    private float radius; 
+    private CircleDirection direction; 
+    private bool displayFace; 
+
+    public GeoCircle(VertexUnit vertex, float radius, CircleDirection direction = CircleDirection.Y, bool displayFace = false, bool isBased = false) : base(0, 0, isBased)
+    {
+        name = "Circle";
+
+        this.vertex = vertex;
+        this.radius = radius;
+        this.direction = direction;
+        this.displayFace = displayFace;
+    }
+
+    public Circle Circle()
+    {
+        return new Circle(vertex.Position(), radius, direction, displayFace);
+    }
+
+    public override string ToString()
+    {
+        return string.Format("circular");
+    }
+
+    public override void AddObserveElements()
+    {
+        vertex.AddObserveElement(this);
+    }
+
+    public override void RemoveObserveElements()
+    {
+        vertex.RemoveObserveElement(this);
+    }
+}
+
+public enum CircularType
+{
+    Cylinder,
+    Cone,
+}
+
+public class GeoCircular : GeoElement
+{
+    private VertexUnit[] vertexs;
+    private float radius; 
+    private CircularType type;
+
+    public GeoCircular(VertexUnit[] vertexs, float radius, CircularType type, bool isBased = false) : base(0, 0, isBased)
+    {
+        name = "Circular";
+
+        this.vertexs = vertexs;
+        this.radius = radius;
+        this.type = type;
+    }
+
+    public Circular Circular()
+    {
+        return new Circular(vertexs.Select(v => v.Position()).ToArray(), radius, type);
+    }
+
+    public override string ToString()
+    {
+        return string.Format("circular");
+    }
+
+    public override void AddObserveElements()
+    {
+        foreach (VertexUnit vertex in vertexs)
+            vertex.AddObserveElement(this);
+    }
+
+    public override void RemoveObserveElements()
+    {
+        foreach (VertexUnit vertex in vertexs)
             vertex.RemoveObserveElement(this);
     }
 }
