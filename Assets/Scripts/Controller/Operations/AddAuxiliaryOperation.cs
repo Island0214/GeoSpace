@@ -231,6 +231,12 @@ public class AddAuxiliaryOperation : Operation
             normalVector.y = -normalVector.y;
             normalVector.z = -normalVector.z;
         }
+        if (normalVector.x == 0) {
+            if (normalVector.z < 0) {
+                normalVector.y = -normalVector.y;
+                normalVector.z = -normalVector.z;
+            }
+        }
         float rotateX = Vector3.Angle(new Vector3(1, 0, 0), new Vector3(normalVector.x,0f,normalVector.z));
         float rotateY = 90f - Vector3.Angle(new Vector3(0, 1, 0), normalVector);
         //float rotateZ = 90f - Vector3.Angle(new Vector3(0, 0, 1), normalVector);
