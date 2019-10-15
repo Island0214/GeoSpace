@@ -22,7 +22,7 @@ public class GeometryBehaviour : MonoBehaviour
     GameObject signWrapper;
     GameObject gizmoWrapper;
 
-    Dictionary<GeoElement, ElementBehaviour> elementMap;
+    public Dictionary<GeoElement, ElementBehaviour> elementMap;
     Dictionary<GeoVertex, VertexBehaviour> vertexMap;
     Dictionary<GeoEdge, EdgeBehaviour> edgeMap;
     Dictionary<GeoFace, FaceBehaviour> faceMap;

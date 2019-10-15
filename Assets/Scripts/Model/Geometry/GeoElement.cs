@@ -163,6 +163,12 @@ public class GeoFace : GeoElement
             return ids;
         }
     }
+    public VertexUnit[] get_vertices()
+    {
+        
+            return vertices;
+        
+    }
 
     public Face Face()
     {

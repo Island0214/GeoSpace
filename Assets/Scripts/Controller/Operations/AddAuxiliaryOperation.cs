@@ -155,7 +155,12 @@ public class AddAuxiliaryOperation : Operation
         {
             AuxiliaryState auxiliaryState = (AuxiliaryState)Activator.CreateInstance(type, tool, auxiliary, geometry);
             auxiliaryState.OnClickDelete = () => geoController.RemoveAuxiliaryOperation(auxiliary);
-
+            
+            // Debug.Log(geoCamera.transform.position);
+            // Debug.Log(geoCamera.get_CameraCustomDepth().srcCamera.transform.position);
+            //state单击
+            auxiliaryState.DoubleClick = () => this.TurnToFront(auxiliary,form);
+            //auxiliaryState.DoubleClick = () => geoCamera.TriggerRotateAnimation(45,10); //动画旋转角度到某个位置
 
             //Action OnElementHighLight瀹炵幇  0925闇�姹備竴
             auxiliaryState.OnElementHighlight = () =>   
@@ -253,7 +258,7 @@ public class AddAuxiliaryOperation : Operation
             if(auxiliary.elements[0] is GeoFace) 
             {
                 GeoFace geoFace = (GeoFace)auxiliary.elements[0];
-
+                //Debug.Log(geoFace.Ids);
                 Measure measure = new PlaneAreaMeasure(geoFace.Ids);
                 measure.InitWithGeometry(geometry);
 
@@ -281,11 +286,58 @@ public class AddAuxiliaryOperation : Operation
                     // TODO
                 }
             }
+
+
+
+
+
+            // Debug.Log(geoCamera.get_CameraCustomDepth().srcCamera.transform.position);
+            // Debug.Log(geoCamera.transform.position);
+            // Vector3 cameraLocation = geoCamera.get_CameraCustomDepth().transform.position;
+             GeoVertex[] geoVertices = geometry.GeoVertices();
+             if(auxiliary.elements[0] is GeoFace) 
+             {
+             GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+             VertexUnit[] faceVertices = geoFace.get_vertices();
+             Vector3 side1 = faceVertices[0].Position() - faceVertices[1].Position();
+             Vector3 side2 = faceVertices[2].Position() - faceVertices[1].Position();
+             Vector3 perp  = Vector3.Cross(side1,side2);
+             
+             Vector3 anchor = faceVertices[1].Position() - perp;
+             Debug.Log(anchor);
+            
+            float min = 1000;
+            GeoEdge[] edges = geometry.GeoEdges();
+            foreach(VertexUnit vertexUnit in geoFace.get_vertices())
+            {
+                float face_vertex_distance = Vector3.Distance(vertexUnit.Position(),anchor);
+                if(face_vertex_distance<min)
+                min = face_vertex_distance;
+            }
+             foreach(GeoVertex geoVertex in geoVertices)
+             {
+                 float distance = Vector3.Distance(geoVertex.VertexUnit().Position(),anchor);
+                if(distance<min)
+                {
+                    //隐藏该顶点，隐藏该顶点起始的所有边
+                    ElementBehaviour elementBehaviour = geometryBehaviour.elementMap[geoVertex];
+                    elementBehaviour.SetVisible(false);
+                    foreach (GeoEdge geoEdge in edges)
+                    {
+                        if(geoVertex.Id == geoEdge.Id1 || geoVertex.Id == geoEdge.Id2)
+                        {
+                            ElementBehaviour elementBehaviour2 = geometryBehaviour.elementMap[geoEdge];
+                            elementBehaviour2.SetVisible(false);
+                        }
+                    }
+                }
+                
+             }
+            // // }
+            
+            }
             };
 
-            //state单击
-            auxiliaryState.DoubleClick = () => this.TurnToFront(auxiliary,form);
-            //auxiliaryState.DoubleClick = () => geoCamera.TriggerRotateAnimation(45,10); //动画旋转角度到某个位置
 
 
             stateController.AddAuxiliaryState(auxiliaryState);
@@ -384,9 +436,9 @@ public class AddAuxiliaryOperation : Operation
         float rotateY = 90f - Vector3.Angle(new Vector3(0, 1, 0), normalVector);
         //float rotateZ = 90f - Vector3.Angle(new Vector3(0, 0, 1), normalVector);
         //float rotateZ = 0f;
-        //if (normalVector.z < 0) {
-          //  rotateX = -rotateX;
-        //}
+        if (normalVector.z < 0) {
+           rotateX = -rotateX;
+        }
         
         //return new Vector3(rotateX, rotateY, rotateZ);
         return new Vector3(-rotateX-90,rotateY,0f);

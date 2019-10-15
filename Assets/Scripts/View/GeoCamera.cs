@@ -419,4 +419,8 @@ public class GeoCamera : MonoBehaviour
 
         return result;
     }
+    public CameraCustomDepth get_CameraCustomDepth()
+    {
+        return cameraCustomDepth;
+    }
 }
