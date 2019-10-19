@@ -15,7 +15,7 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 {
     public Action OnClickDelete;
 
-
+    public Action UndoFaceHighlight;
 
     public Action DoubleClick;
 
@@ -30,6 +30,7 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     Button btnToggle;
     Button btnDelete;
     Text text;
+    Boolean isHighlighted = false;
 
     public void Init()
     {
@@ -101,19 +102,21 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void DeleteButtonClicked()
     {
+        if(UndoFaceHighlight != null&&isHighlighted == true)
+            UndoFaceHighlight();
         if (OnClickDelete != null)
             OnClickDelete(); 
     }
 
     void ToggleButtonDoubleClicked()
     {
-    
+        
         if (OnElementHighlight != null)
             OnElementHighlight(); 
         //SetState(StateCellState.Close);
         if (DoubleClick != null)
             DoubleClick();
-        
+        isHighlighted = true;
     }
 
         void SetState(StateCellState s)

@@ -27,9 +27,14 @@ public class StatePanel : MonoBehaviour
                 state.OnClickDelete();
         };
 
+        stateCell.UndoFaceHighlight = () =>
+        {
+            if (state.UndoFaceHighlight != null)
+                state.UndoFaceHighlight();
+        };
 
         stateCell.OnElementHighlight = () =>
-        {
+        {   
             if (state.OnElementHighlight != null)
                 state.OnElementHighlight();
         };

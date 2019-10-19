@@ -16,9 +16,9 @@ public class AddAuxiliaryOperation : Operation
     Tool tool;
 
     AuxiliaryTool auxiliaryTool;
-
     GeoUI geoUI;
-
+    List<Measure> measure_list = new List<Measure>();
+    List<ElementBehaviour> elementBehaviour_list = new List<ElementBehaviour>();
 
     public AddAuxiliaryOperation(GeoController geoController,GeoCamera geoCamera, StateController stateController, Geometry geometry, GeometryBehaviour geometryBehaviour, GeoUI geoUI, Tool tool)
     {
@@ -162,23 +162,25 @@ public class AddAuxiliaryOperation : Operation
             auxiliaryState.DoubleClick = () => this.TurnToFront(auxiliary,form);
             //auxiliaryState.DoubleClick = () => geoCamera.TriggerRotateAnimation(45,10); //动画旋转角度到某个位置
 
-            //Action OnElementHighLight瀹炵幇  0925闇�姹備竴
+            //Action OnElementHighLight  0925 Requirement_1
             auxiliaryState.OnElementHighlight = () =>   
             {
-            //鏀瑰彉棰滆壊
-             geometry.SetElementColor(auxiliary.elements[0], 1);  
-             geometryBehaviour.GeometryElementColorChange(auxiliary.elements[0], 1);
             
-            //闅愯棌鍧愭爣杞�
+            //Hightlight face
+            // geometry.SetElementColor(auxiliary.elements[0], 1);  
+            // geometryBehaviour.GeometryElementColorChange(auxiliary.elements[0], 1);
+            ChangeFaceColorIndex((GeoFace)auxiliary.elements[0],1);
+            
+            //Hide coordinate
             geoUI.navPanel.OnCoordinateButtonClick(1);
-            geoUI.navPanel.SetCoordinateButtonStatus(1); //鏀瑰彉BUTTON鐘舵��
+            geoUI.navPanel.SetCoordinateButtonStatus(1); //Change Button status
 
-            //闅愯棌grid
+            //Hide grid
             geoUI.navPanel.OnGridButtonClick(1);
             geoUI.navPanel.SetGridButtonStatus(1);  
 
             
-            //鏄剧ず鍚勮竟闀�
+            //Measure Line length
             if(auxiliary.elements[0] is GeoFace) 
             {
                 GeoFace geoFace = (GeoFace)auxiliary.elements[0];
@@ -188,8 +190,10 @@ public class AddAuxiliaryOperation : Operation
                 int vertex1 = i;
                 int vertex2 = (i+1) % geoFace.Ids.Length;
 
-                LineLengthMeasure measure = new LineLengthMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2]);
-
+                Measure measure = new LineLengthMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2]);
+                
+                measure_list.Add((Measure)measure);
+                
                 measure.InitWithGeometry(geometry);
                 bool result = geometry.Implement.AddMeasure(measure);
                 if (result)
@@ -215,7 +219,7 @@ public class AddAuxiliaryOperation : Operation
 
                 }
             }
-            //鏄剧ず鍚勮搴�
+            //Measure CornerAngle
             if(auxiliary.elements[0] is GeoFace) 
             {
                 GeoFace geoFace = (GeoFace)auxiliary.elements[0];
@@ -225,8 +229,10 @@ public class AddAuxiliaryOperation : Operation
                 int vertex2 = (i+1)%geoFace.Ids.Length;
                 int vertex3 = (i+2)%geoFace.Ids.Length;
 
-                CornerAngleMeasure measure = new CornerAngleMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2], geoFace.Ids[vertex3]);
-
+                Measure measure = new CornerAngleMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2], geoFace.Ids[vertex3]);
+                
+                measure_list.Add((Measure)measure);
+                
                 measure.InitWithGeometry(geometry);
 
 
@@ -254,12 +260,15 @@ public class AddAuxiliaryOperation : Operation
                 } 
                 }  
             }        
-            //鏄剧ず闈㈢Н
+            //Measure Plane Area
             if(auxiliary.elements[0] is GeoFace) 
             {
                 GeoFace geoFace = (GeoFace)auxiliary.elements[0];
                 //Debug.Log(geoFace.Ids);
                 Measure measure = new PlaneAreaMeasure(geoFace.Ids);
+
+                measure_list.Add(measure);
+                
                 measure.InitWithGeometry(geometry);
 
 
@@ -290,7 +299,7 @@ public class AddAuxiliaryOperation : Operation
 
 
 
-
+            // Hide elements beyond the Highlighted face
             // Debug.Log(geoCamera.get_CameraCustomDepth().srcCamera.transform.position);
             // Debug.Log(geoCamera.transform.position);
             // Vector3 cameraLocation = geoCamera.get_CameraCustomDepth().transform.position;
@@ -319,23 +328,45 @@ public class AddAuxiliaryOperation : Operation
                  float distance = Vector3.Distance(geoVertex.VertexUnit().Position(),anchor);
                 if(distance<min)
                 {
-                    //隐藏该顶点，隐藏该顶点起始的所有边
-                    ElementBehaviour elementBehaviour = geometryBehaviour.elementMap[geoVertex];
-                    elementBehaviour.SetVisible(false);
+                    //隐藏该顶点
+                    ElementBehaviour vertexElementBehaviour = geometryBehaviour.elementMap[geoVertex];
+                    vertexElementBehaviour.SetVisible(false);
+                    elementBehaviour_list.Add(vertexElementBehaviour);
+                    //隐藏该顶点起始的所有边
                     foreach (GeoEdge geoEdge in edges)
                     {
                         if(geoVertex.Id == geoEdge.Id1 || geoVertex.Id == geoEdge.Id2)
                         {
-                            ElementBehaviour elementBehaviour2 = geometryBehaviour.elementMap[geoEdge];
-                            elementBehaviour2.SetVisible(false);
+                            ElementBehaviour edgeElementBehaviour = geometryBehaviour.elementMap[geoEdge];
+                            edgeElementBehaviour.SetVisible(false);
+                            elementBehaviour_list.Add(edgeElementBehaviour);
                         }
                     }
                 }
                 
-             }
-            // // }
-            
+             }            
             }
+            };
+
+            auxiliaryState.UndoFaceHighlight = () =>
+            {
+            //Undo Hightlight face
+            ChangeFaceColorIndex((GeoFace)auxiliary.elements[0],0);
+
+            
+            //Undo Hide coordinate
+            geoUI.navPanel.OnCoordinateButtonClick(0);
+            geoUI.navPanel.SetCoordinateButtonStatus(0); //Change Button status
+                        
+            //Hide grid
+            geoUI.navPanel.OnGridButtonClick(0);
+            geoUI.navPanel.SetGridButtonStatus(0); 
+
+            //Claer All Face_MeasureStates
+            foreach(Measure measure in measure_list)
+            geoController.RemoveMeasure(measure);
+            foreach(ElementBehaviour elementBehaviour in elementBehaviour_list)
+            elementBehaviour.SetVisible(true);
             };
 
 
@@ -444,6 +475,12 @@ public class AddAuxiliaryOperation : Operation
         return new Vector3(-rotateX-90,rotateY,0f);
 
 
+    }
+
+    public void ChangeFaceColorIndex(GeoFace geoface,int colorindex)
+    {
+        geometry.SetElementColor(geoface, colorindex);  
+        geometryBehaviour.GeometryElementColorChange(geoface, colorindex);
     }
 
 }
