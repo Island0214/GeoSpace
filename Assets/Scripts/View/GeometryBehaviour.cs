@@ -201,6 +201,11 @@ public class GeometryBehaviour : MonoBehaviour
     }
 
     #region GeoElement
+    public Dictionary<GeoElement, ElementBehaviour> GetGeoElements()
+    {
+        return elementMap;
+    }
+    
     private void AddVertex(GeoVertex geoVertex)
     {
         GameObject vertexObject = new GameObject(geoVertex.ToString());

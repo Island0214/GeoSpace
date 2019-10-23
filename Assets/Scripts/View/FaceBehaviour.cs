@@ -175,17 +175,19 @@ public class FaceBehaviour : ElementBehaviour, IPointerEnterHandler, IPointerExi
     {
         if (face.Canselected)
             geoController.ClickFace(geoFace);
+        if (face.faceType != FaceType.Normal) 
+            geoController.ClickSpreadFace(geoFace);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (face.Canselected)
+        if (face.Canselected || face.faceType != FaceType.Normal)
             OnHover(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (face.Canselected)
+        if (face.Canselected || face.faceType != FaceType.Normal)
             OnHover(false);
     }
 
@@ -196,7 +198,7 @@ public class FaceBehaviour : ElementBehaviour, IPointerEnterHandler, IPointerExi
     }
     private void OnHover(bool hover)
     {
-        if (face.Canselected)
+        if (face.Canselected || face.faceType != FaceType.Normal)
             geoController.HoverFace(geoFace, hover);
     }
 

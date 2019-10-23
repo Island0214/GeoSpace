@@ -52,10 +52,12 @@ public class SpreadAuxiliary : Auxiliary
         if (circular.type == CircularType.Cylinder)
         {
             SpreadCylinder();
+            resolvedBody.isSpread = true;
         }
         else if (circular.type == CircularType.Cone)
         {
             SpreadCone();
+            resolvedBody.isSpread = true;
         }
     }
 
@@ -81,14 +83,14 @@ public class SpreadAuxiliary : Auxiliary
         geometryBehaviour.AddElement(e2);
         geometryBehaviour.AddElement(e3);
 
-        GeoFace f = new GeoFace(new VertexSpace[] { u0, u1, u2, u3 }, false);
+        GeoFace f = new GeoFace(new VertexSpace[] { u0, u1, u2, u3 }, false, FaceType.SpreadRectangle);
         geometryBehaviour.AddElement(f);
 
         VertexSpace u4 = new VertexSpace(0, height / 2 + Radius, width / 2 + Radius);
-        GeoCircle c1 = new GeoCircle(u4, Radius, CircleDirection.X, true);
+        GeoCircle c1 = new GeoCircle(u4, Radius, CircleDirection.X, true, FaceType.SpreadCylinderCircle);
         geometryBehaviour.AddElement(c1);
         VertexSpace u5 = new VertexSpace(0, -height / 2 - Radius, width / 2 + Radius);
-        GeoCircle c2 = new GeoCircle(u5, Radius, CircleDirection.X, true);
+        GeoCircle c2 = new GeoCircle(u5, Radius, CircleDirection.X, true, FaceType.SpreadCylinderCircle);
         geometryBehaviour.AddElement(c2);
     }
 
@@ -120,14 +122,18 @@ public class SpreadAuxiliary : Auxiliary
             vertices[i] = new Vector3(u0.Position().x + 0, u0.Position().y + fanRadius * cosA, u0.Position().x + fanRadius * sinA);
             angleCur += angledelta;
         }
+        VertexSpace[] vertexs = new VertexSpace[vertices_count + 1];
+        vertexs[0] = u0;
         for (int i = 0; i < vertices_count - 1; i++)
         {
             v1 = new VertexSpace(vertices[i]);
             v2 = new VertexSpace(vertices[i + 1]);
-            f = new GeoFace(new VertexSpace[] { u0, v1, v2 }, false);
-            geometryBehaviour.AddElement(f);
+            vertexs[i + 1] = v1;
+            vertexs[i + 2] = v2;
             geometryBehaviour.AddElement(new GeoEdge(v1, v2, false));
         }
+        f = new GeoFace(vertexs, false, FaceType.SpreadFan);
+        geometryBehaviour.AddElement(f);
         GeoEdge e1 = new GeoEdge(u0, new VertexSpace(vertices[0]), false);
         GeoEdge e2 = new GeoEdge(u0, new VertexSpace(vertices[vertices_count - 1]), false);
         geometryBehaviour.AddElement(e1);
@@ -135,7 +141,7 @@ public class SpreadAuxiliary : Auxiliary
 
 
         VertexSpace u3 = new VertexSpace(0, circular.Vertices[0].y, fanRadius + Radius);
-        GeoCircle c2 = new GeoCircle(u3, Radius, CircleDirection.X, true);
+        GeoCircle c2 = new GeoCircle(u3, Radius, CircleDirection.X, true, FaceType.SpreadConeCircle);
         geometryBehaviour.AddElement(c2);
     }
 
@@ -172,7 +178,7 @@ public class SpreadAuxiliaryTool : AuxiliaryTool
         }
 
         ResolvedBody resolvedBody = (ResolvedBody)geometry;
-        if (!resolvedBody.isSpinned)
+        if (!resolvedBody.isSpinned || resolvedBody.isSpread)
         {
             return null;
         }

@@ -409,6 +409,13 @@ public class GeoController : MonoBehaviour
             currentOperation.OnClickElement(face);
     }
 
+    public void ClickSpreadFace(GeoFace face)
+    {
+        int color = face.color == 0 ? 1 : 0;
+        geometry.SetSpreadFaceStyle(face, color);
+        geometryBehaviour.GeometryElementColorChange(face, color);
+    }
+
     public void HoverVertex(GeoVertex vertex, bool isHover)
     {
         if (isCameraRotate)
@@ -449,7 +456,7 @@ public class GeoController : MonoBehaviour
             return;
         if (currentOperation != null && !currentOperation.CanActiveElement)
             return;
-        if (isHover)
+        if (isHover && face.faceType == FaceType.Normal)
         {
             FormElement formElement = FaceForm(face);
             geoUI.activePanel.SetFace(formElement);

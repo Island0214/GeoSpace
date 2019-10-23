@@ -14,12 +14,14 @@ public class Circle
     public float radius;
     public CircleDirection direction;
     public bool displayFace;
+    public FaceType faceType;
 
-    public Circle(Vector3 vs, float radius, CircleDirection direction = CircleDirection.Y, bool displayFace = false)
+    public Circle(Vector3 vs, float radius, CircleDirection direction = CircleDirection.Y, bool displayFace = false, FaceType faceType = FaceType.Normal)
     {
         this.Vertice = vs;
         this.radius = radius;
         this.direction = direction;
         this.displayFace = displayFace;
+        this.faceType = faceType;
     }
 }

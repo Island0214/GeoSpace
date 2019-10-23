@@ -86,8 +86,8 @@ public class SpinAuxiliaryTool : AuxiliaryTool
 
             GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2 }, radius, CircularType.Cylinder);
             geometry.AddGeoCircular(circular);
-            geometry.AddGeoCircle(new GeoCircle(vertex1, radius));
-            geometry.AddGeoCircle(new GeoCircle(vertex2, radius));
+            geometry.AddGeoCircle(new GeoCircle(vertex1, radius, CircleDirection.Y, true, FaceType.SpreadCylinderCircle));
+            geometry.AddGeoCircle(new GeoCircle(vertex2, radius, CircleDirection.Y, true, FaceType.SpreadCylinderCircle));
             resolvedBody.isSpinned = true;
         }
         // Cone
@@ -101,7 +101,7 @@ public class SpinAuxiliaryTool : AuxiliaryTool
 
             GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2, vertex3 }, radius, CircularType.Cone);
             geometry.AddGeoCircular(circular);
-            geometry.AddGeoCircle(new GeoCircle(vertex2, radius));
+            geometry.AddGeoCircle(new GeoCircle(vertex2, radius, CircleDirection.Y, true, FaceType.SpreadConeCircle));
             resolvedBody.isSpinned = true;
         }
         geometryBehaviour.InitGeometry(geometry);
