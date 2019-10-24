@@ -12,13 +12,11 @@ public class SpreadAuxiliary : Auxiliary
     private ResolvedBody resolvedBody;
     private GeoCamera geoCamera;
     private GeometryBehaviour geometryBehaviour;
-    private StatusButton lockButton;
     private float positionZ;
     public SpreadAuxiliary() : base()
     {
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
         geoCamera = GameObject.Find("/3D/GeoCamera").GetComponent<GeoCamera>();
-        lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
     }
 
     public override void InitWithGeometry(Geometry geometry)
@@ -48,7 +46,6 @@ public class SpreadAuxiliary : Auxiliary
 
     public void AddPlaneGraph()
     {
-        lockButton.SetStatus(1);
         if (circular.type == CircularType.Cylinder)
         {
             SpreadCylinder();
@@ -150,7 +147,6 @@ public class SpreadAuxiliary : Auxiliary
         geoCamera.TriggerMoveZAnimation(225, 30, -positionZ);
         geometryBehaviour.clearExtraElements();
         resolvedBody.isSpread = false;
-        lockButton.SetStatus(0);
     }
 }
 

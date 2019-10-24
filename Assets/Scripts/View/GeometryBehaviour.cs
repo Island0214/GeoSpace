@@ -69,8 +69,6 @@ public class GeometryBehaviour : MonoBehaviour
 
     public void InitGeometry(Geometry geo)
     {
-        if (!(geo is ResolvedBody))
-            geoCamera.TriggerCenterRAnimation();
         if (geometry != null)
             Clear();
 
@@ -135,9 +133,28 @@ public class GeometryBehaviour : MonoBehaviour
             AddSign(i);
     }
 
+    public void AddFaces() {
+        GeoVertex[] vertices = geometry.GeoVertices();
+        GeoEdge[] edges = geometry.GeoEdges();
+        GeoFace[] faces = geometry.GeoFaces();
+        // New Vertex
+        for (int i = 0; i < vertices.Length; i++)
+            AddVertex(vertices[i]);
+
+        // New Edge
+        for (int i = 0; i < edges.Length; i++)
+            AddEdge(edges[i]);
+
+        // New Face
+        for (int i = 0; i < faces.Length; i++)
+            AddFace(faces[i]);
+    }
+
+
     public void Clear()
     {
         geometry = null;
+        geoCamera.TriggerCenterRAnimation();
 
         // Clear Element
         clearElements();

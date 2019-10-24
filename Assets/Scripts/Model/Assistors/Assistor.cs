@@ -48,6 +48,12 @@ public class Assistor
             spreadAuxiliary.RemovePlaneGraph();
         }
 
+        if(auxiliary is SpinAuxiliary)
+        {
+            SpinAuxiliary spinAuxiliary = (SpinAuxiliary)auxiliary;
+            spinAuxiliary.RemoveAuxiliary();
+        }
+
         return auxiliaries.Remove(auxiliary);
     }
 
