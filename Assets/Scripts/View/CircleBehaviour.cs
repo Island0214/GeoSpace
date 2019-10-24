@@ -36,6 +36,7 @@ public class CircleBehaviour : ElementBehaviour
         float angleRad = Mathf.Deg2Rad * angledegree;
         float angleCur = angleRad;
         float angledelta = angleRad / Segments;
+        VertexSpace[] vertexs = new VertexSpace[vertices_count - 1];
 
         for (int i = 1; i < vertices_count; i++)
         {
@@ -53,12 +54,12 @@ public class CircleBehaviour : ElementBehaviour
             {
                 vertices[i] = new Vector3(vertice.x + Radius * cosA, vertice.y + Radius * sinA, vertice.z);
             }
+            vertexs[i - 1] = new VertexSpace(vertices[i]);
             angleCur -= angledelta;
         }
 
         VertexSpace v1;
         VertexSpace v2;
-        VertexSpace v3;
         GeoEdge edge;
         for (int i = 1; i < vertices_count - 1; i++)
         {
@@ -74,20 +75,7 @@ public class CircleBehaviour : ElementBehaviour
 
         if (circle.displayFace)
         {
-            GeoFace geoFace;
-            for (int vi = 1; vi < vertices_count - 1; vi++)
-            {
-                v1 = new VertexSpace(vertices[0]);
-                v2 = new VertexSpace(vertices[vi]);
-                v3 = new VertexSpace(vertices[vi + 1]);
-                geoFace = new GeoFace(new VertexSpace[] { v1, v2, v3 }, false);
-                geometryBehaviour.AddElement(geoFace);
-            }
-            // last triangle
-            v1 = new VertexSpace(vertices[0]);
-            v2 = new VertexSpace(vertices[1]);
-            v3 = new VertexSpace(vertices[vertices_count - 1]);
-            geoFace = new GeoFace(new VertexSpace[] { v1, v2, v3 }, false);
+            GeoFace geoFace = new GeoFace(vertexs, false, circle.faceType);
             geometryBehaviour.AddElement(geoFace);
         }
     }

@@ -8,9 +8,12 @@ public class Face
 
     public bool Canselected;
 
-    public Face(Vector3[] vs, bool Canselected = true)
+    public FaceType faceType;
+
+    public Face(Vector3[] vs, bool Canselected = true, FaceType faceType = FaceType.Normal)
     {
         this.Vertices = vs;
         this.Canselected = Canselected;
+        this.faceType = faceType;
     }
 }

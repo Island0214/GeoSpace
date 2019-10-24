@@ -299,6 +299,60 @@ public abstract class Geometry
         element.style = i;
     }
 
+    public void SetSpreadFaceStyle(GeoElement element, int i)
+    {
+        GeoFace geoFace;
+        if (element is GeoFace) 
+            geoFace = (GeoFace) element;
+        else
+            return;
+        this.SetElementColor(element, i);
+        GeometryBehaviour geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
+        switch (geoFace.faceType) {
+            case FaceType.Normal:
+                break;
+            case FaceType.SpreadRectangle:
+            case FaceType.SpreadFan:
+                for (int index = 0; index < geoCirculars.Count; index++) {
+                    GeoCircular circular = geoCirculars[0];
+                    this.SetElementColor(circular, i);
+                    geometryBehaviour.GeometryElementColorChange(circular, i);
+                }
+                break;
+            case FaceType.SpreadCylinderCircle:
+            case FaceType.SpreadConeCircle:
+                Vector3[] vectors = geoFace.Face().Vertices;
+                if (vectors.Length == 0)
+                    break;
+                Vector3 v = (vectors[0] + vectors[vectors.Length / 2]) / 2;
+                Dictionary<GeoElement, ElementBehaviour> elementMap = geometryBehaviour.GetGeoElements();
+                GeoFace face;
+                foreach (GeoElement key in elementMap.Keys)
+                {
+                    if (key is GeoFace){
+                        face = (GeoFace) key;
+                        if (geoFace.faceType == face.faceType) {
+                            if (face.faceType == FaceType.SpreadCylinderCircle) {
+                                vectors = face.Face().Vertices;
+                                if (vectors.Length == 0)
+                                    continue;
+                                Vector3 tmp = (vectors[0] + vectors[vectors.Length / 2]) / 2;
+                                if ((tmp.y > 0 && v.y > 0) || (tmp.y < 0 && v.y < 0)) {
+                                    this.SetElementColor(face, i);
+                                    geometryBehaviour.GeometryElementColorChange(face, i); 
+                                }
+                            }
+                            if (face.faceType == FaceType.SpreadConeCircle) {
+                                this.SetElementColor(face, i);
+                                geometryBehaviour.GeometryElementColorChange(face, i);  
+                            }
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
     #endregion
 
     #region Gizmos

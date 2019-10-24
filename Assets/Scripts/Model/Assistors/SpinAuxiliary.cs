@@ -1,18 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
 
 public class SpinAuxiliary : Auxiliary
 {
     public VertexUnit[] vertices;
     public FaceRefer face;
+    private ResolvedBody resolvedBody;
+    private GeometryBehaviour geometryBehaviour;
+    // private  geometryBehaviour;
 
     public SpinAuxiliary() : base()
     {
+        geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
     }
     public override void InitWithGeometry(Geometry geometry)
     {
+        if (geometry is ResolvedBody)
+            resolvedBody = (ResolvedBody)geometry;
         units = new VertexUnit[] { };
 
         GeoVertex[] geoVertices = geometry.GeoVertices();
@@ -28,6 +34,17 @@ public class SpinAuxiliary : Auxiliary
         elements = new GeoElement[] { };
 
         dependencies.AddRange(units);
+    }
+
+    public void RemoveAuxiliary() {
+        geometryBehaviour.clearElements();
+        geometryBehaviour.AddFaces();
+        NavAxisBehaviour axis = GameObject.Find("X").GetComponent<NavAxisBehaviour>();
+        PointerEventData data = new PointerEventData(EventSystem.current);
+        axis.OnPointerClick(data);
+        StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
+        lockButton.SetStatus(1);
+        resolvedBody.isSpinned = false;
     }
 }
 
@@ -53,8 +70,6 @@ public class SpinAuxiliaryTool : AuxiliaryTool
 
         SpinAuxiliary auxiliary = new SpinAuxiliary();
         auxiliary.InitWithGeometry(geometry);
-        GeoCamera geoCamera = GameObject.Find("/3D/GeoCamera").GetComponent<GeoCamera>();
-        geoCamera.TriggerCenterRAnimation();
         VertexUnit[] vertexUnits = auxiliary.vertices;
         if (vertexUnits.Length != 3 && vertexUnits.Length != 4)
             return null;
@@ -65,12 +80,6 @@ public class SpinAuxiliaryTool : AuxiliaryTool
 
     public void GenerateResolvedBody(Geometry geometry)
     {
-        ResolvedBody resolvedBody;
-        if (geometry is ResolvedBody)
-            resolvedBody = (ResolvedBody)geometry;
-        else
-            return;
-
         SpinAuxiliary auxiliary = new SpinAuxiliary();
         auxiliary.InitWithGeometry(geometry);
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
@@ -86,9 +95,8 @@ public class SpinAuxiliaryTool : AuxiliaryTool
 
             GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2 }, radius, CircularType.Cylinder);
             geometry.AddGeoCircular(circular);
-            geometry.AddGeoCircle(new GeoCircle(vertex1, radius));
-            geometry.AddGeoCircle(new GeoCircle(vertex2, radius));
-            resolvedBody.isSpinned = true;
+            geometry.AddGeoCircle(new GeoCircle(vertex1, radius, CircleDirection.Y, true, FaceType.SpreadCylinderCircle));
+            geometry.AddGeoCircle(new GeoCircle(vertex2, radius, CircleDirection.Y, true, FaceType.SpreadCylinderCircle));
         }
         // Cone
         else if (vertexUnits.Length == 3)
@@ -101,14 +109,28 @@ public class SpinAuxiliaryTool : AuxiliaryTool
 
             GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2, vertex3 }, radius, CircularType.Cone);
             geometry.AddGeoCircular(circular);
-            geometry.AddGeoCircle(new GeoCircle(vertex2, radius));
-            resolvedBody.isSpinned = true;
+            geometry.AddGeoCircle(new GeoCircle(vertex2, radius, CircleDirection.Y, true, FaceType.SpreadConeCircle));
         }
         geometryBehaviour.InitGeometry(geometry);
+
+        StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
+        lockButton.SetStatus(0);
     }
 
     public void SpinCartoon(VertexUnit[] vertexUnits, Geometry geometry)
     {
+        ResolvedBody resolvedBody;
+        if (geometry is ResolvedBody)
+            resolvedBody = (ResolvedBody)geometry;
+        else
+            return;
+        
+        if (resolvedBody.isSpinned) 
+            return;
+        resolvedBody.isSpinned = true;
+        GeoCamera geoCamera = GameObject.Find("/3D/GeoCamera").GetComponent<GeoCamera>();
+        geoCamera.TriggerCenterRAnimation();
+        
         VertexUnit vertex1 = vertexUnits[0];
         VertexUnit vertex2 = vertexUnits[1];
         VertexUnit vertex3 = vertexUnits[2];

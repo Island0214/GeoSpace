@@ -127,21 +127,33 @@ public class GeoEdge : GeoElement
     }
 }
 
+public enum FaceType {
+    Normal,
+    SpreadRectangle,
+    SpreadCylinderCircle,
+    SpreadConeCircle,
+    SpreadFan,
+}
+
 public class GeoFace : GeoElement
 {
     private VertexUnit[] vertices;
 
     public bool Canselected;
 
+    public FaceType faceType;
+
     private int[] ids;
 
-    public GeoFace(VertexUnit[] vertices, bool Canselected = true, bool isBased = false) : base(0, 0, isBased)
+    public GeoFace(VertexUnit[] vertices, bool Canselected = true, FaceType faceType = FaceType.Normal, bool isBased = false) : base(0, 0, isBased)
     {
         name = "Face";
 
         this.vertices = vertices;
 
         this.Canselected = Canselected;
+        
+        this.faceType = faceType;
 
         this.ids = vertices.Select(v => v.id).ToArray();
     }
@@ -172,7 +184,7 @@ public class GeoFace : GeoElement
 
     public Face Face()
     {
-        return new Face(vertices.Select(v => v.Position()).ToArray(), Canselected);
+        return new Face(vertices.Select(v => v.Position()).ToArray(), Canselected, faceType);
     }
 
     public override string ToString()
@@ -201,8 +213,9 @@ public class GeoCircle : GeoElement
     private float radius; 
     private CircleDirection direction; 
     private bool displayFace; 
+    private FaceType faceType; 
 
-    public GeoCircle(VertexUnit vertex, float radius, CircleDirection direction = CircleDirection.Y, bool displayFace = false, bool isBased = false) : base(0, 0, isBased)
+    public GeoCircle(VertexUnit vertex, float radius, CircleDirection direction = CircleDirection.Y, bool displayFace = false, FaceType faceType = FaceType.Normal, bool isBased = false) : base(0, 0, isBased)
     {
         name = "Circle";
 
@@ -210,11 +223,12 @@ public class GeoCircle : GeoElement
         this.radius = radius;
         this.direction = direction;
         this.displayFace = displayFace;
+        this.faceType = faceType;
     }
 
     public Circle Circle()
     {
-        return new Circle(vertex.Position(), radius, direction, displayFace);
+        return new Circle(vertex.Position(), radius, direction, displayFace, faceType);
     }
 
     public override string ToString()

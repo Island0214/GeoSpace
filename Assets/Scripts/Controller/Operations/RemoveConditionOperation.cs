@@ -21,6 +21,9 @@ public class RemoveConditionOperation : Operation
     public override void Start()
     {
         geoController.RemoveCondition(condition);
+        if (condition is RectangleCondition || condition is TriangleCondition) {
+            geoController.ClearGeometry();
+        }
 
         geoController.EndOperation();
     }

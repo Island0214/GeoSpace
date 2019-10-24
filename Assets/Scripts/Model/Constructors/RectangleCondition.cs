@@ -21,16 +21,16 @@ public class RectangleConditionTool : ResolvedBodyConditionTool
 {
     public override FormInput FormInput()
     {
-        FormInput formInput = new FormInput(7);
+        // FormInput formInput = new FormInput(7);
 
-        formInput.inputs[0] = new FormText("垂直边长");
-        formInput.inputs[1] = new FormText("=");
-        formInput.inputs[2] = new FormNum();
-        formInput.inputs[3] = new FormText("，");
-        formInput.inputs[4] = new FormText("水平边长");
-        formInput.inputs[5] = new FormText("=");
-        formInput.inputs[6] = new FormNum();
-        return formInput;
+        // formInput.inputs[0] = new FormText("垂直边长");
+        // formInput.inputs[1] = new FormText("=");
+        // formInput.inputs[2] = new FormNum();
+        // formInput.inputs[3] = new FormText("，");
+        // formInput.inputs[4] = new FormText("水平边长");
+        // formInput.inputs[5] = new FormText("=");
+        // formInput.inputs[6] = new FormNum();
+        return null;
     }
 
     public override bool ValidateInput(Geometry geometry, FormInput formInput)
@@ -39,10 +39,10 @@ public class RectangleConditionTool : ResolvedBodyConditionTool
             return false;
         ResolvedBody resolvedBody = (ResolvedBody)geometry;
 
-        FormNum height = (FormNum)formInput.inputs[2];
-        FormNum width = (FormNum)formInput.inputs[6];
-        if (!IsValidLength(height) || !IsValidLength(width))
-            return false;
+        // FormNum height = (FormNum)formInput.inputs[2];
+        // FormNum width = (FormNum)formInput.inputs[6];
+        // if (!IsValidLength(height) || !IsValidLength(width))
+        //     return false;
 
         return true;
     }
@@ -53,9 +53,9 @@ public class RectangleConditionTool : ResolvedBodyConditionTool
         if (!valid)
             return null;
 
-        FormNum height = (FormNum)formInput.inputs[2];
-        FormNum width = (FormNum)formInput.inputs[6];
-        RectangleCondition condition = new RectangleCondition(height.num, width.num);
+        // FormNum height = (FormNum)formInput.inputs[2];
+        // FormNum width = (FormNum)formInput.inputs[6];
+        RectangleCondition condition = new RectangleCondition(2, 1);
 
         return condition;
     }
