@@ -8,6 +8,7 @@ public class ResolvedBody : Geometry
 
     public bool isSpinned = false;
     public bool isSpread = false;
+    private VertexResolvedBody[] vertexResolvedBodies;
 
     public override void Init()
     {
@@ -18,22 +19,56 @@ public class ResolvedBody : Geometry
 
     }
 
+    public override void MoveVertex(VertexUnit vertex, Ray ray, Transform camera, bool snap)
+    {
+        base.MoveVertex(vertex, ray, camera, snap);
+        if (!vertex.isBase)
+            return;
+        Vector3 position = vertex.Position();
+        SetVerticesAbsPosition(position);
+    }
+
+
+    public override VertexUnit[] VerticesOfMoveVertex(VertexUnit vertex)
+    {
+        if (!vertex.isBase)
+            return base.VerticesOfMoveVertex(vertex);
+        else
+            return (VertexUnit[])vertexResolvedBodies.Clone();
+    }
+
+    public void SetVerticesAbsPosition(Vector3 position)
+    {
+        float y = Mathf.Abs(position.y);
+        float z = Mathf.Abs(position.z);
+        Vector3[] vectors = new Vector3[4];
+        vectors[0] = new Vector3(0, y, 0);
+        vectors[1] = new Vector3(0, -y, 0);
+        vectors[2] = new Vector3(0, -y, z);
+        vectors[3] = new Vector3(0, y, z);
+        for (int i = 0; i < vertexResolvedBodies.Length; i++) {
+            VertexResolvedBody unit = vertexResolvedBodies[i];
+            unit.SetAbsPosition(vectors[i]);
+        }
+    }
+
     public void SetRectangle(Vector2 position)
     {
         Vector3 faceNormal = Vector3.right;
 
-        VertexFace u0 = new VertexFace(0, position.x / 2, 0, faceNormal);
+        VertexResolvedBody u0 = new VertexResolvedBody(0, position.x / 2, 0, faceNormal);
         u0.isFixed = true;
-        VertexFace u1 = new VertexFace(0, -position.x / 2, 0, faceNormal);
+        VertexResolvedBody u1 = new VertexResolvedBody(0, -position.x / 2, 0, faceNormal);
         u1.isFixed = true;
-        VertexFace u2 = new VertexFace(0, -position.x / 2, position.y, faceNormal);
-        u2.isFixed = true;
-        VertexFace u3 = new VertexFace(0, position.x / 2, position.y, faceNormal);
-        u3.isFixed = true;
+        VertexResolvedBody u2 = new VertexResolvedBody(0, -position.x / 2, position.y, faceNormal);
+        // u2.isFixed = true;
+        VertexResolvedBody u3 = new VertexResolvedBody(0, position.x / 2, position.y, faceNormal);
+        // u3.isFixed = true;
         AddBaseVertex(u0);
         AddBaseVertex(u1);
         AddBaseVertex(u2);
         AddBaseVertex(u3);
+        vertexResolvedBodies = new VertexResolvedBody[] {u0, u1, u2, u3};
 
         GeoVertex v0 = new GeoVertex(u0, true);
         GeoVertex v1 = new GeoVertex(u1, true);
@@ -62,15 +97,16 @@ public class ResolvedBody : Geometry
 	public void SetTriangle(Vector2 position) {
         Vector3 faceNormal = Vector3.right;
 
-        VertexFace u0 = new VertexFace(0, position.x / 2, 0, faceNormal);
+        VertexResolvedBody u0 = new VertexResolvedBody(0, position.x / 2, 0, faceNormal);
 		u0.isFixed = true;
-        VertexFace u1 = new VertexFace(0, -position.x / 2, 0, faceNormal);
+        VertexResolvedBody u1 = new VertexResolvedBody(0, -position.x / 2, 0, faceNormal);
 		u1.isFixed = true;
-        VertexFace u2 = new VertexFace(0, -position.x / 2, position.y, faceNormal);
-		u2.isFixed = true;
+        VertexResolvedBody u2 = new VertexResolvedBody(0, -position.x / 2, position.y, faceNormal);
+		// u2.isFixed = true;
         AddBaseVertex(u0);
         AddBaseVertex(u1);
         AddBaseVertex(u2);
+        vertexResolvedBodies = new VertexResolvedBody[] {u0, u1, u2};
 
         GeoVertex v0 = new GeoVertex(u0, true);
         GeoVertex v1 = new GeoVertex(u1, true);

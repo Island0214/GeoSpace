@@ -258,6 +258,110 @@ public class VertexFace : VertexUnit
     }
 }
 
+public class VertexResolvedBody: VertexUnit {
+    protected Vector3 faceNormal;
+
+    float signX;
+    float signY;
+    float signZ;
+
+    public VertexResolvedBody(float x, float y, float z, Vector3 faceNormal) : base(x, y, z)
+    {
+        this.faceNormal = faceNormal;
+        signX = Mathf.Sign(x);
+        signY = Mathf.Sign(y);
+        signZ = Mathf.Sign(z);
+    }
+
+    public VertexResolvedBody(Vector3 position, Vector3 faceNormal) : base(position)
+    {
+        this.faceNormal = faceNormal;
+    }
+
+    public override void AddDependencies()
+    {
+
+    }
+    public override void RemoveDependencies()
+    {
+
+    }
+
+    public override void Move(Ray ray, Transform camera, bool snap = false)
+    {
+        Plane facePlane = new Plane(faceNormal, position);
+
+        float distance = 0;
+        if (facePlane.Raycast(ray, out distance))
+        {
+            position = ray.GetPoint(distance);
+            RestrictPosition();
+        }
+
+        if (snap)
+        {
+            Vector3 snapPosition;
+            if (SnapPosition(position, out snapPosition))
+            {
+                float snapDistance = facePlane.GetDistanceToPoint(snapPosition);
+                if (Math.AboutEqualsZero(snapDistance))
+                    position = snapPosition;
+            }
+        }
+
+        base.PositionChanged();
+
+    }
+
+    public override void RefreshPosition()
+    {
+        Plane facePlane = new Plane(faceNormal, position);
+        Ray ray = new Ray(position, faceNormal);
+
+        float distance = 0;
+        if (facePlane.Raycast(ray, out distance))
+        {
+            position = ray.GetPoint(distance);
+        }
+
+        base.RefreshPosition();
+    }
+
+    public override void SetPosition(Vector3 position)
+    {
+        this.position = position;
+        RestrictPosition();
+        base.PositionChanged();
+    }
+
+    public void SetAbsPosition(Vector3 position)
+    {
+        position.x = signY * Mathf.Abs(position.x);
+        position.y = signY * Mathf.Abs(position.y);
+        position.z = signZ * Mathf.Abs(position.z);
+
+        SetPosition(position);
+    }
+
+    private void RestrictPosition()
+    {
+        if (signX > 0 && position.x < 0)
+            position.x = 0;
+        if (signX < 0 && position.x > 0)
+            position.x = 0;
+
+        if (signY > 0 && position.y < 0)
+            position.y = 0;
+        if (signY < 0 && position.y > 0)
+            position.y = 0;
+
+        if (signZ > 0 && position.z < 0)
+            position.z = 0;
+        if (signZ < 0 && position.z > 0)
+            position.z = 0;
+    }
+}
+
 
 public class VertexCuboid : VertexUnit
 {
