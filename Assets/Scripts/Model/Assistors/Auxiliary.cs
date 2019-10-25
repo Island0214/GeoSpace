@@ -21,6 +21,7 @@ public abstract class Auxiliary
 
     public abstract void InitWithGeometry(Geometry geometry);
 
+    public void RemoveAuxiliary() {}
 }
 
 

@@ -75,7 +75,11 @@ public abstract class Geometry
 
     public Vector3 UnitVector(int id)
     {
-        return vertices[id].Position();
+        try {
+            return vertices[id].Position();
+        } catch {
+            return new Vector3(0, 0, 0);
+        }
     }
 
     public VertexUnit[] VertexUnits()

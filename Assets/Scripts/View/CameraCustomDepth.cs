@@ -52,7 +52,8 @@ public class CameraCustomDepth : MonoBehaviour
         depthCamera.RenderWithShader(objectDepthShader, "RenderType");
 
         Shader.SetGlobalTexture("_DepthTexture", depthTexture);
-        cameraDepthMat.SetTexture("_DepthTexture", depthTexture);
+        if (cameraDepthMat != null)
+            cameraDepthMat.SetTexture("_DepthTexture", depthTexture);
     }
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)

@@ -105,6 +105,9 @@ public class EdgeBehaviour : ElementBehaviour, IPointerEnterHandler, IPointerExi
 
     private void OnCameraRotate()
     {
+        if (edge == null) {
+            return;
+        }
         Vector3 lineDir = edge.Vertex1 - edge.Vertex2;
         // Rotation Face to Camera
         Vector3 tangent = lineDir.normalized;
