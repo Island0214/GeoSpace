@@ -36,7 +36,8 @@ public class SpinAuxiliary : Auxiliary
         dependencies.AddRange(units);
     }
 
-    public new void RemoveAuxiliary() {
+    public override void RemoveAuxiliary() 
+    {
         geometryBehaviour.clearElements();
         geometryBehaviour.AddFaces();
         NavAxisBehaviour axis = GameObject.Find("X").GetComponent<NavAxisBehaviour>();

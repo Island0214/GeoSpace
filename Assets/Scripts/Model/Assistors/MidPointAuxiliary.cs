@@ -42,6 +42,8 @@ public class MidPointAuxiliary : Auxiliary
         dependencies.Add(unit2);
 
     }
+
+    public override void RemoveAuxiliary() {}
 }
 
 public class MidPointAuxiliaryTool : AuxiliaryTool

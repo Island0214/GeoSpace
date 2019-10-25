@@ -42,7 +42,8 @@ public class PlaneVerticalAuxiliary : Auxiliary
         dependencies.AddRange(faceUnits);
         dependencies.Add(unit1);
     }
-
+    
+    public override void RemoveAuxiliary() {}
 }
 
 

@@ -38,6 +38,8 @@ public class PlaneAuxiliary : Auxiliary
 
         dependencies.AddRange(faceUnits);
     }
+
+    public override void RemoveAuxiliary() {}
 }
 
 public class PlaneAuxiliaryTool : AuxiliaryTool

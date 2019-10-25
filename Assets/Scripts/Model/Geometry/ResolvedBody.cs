@@ -152,10 +152,10 @@ public class ResolvedBodyGeometryTool : GeometryTool
         geo.Assistor = new Assistor(geo);
         geo.Implement = new Implement(geo);
         geo.Init();
-        // transform camera
-        NavAxisBehaviour axis = GameObject.Find("X").GetComponent<NavAxisBehaviour>();
-        PointerEventData data = new PointerEventData(EventSystem.current);
-        axis.OnPointerClick(data);
+        // // transform camera
+        // NavAxisBehaviour axis = GameObject.Find("X").GetComponent<NavAxisBehaviour>();
+        // PointerEventData data = new PointerEventData(EventSystem.current);
+        // axis.OnPointerClick(data);
 
         lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
         lockButton.SetStatus(1);

@@ -42,6 +42,7 @@ public class LineVerticalAuxiliary : Auxiliary
 
     }
 
+    public override void RemoveAuxiliary() {}
 }
 
 public class LineVerticalAuxiliaryTool : AuxiliaryTool

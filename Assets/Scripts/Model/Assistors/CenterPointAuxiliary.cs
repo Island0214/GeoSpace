@@ -31,6 +31,8 @@ public class CenterPointAuxiliary : Auxiliary
 
         dependencies.AddRange(vertexUnits);
     }
+
+    public override void RemoveAuxiliary() {}
 }
 
 public class CenterPointAuxiliaryTool : AuxiliaryTool

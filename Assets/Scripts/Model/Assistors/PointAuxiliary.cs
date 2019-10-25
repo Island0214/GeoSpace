@@ -29,6 +29,7 @@ public class PointAuxiliary : Auxiliary
         elements = new GeoElement[] { geoVertex };
     }
 
+    public override void RemoveAuxiliary() {}
 }
 
 public class PointAuxiliaryTool : AuxiliaryTool
