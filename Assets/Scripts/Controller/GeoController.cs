@@ -519,7 +519,7 @@ public class GeoController : MonoBehaviour
         if (state != GeoState.Normal)
             return;
 
-        currentOperation = new GeometryOperation(this, toolController, stateController, tool);
+        currentOperation = new GeometryOperation(this, toolController, stateController, tool,geometryBehaviour);
         currentOperation.Start();
     }
 

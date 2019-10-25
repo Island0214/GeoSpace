@@ -14,8 +14,15 @@ public enum StateCellState
 public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public Action OnClickDelete;
+
+    public Action UndoFaceHighlight;
+
     public Action DoubleClick;
+
     // StateCellState state;
+
+    public Action OnElementHighlight;  //ElementPanel的OnElementClickColor
+
     RectTransform rectTransform;
     GameObject btnToggleObject;
     GameObject btnDeleteObject;
@@ -23,6 +30,7 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     Button btnToggle;
     Button btnDelete;
     Text text;
+    Boolean isHighlighted = false;
 
     public void Init()
     {
@@ -91,17 +99,46 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         btnDeleteObject.SetActive(false);
     }
+
     void DeleteButtonClicked()
     {
+        if(UndoFaceHighlight != null&&isHighlighted == true)
+            UndoFaceHighlight();
         if (OnClickDelete != null)
-            OnClickDelete();
+            OnClickDelete(); 
     }
 
     void ToggleButtonDoubleClicked()
     {
-        //SetState(StateCellState.Close);
-        if (DoubleClick != null)
-            DoubleClick();
+        
+        // if (OnElementHighlight != null && isHighlighted == false)
+        //     {
+        //         OnElementHighlight(); 
+        //     }
+        // //SetState(StateCellState.Close);
+        // if (DoubleClick != null && isHighlighted == false)
+        //     {
+        //         DoubleClick();
+        //        // isHighlighted = true;
+        //     }
+        if(isHighlighted == true)
+        {
+            if(UndoFaceHighlight != null)
+            UndoFaceHighlight();
+            isHighlighted = false;
+        }
+        else
+        {
+            if (OnElementHighlight != null)
+            {
+                OnElementHighlight();
+            }
+            if(DoubleClick != null)
+            {
+                DoubleClick();
+            }
+            isHighlighted = true;
+        }
         
     }
 

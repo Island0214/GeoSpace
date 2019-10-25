@@ -8,7 +8,13 @@ public abstract class State
     public Tool tool;
 
     public Action OnClickDelete;
-    public Action DoubleClick;
+
+    public Action OnElementHighlight; //Requirement 1
+
+    public Action DoubleClick; //Requirement 1
+
+    public Action UndoFaceHighlight; //Requirement 1
+
 
     public State(Tool tool)
     {

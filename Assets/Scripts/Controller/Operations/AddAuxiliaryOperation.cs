@@ -16,7 +16,9 @@ public class AddAuxiliaryOperation : Operation
     Tool tool;
 
     AuxiliaryTool auxiliaryTool;
-
+    GeoUI geoUI;
+    List<Measure> measure_list = new List<Measure>();
+    List<ElementBehaviour> elementBehaviour_list = new List<ElementBehaviour>();
 
     public AddAuxiliaryOperation(GeoController geoController,GeoCamera geoCamera, StateController stateController, Geometry geometry, GeometryBehaviour geometryBehaviour, GeoUI geoUI, Tool tool)
     {
@@ -32,7 +34,7 @@ public class AddAuxiliaryOperation : Operation
         this.geometryBehaviour = geometryBehaviour;
         this.inputPanel = geoUI.inputPanel;
         this.tool = tool;
-
+        this.geoUI = geoUI;
         Type type = Type.GetType(tool.Name + "AuxiliaryTool");
         if (type != null)
             auxiliaryTool = (AuxiliaryTool)Activator.CreateInstance(type);
@@ -153,22 +155,246 @@ public class AddAuxiliaryOperation : Operation
         {
             AuxiliaryState auxiliaryState = (AuxiliaryState)Activator.CreateInstance(type, tool, auxiliary, geometry);
             auxiliaryState.OnClickDelete = () => geoController.RemoveAuxiliaryOperation(auxiliary);
-
-            //stateµ•ª˜
+            
+            // Debug.Log(geoCamera.transform.position);
+            // Debug.Log(geoCamera.get_CameraCustomDepth().srcCamera.transform.position);
+            //stateÂçïÂáª
             auxiliaryState.DoubleClick = () => this.TurnToFront(auxiliary,form);
-            //auxiliaryState.DoubleClick = () => geoCamera.TriggerRotateAnimation(45,10); //∂Øª≠–˝◊™Ω«∂»µΩƒ≥∏ˆŒª÷√
+            //auxiliaryState.DoubleClick = () => geoCamera.TriggerRotateAnimation(45,10); //Âä®ÁîªÊóãËΩ¨ËßíÂ∫¶Âà∞Êüê‰∏™‰ΩçÁΩÆ
+
+            //Action OnElementHighLight  0925 Requirement_1
+            auxiliaryState.OnElementHighlight = () =>   
+            {
+            
+            //Hightlight face
+            // geometry.SetElementColor(auxiliary.elements[0], 1);  
+            // geometryBehaviour.GeometryElementColorChange(auxiliary.elements[0], 1);
+            ChangeFaceColorIndex((GeoFace)auxiliary.elements[0],1);
+            
+            //Hide coordinate
+            geoUI.navPanel.OnCoordinateButtonClick(1);
+            geoUI.navPanel.SetCoordinateButtonStatus(1); //Change Button status
+
+            //Hide grid
+            geoUI.navPanel.OnGridButtonClick(1);
+            geoUI.navPanel.SetGridButtonStatus(1);  
+
+            
+            //Measure Line length
+            if(auxiliary.elements[0] is GeoFace) 
+            {
+                GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+                for(int i = 0;i < geoFace.Ids.Length; i++)
+                {
+
+                int vertex1 = i;
+                int vertex2 = (i+1) % geoFace.Ids.Length;
+
+                Measure measure = new LineLengthMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2]);
+                
+                measure_list.Add((Measure)measure);
+                
+                measure.InitWithGeometry(geometry);
+                bool result = geometry.Implement.AddMeasure(measure);
+                if (result)
+                {
+                    List<ToolGroup> toolGroups = geoUI.toolPanel.ToolGroups();
+                    Tool lineLengthMeasureTool = toolGroups[3].Tools[0];
+                    AddState_Measure(measure,lineLengthMeasureTool);
+
+                    Gizmo[] gizmos = measure.gizmos;
+                    if (gizmos != null)
+                    {
+                        foreach (Gizmo gizmo in gizmos)
+                        {
+                            geometry.AddGizmo(gizmo);
+                            geometryBehaviour.AddGizmo(gizmo);
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO
+                }
+
+                }
+            }
+            //Measure CornerAngle
+            if(auxiliary.elements[0] is GeoFace) 
+            {
+                GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+                for(int i = 0;i < geoFace.Ids.Length; i++) 
+                {
+                int vertex1 = i;
+                int vertex2 = (i+1)%geoFace.Ids.Length;
+                int vertex3 = (i+2)%geoFace.Ids.Length;
+
+                Measure measure = new CornerAngleMeasure(geoFace.Ids[vertex1], geoFace.Ids[vertex2], geoFace.Ids[vertex3]);
+                
+                measure_list.Add((Measure)measure);
+                
+                measure.InitWithGeometry(geometry);
+
+
+                bool result = geometry.Implement.AddMeasure(measure);
+
+                if (result)
+                {
+                    List<ToolGroup> toolGroups = geoUI.toolPanel.ToolGroups();
+                    Tool cornerAngleMeasureTool = toolGroups[3].Tools[1];
+                    AddState_Measure(measure,cornerAngleMeasureTool);
+
+                    Gizmo[] gizmos = measure.gizmos;
+                    if (gizmos != null)
+                    {
+                        foreach (Gizmo gizmo in gizmos)
+                        {
+                            geometry.AddGizmo(gizmo);
+                            geometryBehaviour.AddGizmo(gizmo);
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO
+                } 
+                }  
+            }        
+            //Measure Plane Area
+            if(auxiliary.elements[0] is GeoFace) 
+            {
+                GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+                //Debug.Log(geoFace.Ids);
+                Measure measure = new PlaneAreaMeasure(geoFace.Ids);
+
+                measure_list.Add(measure);
+                
+                measure.InitWithGeometry(geometry);
+
+
+                bool result = geometry.Implement.AddMeasure(measure);
+
+                if (result)
+                {
+                    List<ToolGroup> toolGroups = geoUI.toolPanel.ToolGroups();
+                    Tool planeAreaMeasureTool = toolGroups[3].Tools[2];
+                    AddState_Measure(measure,planeAreaMeasureTool);
+
+                    Gizmo[] gizmos = measure.gizmos;
+                    if (gizmos != null)
+                    {
+                        foreach (Gizmo gizmo in gizmos)
+                        {
+                            geometry.AddGizmo(gizmo);
+                            geometryBehaviour.AddGizmo(gizmo);
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO
+                }
+            }
+
+
+
+
+            // Hide elements beyond the Highlighted face
+            // Debug.Log(geoCamera.get_CameraCustomDepth().srcCamera.transform.position);
+            // Debug.Log(geoCamera.transform.position);
+            // Vector3 cameraLocation = geoCamera.get_CameraCustomDepth().transform.position;
+             GeoVertex[] geoVertices = geometry.GeoVertices();
+             if(auxiliary.elements[0] is GeoFace) 
+             {
+             GeoFace geoFace = (GeoFace)auxiliary.elements[0];
+             VertexUnit[] faceVertices = geoFace.get_vertices();
+             Vector3 side1 = faceVertices[0].Position() - faceVertices[1].Position();
+             Vector3 side2 = faceVertices[2].Position() - faceVertices[1].Position();
+             Vector3 perp  = Vector3.Cross(side1,side2);
+             
+             Vector3 anchor = faceVertices[1].Position() - perp*2;
+             Debug.Log(anchor);
+            
+            float min = 1000;
+            GeoEdge[] edges = geometry.GeoEdges();
+            foreach(VertexUnit vertexUnit in geoFace.get_vertices())
+            {
+                float face_vertex_distance = Vector3.Distance(vertexUnit.Position(),anchor);
+                if(face_vertex_distance<min)
+                min = face_vertex_distance;
+            }
+             foreach(GeoVertex geoVertex in geoVertices)
+             {
+                 float distance = Vector3.Distance(geoVertex.VertexUnit().Position(),anchor);
+                if(distance<min)
+                {
+                    //ÈöêËóèËØ•È°∂ÁÇπ
+                    ElementBehaviour vertexElementBehaviour = geometryBehaviour.elementMap[geoVertex];
+                    vertexElementBehaviour.SetVisible(false);
+                    elementBehaviour_list.Add(vertexElementBehaviour);
+                    //ÈöêËóèËØ•È°∂ÁÇπËµ∑ÂßãÁöÑÊâÄÊúâËæπ
+                    foreach (GeoEdge geoEdge in edges)
+                    {
+                        if(geoVertex.Id == geoEdge.Id1 || geoVertex.Id == geoEdge.Id2)
+                        {
+                            ElementBehaviour edgeElementBehaviour = geometryBehaviour.elementMap[geoEdge];
+                            edgeElementBehaviour.SetVisible(false);
+                            elementBehaviour_list.Add(edgeElementBehaviour);
+                        }
+                    }
+                }
+                
+             }            
+            }
+            };
+
+            auxiliaryState.UndoFaceHighlight = () =>
+            {
+            //Undo Hightlight face
+            ChangeFaceColorIndex((GeoFace)auxiliary.elements[0],0);
+
+            
+            //Undo Hide coordinate
+            geoUI.navPanel.OnCoordinateButtonClick(0);
+            geoUI.navPanel.SetCoordinateButtonStatus(0); //Change Button status
+                        
+            //Hide grid
+            geoUI.navPanel.OnGridButtonClick(0);
+            geoUI.navPanel.SetGridButtonStatus(0); 
+
+            //Claer All Face_MeasureStates
+            foreach(Measure measure in measure_list)
+            geoController.RemoveMeasure(measure);
+            foreach(ElementBehaviour elementBehaviour in elementBehaviour_list)
+            elementBehaviour.SetVisible(true);
+            };
+
+
 
             stateController.AddAuxiliaryState(auxiliaryState);
         }
     }
 
+
+        private void AddState_Measure(Measure measure,Tool tool)
+    {
+        Type type = Type.GetType(tool.Name + "MeasureState");
+        if (type != null)
+        {
+            MeasureState measureState = (MeasureState)Activator.CreateInstance(type, tool, measure, geometry);
+            measureState.OnClickDelete = () => geoController.RemoveMeasureOperation(measure);
+
+            stateController.AddMeasureState(measureState);
+        }
+    }
+
     public void TurnToFront(Auxiliary auxiliary,FormInput form) {
-        Debug.Log(form.inputs[1]);// ∏®÷˙√Ê√˚
+        Debug.Log(form.inputs[1]);// ËæÖÂä©Èù¢Âêç
         //String faceName = form.inputs[1].ToString();
         //Debug.Log(faceName);
         //Debug.Log(auxiliary.elements[0]);//  face 7 5 0
         //Debug.Log(auxiliary.elements[0].name);//  Face 
-        //Debug.Log(auxiliary.dependencies.ToArray()[0].Position());//∏®÷˙√Êµ⁄“ª∏ˆµ„µƒ◊¯±Í
+        //Debug.Log(auxiliary.dependencies.ToArray()[0].Position());//ËæÖÂä©Èù¢Á¨¨‰∏Ä‰∏™ÁÇπÁöÑÂùêÊ†á
 
         Vector3 rotateAngle = new Vector3(0, 0, 0);
         if (auxiliary.elements[0].name == "Face")
@@ -183,16 +409,16 @@ public class AddAuxiliaryOperation : Operation
         Debug.Log("rotateX:" + rotateAngle.x);
         Debug.Log("rotateY:" + rotateAngle.y);
         //Debug.Log("rotateZ:" + rotateZ);
-        //geoCamera.SetCameraAttributes(rotateY, -90f - rotateX, 0f);  //÷±Ω”Ã¯◊™æµÕ∑
-         //geoCamera.SetCameraAttributes(45f, -90f-10f, 0f);//y ,x,z  œÚ…œ45∂»£¨œÚ”“10∂»
-        geoCamera.TriggerRotateAnimation(rotateAngle.x,rotateAngle.y);  //∂Øª≠–˝◊™æµÕ∑
+        //geoCamera.SetCameraAttributes(rotateY, -90f - rotateX, 0f);  //Áõ¥Êé•Ë∑≥ËΩ¨ÈïúÂ§¥
+         //geoCamera.SetCameraAttributes(45f, -90f-10f, 0f);//y ,x,z  Âêë‰∏ä45Â∫¶ÔºåÂêëÂè≥10Â∫¶
+        geoCamera.TriggerRotateAnimation(rotateAngle.x,rotateAngle.y);  //Âä®ÁîªÊóãËΩ¨ÈïúÂ§¥
      
     }
 
     public Vector3 GetRotateAngle(Auxiliary auxiliary)
     {
         VertexUnit[] units = auxiliary.dependencies.ToArray();
-        //∆Ω√Ê»˝∏ˆ≤ªπ≤œﬂµ„
+        //Âπ≥Èù¢‰∏â‰∏™‰∏çÂÖ±Á∫øÁÇπ
         Vector3 A = new Vector3();
         Vector3 B = new Vector3();
         Vector3 C = new Vector3();
@@ -219,8 +445,8 @@ public class AddAuxiliaryOperation : Operation
             }
         }
 
-        //«Û∆Ω√Ê∑®œﬂ
-        Vector3 normalVector;  //∆Ω√Ê∑®œÚ¡ø
+        //Ê±ÇÂπ≥Èù¢Ê≥ïÁ∫ø
+        Vector3 normalVector;  //Âπ≥Èù¢Ê≥ïÂêëÈáè
         Vector3 AB = new Vector3(B.x - A.x, B.y - A.y, B.z - A.z);
         Vector3 AC = new Vector3(C.x - A.x, C.y - A.y, C.z - A.z);
         normalVector.x = AB.y * AC.z - AC.y * AB.z;
@@ -241,13 +467,20 @@ public class AddAuxiliaryOperation : Operation
         float rotateY = 90f - Vector3.Angle(new Vector3(0, 1, 0), normalVector);
         //float rotateZ = 90f - Vector3.Angle(new Vector3(0, 0, 1), normalVector);
         //float rotateZ = 0f;
-        //if (normalVector.z < 0) {
-          //  rotateX = -rotateX;
-        //}
+        if (normalVector.z < 0) {
+           rotateX = -rotateX;
+        }
         
         //return new Vector3(rotateX, rotateY, rotateZ);
         return new Vector3(-rotateX-90,rotateY,0f);
 
+
+    }
+
+    public void ChangeFaceColorIndex(GeoFace geoface,int colorindex)
+    {
+        geometry.SetElementColor(geoface, colorindex);  
+        geometryBehaviour.GeometryElementColorChange(geoface, colorindex);
     }
 
 }

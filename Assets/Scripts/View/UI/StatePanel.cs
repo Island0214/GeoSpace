@@ -26,6 +26,21 @@ public class StatePanel : MonoBehaviour
             if (state.OnClickDelete != null)
                 state.OnClickDelete();
         };
+
+        stateCell.UndoFaceHighlight = () =>
+        {
+            if (state.UndoFaceHighlight != null)
+                state.UndoFaceHighlight();
+        };
+
+        stateCell.OnElementHighlight = () =>
+        {   
+            if (state.OnElementHighlight != null)
+                state.OnElementHighlight();
+        };
+        
+
+
         
         stateCell.DoubleClick = () =>
         {
@@ -33,6 +48,7 @@ public class StatePanel : MonoBehaviour
                 state.DoubleClick();
         };
         
+
         RefreshStateCell(state);
 
         SetCellTintColor(stateCell, color);

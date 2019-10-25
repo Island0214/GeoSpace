@@ -87,13 +87,20 @@ public class AddMeasureOperation : Operation
                     geometryBehaviour.AddGizmo(gizmo);
                 }
             }
-        }
-        else
-        {
-            // TODO
-        }
 
-        geoController.EndOperation();
+            else
+            {
+                // TODO
+            }
+            // foreach(FormItem item in form.inputs) 
+            // {
+            // Debug.Log(item);
+            // }
+            geoController.EndOperation();
+
+        };
+
+
     }
 
     public override void End()

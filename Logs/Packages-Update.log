@@ -63,3 +63,13 @@ The following packages were updated:
   com.unity.analytics from version 3.2.2 to 3.3.2
   com.unity.collab-proxy from version 1.2.15 to 1.2.16
   com.unity.package-manager-ui from version 2.0.3 to 2.2.0
+
+=== Mon Oct 14 10:55:18 2019
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were added:
+  com.unity.purchasing@2.0.6
+  com.unity.ads@2.0.8
+  com.unity.textmeshpro@2.0.1

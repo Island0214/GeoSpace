@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//所有位置元素的父类
 public abstract class GeoElement
 {
     public string name;
@@ -173,6 +174,12 @@ public class GeoFace : GeoElement
         {
             return ids;
         }
+    }
+    public VertexUnit[] get_vertices()
+    {
+        
+            return vertices;
+        
     }
 
     public Face Face()

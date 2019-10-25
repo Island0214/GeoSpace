@@ -6,8 +6,8 @@ using System.Collections;
 public class CameraCustomDepth : MonoBehaviour
 {
     public bool IsDepthDebug = false;
-    private Camera srcCamera;
-    private Camera depthCamera;
+    public Camera srcCamera;
+    public Camera depthCamera;
 
     private GameObject depthCameraObj;
     private RenderTexture depthTexture;

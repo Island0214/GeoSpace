@@ -175,4 +175,8 @@ public class ToolPanel : MonoBehaviour
         }
     }
 
+    public List<ToolGroup> ToolGroups()
+    {
+        return toolGroups;
+    }
 }
