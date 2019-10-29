@@ -28,7 +28,7 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     string currentDeviceName = string.Empty;
 
     //录音频率,控制录音质量(8000,16000)
-    int recordFrequency = 8000;
+    int recordFrequency = 16000;
 
     //上次按下时间戳
     double lastPressTimestamp = 0;
