@@ -90,7 +90,9 @@ public class GeoController : MonoBehaviour
         navPanel.OnDisplayButtonClick = HandleClickDisplayButton;
         navPanel.OnCoordinateButtonClick = HandleClickCoordinateButton;
         navPanel.OnGridButtonClick = HandleClickGridButton;
+        //Speech Recognition
         navPanel.OnSnapButtonClick = HandleClickSnapButton;
+        navPanel.OnVoiceButtonClick = HandleClickVoiceButton;
         geometryBehaviour.OnElementDisplayChange = HandleElementDisplayChange;
         navPanel.Init();
 
@@ -378,6 +380,12 @@ public class GeoController : MonoBehaviour
     public void HandleClickSnapButton(int i)
     {
         isSnapToGrid = i == 0;
+    }
+
+    public void HandleClickVoiceButton(int i)
+    {
+        Debug.Log("Speech Recognition");
+        ///TODO: 语音识别接口加入
     }
 
     public void HandleElementDisplayChange(int i)

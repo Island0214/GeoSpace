@@ -11,6 +11,7 @@ public class NavPanel : MonoBehaviour
     public Action<int> OnCoordinateButtonClick;
     public Action<int> OnGridButtonClick;
     public Action<int> OnSnapButtonClick;
+    public Action<int> OnVoiceButtonClick;
 
     private StatusButton shadeButton;
     private StatusButton lockButton;
@@ -18,6 +19,7 @@ public class NavPanel : MonoBehaviour
     private StatusButton coordinatButton;
     private StatusButton gridButton;
     private StatusButton snapButton;
+    private StatusButton voiceButton;
 
     public void Init()
     {
@@ -75,6 +77,15 @@ public class NavPanel : MonoBehaviour
                 OnSnapButtonClick(current);
         };
         snapButton.SetStatus(0);
+
+        voiceButton = transform.Find("VoiceButton").GetComponent<StatusButton>();
+        voiceButton.Init();
+        voiceButton.OnStatusChange = (last, current) =>
+        {
+            if (OnVoiceButtonClick != null)
+                OnVoiceButtonClick(current);
+        };
+        voiceButton.SetStatus(0);
 
     }
 
