@@ -249,6 +249,15 @@ public abstract class Geometry
         circular.AddObserveElements();
     }
 
+    public void RefreshGeoEdges()
+    {
+        List<GeoEdge> newEdges = new List<GeoEdge>();
+        foreach (GeoEdge edge in newEdges) 
+        {
+            RemoveGeoEdge(edge);
+        }
+    }
+
     public void RemoveElement(GeoElement element)
     {
         if (element is GeoVertex)

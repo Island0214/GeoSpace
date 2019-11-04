@@ -95,6 +95,7 @@ public class AddAuxiliaryOperation : Operation
             foreach (VertexUnit unit in units)
                 geometry.AddVertexUnit(unit);
 
+            geometry.RefreshGeoEdges();
             foreach (GeoElement element in elements)
                 geometry.AddElement(element);
 
@@ -156,19 +157,14 @@ public class AddAuxiliaryOperation : Operation
             AuxiliaryState auxiliaryState = (AuxiliaryState)Activator.CreateInstance(type, tool, auxiliary, geometry);
             auxiliaryState.OnClickDelete = () => geoController.RemoveAuxiliaryOperation(auxiliary);
             
-            // Debug.Log(geoCamera.transform.position);
-            // Debug.Log(geoCamera.get_CameraCustomDepth().srcCamera.transform.position);
             //state单击
             auxiliaryState.DoubleClick = () => this.TurnToFront(auxiliary,form);
-            //auxiliaryState.DoubleClick = () => geoCamera.TriggerRotateAnimation(45,10); //动画旋转角度到某个位置
 
             //Action OnElementHighLight  0925 Requirement_1
             auxiliaryState.OnElementHighlight = () =>   
             {
             
             //Hightlight face
-            // geometry.SetElementColor(auxiliary.elements[0], 1);  
-            // geometryBehaviour.GeometryElementColorChange(auxiliary.elements[0], 1);
             ChangeFaceColorIndex((GeoFace)auxiliary.elements[0],1);
             
             //Hide coordinate
@@ -296,13 +292,7 @@ public class AddAuxiliaryOperation : Operation
                 }
             }
 
-
-
-
             // Hide elements beyond the Highlighted face
-            // Debug.Log(geoCamera.get_CameraCustomDepth().srcCamera.transform.position);
-            // Debug.Log(geoCamera.transform.position);
-            // Vector3 cameraLocation = geoCamera.get_CameraCustomDepth().transform.position;
              GeoVertex[] geoVertices = geometry.GeoVertices();
              if(auxiliary.elements[0] is GeoFace) 
              {
@@ -389,30 +379,13 @@ public class AddAuxiliaryOperation : Operation
     }
 
     public void TurnToFront(Auxiliary auxiliary,FormInput form) {
-        Debug.Log(form.inputs[1]);// 辅助面名
-        //String faceName = form.inputs[1].ToString();
-        //Debug.Log(faceName);
-        //Debug.Log(auxiliary.elements[0]);//  face 7 5 0
-        //Debug.Log(auxiliary.elements[0].name);//  Face 
-        //Debug.Log(auxiliary.dependencies.ToArray()[0].Position());//辅助面第一个点的坐标
-
         Vector3 rotateAngle = new Vector3(0, 0, 0);
         if (auxiliary.elements[0].name == "Face")
         {
             rotateAngle = GetRotateAngle(auxiliary);
             Debug.Log("change");
         }
-
-        //float rotateX = rotateAngle.x;
-        //float rotateY = rotateAngle.y;
-        //float rotateZ = rotateAngle.z;
-        Debug.Log("rotateX:" + rotateAngle.x);
-        Debug.Log("rotateY:" + rotateAngle.y);
-        //Debug.Log("rotateZ:" + rotateZ);
-        //geoCamera.SetCameraAttributes(rotateY, -90f - rotateX, 0f);  //直接跳转镜头
-         //geoCamera.SetCameraAttributes(45f, -90f-10f, 0f);//y ,x,z  向上45度，向右10度
         geoCamera.TriggerRotateAnimation(rotateAngle.x,rotateAngle.y);  //动画旋转镜头
-     
     }
 
     public Vector3 GetRotateAngle(Auxiliary auxiliary)
