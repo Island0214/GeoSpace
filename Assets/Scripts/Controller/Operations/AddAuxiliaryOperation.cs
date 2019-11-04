@@ -167,8 +167,6 @@ public class AddAuxiliaryOperation : Operation
             {
             
             //Hightlight face
-            // geometry.SetElementColor(auxiliary.elements[0], 1);  
-            // geometryBehaviour.GeometryElementColorChange(auxiliary.elements[0], 1);
             ChangeFaceColorIndex((GeoFace)auxiliary.elements[0],1);
             
             //Hide coordinate
@@ -310,10 +308,21 @@ public class AddAuxiliaryOperation : Operation
              VertexUnit[] faceVertices = geoFace.get_vertices();
              Vector3 side1 = faceVertices[0].Position() - faceVertices[1].Position();
              Vector3 side2 = faceVertices[2].Position() - faceVertices[1].Position();
-             Vector3 perp  = Vector3.Cross(side1,side2);
+             Vector3 normalVector  = Vector3.Cross(side1,side2);
              
-             Vector3 anchor = faceVertices[1].Position() - perp*2;
-             Debug.Log(anchor);
+                if (normalVector.x < 0) {
+                    normalVector.x = -normalVector.x;
+                    normalVector.y = -normalVector.y;
+                    normalVector.z = -normalVector.z;
+                }
+                if (normalVector.x == 0) {
+                    if (normalVector.z < 0) {
+                        normalVector.y = -normalVector.y;
+                        normalVector.z = -normalVector.z;
+                    }
+                }
+
+             Vector3 anchor = faceVertices[1].Position() + normalVector*2;
             
             float min = 1000;
             GeoEdge[] edges = geometry.GeoEdges();
