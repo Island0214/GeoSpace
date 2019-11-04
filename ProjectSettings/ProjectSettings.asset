@@ -654,10 +654,10 @@ PlayerSettings:
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
   apiCompatibilityLevel: 6
-  cloudProjectId: 39b652df-7526-45b2-9b62-c45de8bd816f
+  cloudProjectId: 2ab0efe9-0ebe-4bec-b96a-745473b70c9b
   framebufferDepthMemorylessMode: 0
-  projectName: GeoSpace
-  organizationId: sorumi
+  projectName: New Unity Project
+  organizationId: islandq0214
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0

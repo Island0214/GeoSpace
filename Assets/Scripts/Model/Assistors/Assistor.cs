@@ -41,18 +41,7 @@ public class Assistor
     public bool RemoveAuxiliary(Auxiliary auxiliary)
     {
         RemoveObservers(auxiliary);
-
-        if(auxiliary is SpreadAuxiliary)
-        {
-            SpreadAuxiliary spreadAuxiliary = (SpreadAuxiliary)auxiliary;
-            spreadAuxiliary.RemovePlaneGraph();
-        }
-
-        if(auxiliary is SpinAuxiliary)
-        {
-            SpinAuxiliary spinAuxiliary = (SpinAuxiliary)auxiliary;
-            spinAuxiliary.RemoveAuxiliary();
-        }
+        auxiliary.RemoveAuxiliary();
 
         return auxiliaries.Remove(auxiliary);
     }

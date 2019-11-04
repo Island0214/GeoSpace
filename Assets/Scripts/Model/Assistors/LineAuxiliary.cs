@@ -23,6 +23,8 @@ public class LineAuxiliary : Auxiliary
         dependencies.Add(unit1);
         dependencies.Add(unit2);
     }
+
+    public override void RemoveAuxiliary() {}
 }
 
 public class LineAuxiliaryTool : AuxiliaryTool

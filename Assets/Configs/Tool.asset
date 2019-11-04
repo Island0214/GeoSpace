@@ -26,10 +26,6 @@ MonoBehaviour:
       Name: TriPyramid
       Description: "\u4E09\u68F1\u9525"
       Type: 0
-    - Icon: {fileID: 21300000, guid: ba47ef39936d24b3885bff975485df95, type: 3}
-      Name: Free
-      Description: "\u81EA\u7531\u6784\u5EFA"
-      Type: 0
     - Icon: {fileID: 21300000, guid: 39857099206fe4249a900ebe9d2af84b, type: 3}
       Name: ResolvedBody
       Description: "\u65CB\u8F6C\u4F53"

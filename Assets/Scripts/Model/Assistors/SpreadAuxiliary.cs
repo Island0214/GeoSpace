@@ -142,7 +142,7 @@ public class SpreadAuxiliary : Auxiliary
         geometryBehaviour.AddElement(c2);
     }
 
-    public void RemovePlaneGraph()
+    public override void RemoveAuxiliary() 
     {
         geoCamera.TriggerMoveZAnimation(225, 30, -positionZ);
         geometryBehaviour.clearExtraElements();
