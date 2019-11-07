@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -336,15 +337,23 @@ public class GeoController : MonoBehaviour
         {
             case ToolGroupType.Geometry:
                 GeometryOperation(tool);
+                //Classify("正方体ABCD-A1B1C1D1");
+                //Classify("三棱锥P-ABC");
+                //Classify("三角形旋转体");
+                
                 break;
             case ToolGroupType.Condition:
                 AddConditionOperation(tool);
+                //Classify("旋转");
                 break;
             case ToolGroupType.Auxiliary:
                 AddAuxiliaryOperation(tool);
+                //Classify("连接ACD1作平面");
+                //Classify("面ABCD的面积");
                 break;
             case ToolGroupType.Measure:
                 AddMeasureOperation(tool);
+                //Classify("面ABCD的面积");
                 break;
         }
     }
@@ -522,6 +531,502 @@ public class GeoController : MonoBehaviour
         currentOperation = new GeometryOperation(this, toolController, stateController, tool,geometryBehaviour);
         currentOperation.Start();
     }
+
+    public void Classify(String str)
+    {
+        /*
+        正方体/立方体ABCD-A1B1C1D1
+        三棱锥P-ABC
+        旋转体  矩形旋转体、三角形旋转体
+        长宽高  
+            
+        作空间中一点A(1,1,1)
+    	作两点、线段中点              作AB中点C
+		线段描点                     取AB上一点C
+	    作平面重心                   作面ABC..重心M
+	    连接两点                     连接MN 
+        过点作线段垂线               过点A作线段MN垂线交线段于点P
+	    过点作平面垂线               过点A作面ABC..垂线交面于点Q
+        连接点作平面                 连接ABC..作平面
+        测量长度、角度、面积
+         */
+        if (state != GeoState.Normal)
+            return;
+        if (str == "旋转")
+        {
+            Debug.Log("旋转");
+            Tool tool = geoUI.toolPanel.toolGroups[2].Tools[0];
+            //Debug.Log(tool.Type);  //reslovedBody
+            SetState(GeoState.Auxiliary);
+
+            currentOperation = new AddAuxiliaryOperation(this, geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
+            currentOperation.Start();
+        }
+        else if (str == "展开")
+        {
+            Debug.Log("展开");
+            Tool tool = geoUI.toolPanel.toolGroups[2].Tools[1];
+            //Debug.Log(tool.Type);  //reslovedBody
+            SetState(GeoState.Auxiliary);
+
+            currentOperation = new AddAuxiliaryOperation(this, geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
+            currentOperation.Start();
+        }
+        else if (str.Length < 3)
+        {
+            Debug.Log("input error");
+        }
+        else if (str.Substring(0, 3) == "正方体" || str.Substring(0, 3) == "立方体")
+        {
+            Debug.Log("正方体");
+            Tool tool = geoUI.toolPanel.toolGroups[0].Tools[0];
+            currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
+            String list = "";
+
+            if (str.Length > 3)
+            {
+                Debug.Log(str.Substring(3));
+                String cuboidName = str.Substring(3);
+
+                if (cuboidName.Length >= 9)
+                {
+
+                    for (int i = 0; i < cuboidName.Length; i++)
+                    {
+                        String item = cuboidName.Substring(i, 1);
+                        if (Regex.IsMatch(cuboidName.Substring(i, 1), @"^[A-Za-z]+$"))
+                        {
+                            if (i == cuboidName.Length - 1)
+                            {
+                                list += item;
+                            }
+                            else
+                            {
+                                if (Regex.IsMatch(cuboidName.Substring(i + 1, 1), @"^[0-9]*$"))
+                                {
+                                    list += cuboidName.Substring(i, 2);
+                                    if (i != cuboidName.Length - 2)
+                                    {
+                                        list += " ";
+                                    }
+                                    i++;
+                                }
+                                else
+                                {
+                                    list += item + " ";
+                                }
+                            }
+                        }
+                    }
+                    Debug.Log(list);
+                    GeometryOperation opt = (GeometryOperation)currentOperation;
+                    opt.ReSetSign(list);
+                }
+                else
+                {
+                    // default name
+                }
+            }
+
+            currentOperation.Start();
+
+
+        }
+        else if (str.Substring(0, 3) == "三棱锥")
+        {
+            Debug.Log("三棱锥");
+            Tool tool = geoUI.toolPanel.toolGroups[0].Tools[1];
+            currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
+            String list = "";
+
+            if (str.Length > 3)
+            {
+                Debug.Log(str.Substring(3));
+                String triName = str.Substring(3);
+
+                if (triName.Length >= 5)
+                {
+
+                    for (int i = 0; i < triName.Length; i++)
+                    {
+                        String item = triName.Substring(i, 1);
+                        if (Regex.IsMatch(triName.Substring(i, 1), @"^[A-Za-z]+$"))
+                        {
+                            if (i == triName.Length - 1)
+                            {
+                                list += item;
+                            }
+                            else
+                            {
+                                if (Regex.IsMatch(triName.Substring(i + 1, 1), @"^[0-9]*$"))
+                                {
+                                    list += triName.Substring(i, 2);
+                                    if (i != triName.Length - 2)
+                                    {
+                                        list += " ";
+                                    }
+                                    i++;
+                                }
+                                else
+                                {
+                                    list += item + " ";
+                                }
+                            }
+                        }
+                    }
+                    Debug.Log(list);
+                    GeometryOperation opt = (GeometryOperation)currentOperation;
+                    opt.ReSetSign(list);
+                }
+                else
+                {
+                    // default name
+                }
+            }
+
+            currentOperation.Start();
+
+        }
+        else if (str.IndexOf("旋转体") != -1)
+        {
+            Debug.Log("旋转体");
+            Tool tool = geoUI.toolPanel.toolGroups[0].Tools[2];
+            currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
+            currentOperation.Start();
+            if (str == "矩形旋转体")
+            {
+                Tool tool1 = geoUI.toolPanel.toolGroups[1].Tools[0];
+                Debug.Log(tool1.Description);
+                //Debug.Log(tool1.Type);
+
+                SetState(GeoState.Condition);
+
+                currentOperation = new AddConditionOperation(this, stateController, geometry, geometryBehaviour, geoUI, tool1);
+                currentOperation.Start();
+
+            }
+            else if (str == "三角形旋转体")
+            {
+                Tool tool1 = geoUI.toolPanel.toolGroups[1].Tools[1];
+                Debug.Log(tool1.Description);
+                //Debug.Log(tool1.Type);
+
+                SetState(GeoState.Condition);
+
+                currentOperation = new AddConditionOperation(this, stateController, geometry, geometryBehaviour, geoUI, tool1);
+                currentOperation.Start();
+            }
+        }
+        else if (str.IndexOf("空间一点") != -1)
+        {
+            Debug.Log("取空间一点");
+
+        }
+        else if (str.IndexOf("中点") != -1)
+        {
+            Debug.Log("中点");
+            String line = "";
+            for (int i = 1; i < str.Length - 2; i++)
+            {
+                if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                {
+                    if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                    {
+                        line += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                    }
+                    else
+                    {
+                        line += str.Substring(i, 1) + " ";
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            FormText text1 = new FormText("作");
+            String[] eles = line.Split(' ');
+            FormElement ele1 = new FormElement(eles.Length - 1);
+            for (int i = 0; i < eles.Length - 1; i++)
+            {
+                ele1.fields[i] = eles[i];
+            }
+            FormText text2 = new FormText("中点");
+            FormElement ele2 = new FormElement(1);
+            if (Regex.IsMatch(str.Substring(str.Length - 2), @"^[A-Za-z0-9]+$"))
+            {
+                ele2.fields[0] = str.Substring(str.Length - 2);
+            }
+            else
+            {
+                ele2.fields[0] = str.Substring(str.Length - 1);
+            }
+
+            FormInput writeInput = new FormInput(4);
+            writeInput.inputs[0] = text1;
+            writeInput.inputs[1] = ele1;
+            writeInput.inputs[2] = text2;
+            writeInput.inputs[3] = ele2;
+
+            Tool tool = geoUI.toolPanel.toolGroups[2].Tools[1];
+            SetState(GeoState.Auxiliary);
+
+
+            currentOperation = new AddAuxiliaryOperation(this, geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
+            AddAuxiliaryOperation opt = (AddAuxiliaryOperation)currentOperation;
+            opt.SetWriteInput(writeInput);
+            currentOperation.Start();
+        }
+        else if (str.IndexOf("一点") != -1 && str.IndexOf("线段") != -1)
+        {
+            Debug.Log("取线段一点");
+
+        }
+        else if (str.IndexOf("重心") != -1)
+        {
+            Debug.Log("重心");
+            String face = "";
+            for (int i = 3; i < str.Length - 3; i++)
+            {
+                if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                {
+                    if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                    {
+                        face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                    }
+                    else
+                    {
+                        face += str.Substring(i, 1) + " ";
+                    }
+                }
+            }
+
+            FormText text1 = new FormText("作平面");
+            String[] eles = face.Split(' ');
+            FormElement ele1 = new FormElement(eles.Length - 1);
+            for (int i = 0; i < eles.Length - 1; i++)
+            {
+                ele1.fields[i] = eles[i];
+            }
+            FormText text2 = new FormText("的重心");
+            FormElement ele2 = new FormElement(1);
+            if (Regex.IsMatch(str.Substring(str.Length - 2), @"^[A-Za-z0-9]+$"))
+            {
+                ele2.fields[0] = str.Substring(str.Length - 2);
+            }
+            else
+            {
+                ele2.fields[0] = str.Substring(str.Length - 1);
+            }
+            FormInput writeInput = new FormInput(4);
+            writeInput.inputs[0] = text1;
+            writeInput.inputs[1] = ele1;
+            writeInput.inputs[2] = text2;
+            writeInput.inputs[3] = ele2;
+
+            Tool tool = geoUI.toolPanel.toolGroups[2].Tools[3];
+            SetState(GeoState.Auxiliary);
+
+
+            currentOperation = new AddAuxiliaryOperation(this, geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
+            AddAuxiliaryOperation opt = (AddAuxiliaryOperation)currentOperation;
+            opt.SetWriteInput(writeInput);
+            currentOperation.Start();
+        }
+        else if (str.IndexOf("连接") != -1 && str.Substring(2).Length == 2)
+        {
+            Debug.Log("连接两点");
+
+            String line = "";
+            for (int i = 2; i < str.Length - 1; i++)
+            {
+                if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                {
+                    if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                    {
+                        line += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                    }
+                    else
+                    {
+                        line += str.Substring(i, 1) + " ";
+                        if (i == str.Length - 2)
+                        {
+                            line += str.Substring(i + 1);
+                        }
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            FormText text1 = new FormText("连接");
+            String[] eles = line.Split(' ');
+            FormElement ele1 = new FormElement(eles.Length);
+            for (int i = 0; i < eles.Length; i++)
+            {
+                ele1.fields[i] = eles[i];
+            }
+            FormText text2 = new FormText("作线段");
+
+            FormInput writeInput = new FormInput(3);
+            writeInput.inputs[0] = text1;
+            writeInput.inputs[1] = ele1;
+            writeInput.inputs[2] = text2;
+
+            Tool tool = geoUI.toolPanel.toolGroups[2].Tools[4];
+            SetState(GeoState.Auxiliary);
+
+
+            currentOperation = new AddAuxiliaryOperation(this, geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
+            AddAuxiliaryOperation opt = (AddAuxiliaryOperation)currentOperation;
+            opt.SetWriteInput(writeInput);
+            currentOperation.Start();
+        }
+        else if (str.IndexOf("垂线交线段") != -1)
+        {
+            Debug.Log("线段垂线");
+        }
+        else if (str.IndexOf("垂线交面") != -1)
+        {
+            Debug.Log("面垂线");
+        }
+        else if (str.IndexOf("作平面") != -1)
+        {
+            Debug.Log("平面");
+
+            String face = "";
+            for (int i = 2; i < str.Length - 3; i++)
+            {
+                if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                {
+                    if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                    {
+                        face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                    }
+                    else
+                    {
+                        face += str.Substring(i, 1) + " ";
+                    }
+                }
+            }
+
+            FormText text1 = new FormText("连接");
+            String[] eles = face.Split(' ');
+            FormElement ele1 = new FormElement(eles.Length - 1);
+            for (int i = 0; i < eles.Length - 1; i++)
+            {
+                ele1.fields[i] = eles[i];
+            }
+            FormText text2 = new FormText("作平面");
+            FormInput writeInput = new FormInput(3);
+            writeInput.inputs[0] = text1;
+            writeInput.inputs[1] = ele1;
+            writeInput.inputs[2] = text2;
+
+            Tool tool = geoUI.toolPanel.toolGroups[2].Tools[7];
+            SetState(GeoState.Auxiliary);
+
+
+            currentOperation = new AddAuxiliaryOperation(this, geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
+            AddAuxiliaryOperation opt = (AddAuxiliaryOperation)currentOperation;
+            opt.SetWriteInput(writeInput);
+            currentOperation.Start();
+        }
+        else if (str.IndexOf("长度") != -1)
+        {
+            Debug.Log("测量长度");
+
+            String line = "";
+            for (int i = 0; i < str.Length - 1; i++)
+            {
+                if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                {
+                    if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                    {
+                        line += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                    }
+                    else
+                    {
+                        line += str.Substring(i, 1) + " ";
+                    }
+                }
+            }
+
+            FormText text1 = new FormText("线段");
+            String[] eles = line.Split(' ');
+            FormElement ele1 = new FormElement(eles.Length-1);
+            for (int i = 0; i < eles.Length - 1; i++)
+            {
+                ele1.fields[i] = eles[i];
+            }
+            FormText text2 = new FormText("的长度");
+            FormInput writeInput = new FormInput(3);
+            writeInput.inputs[0] = text1;
+            writeInput.inputs[1] = ele1;
+            writeInput.inputs[2] = text2;
+
+            Tool tool = geoUI.toolPanel.toolGroups[3].Tools[0];
+            SetState(GeoState.Measure);
+
+            currentOperation = new AddMeasureOperation(this, stateController, geometry, geometryBehaviour, geoUI, tool);
+            AddMeasureOperation opt = (AddMeasureOperation)currentOperation;
+            opt.SetWriteInput(writeInput);
+            currentOperation.Start();
+        }
+        else if (str.IndexOf("角度") != -1)
+        {
+            Debug.Log("测量角度");
+        }
+        else if (str.IndexOf("面积") != -1)
+        {
+            Debug.Log("测量面积");
+
+            String face = "";
+            for (int i = 1; i < str.Length - 1; i++)
+            {
+                if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                {
+                    if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                    {
+                        face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                    }
+                    else
+                    {
+                        face += str.Substring(i, 1) + " ";
+                    }
+                }
+            }
+
+            FormText text1 = new FormText("平面");
+            String[] eles = face.Split(' ');
+            FormElement ele1 = new FormElement(eles.Length - 1);
+            for (int i = 0; i < eles.Length - 1; i++)
+            {
+                ele1.fields[i] = eles[i];
+            }
+            FormText text2 = new FormText("的面积");
+            FormInput writeInput = new FormInput(3);
+            writeInput.inputs[0] = text1;
+            writeInput.inputs[1] = ele1;
+            writeInput.inputs[2] = text2;
+
+            Tool tool = geoUI.toolPanel.toolGroups[3].Tools[2];
+            SetState(GeoState.Measure);
+
+            currentOperation = new AddMeasureOperation(this, stateController, geometry, geometryBehaviour, geoUI, tool);
+            AddMeasureOperation opt = (AddMeasureOperation)currentOperation;
+            opt.SetWriteInput(writeInput);
+            currentOperation.Start();
+        }
+        else
+        {
+            Debug.Log("analysis error");
+        }
+    }
+
 
     public void MoveVertexOperation(GeoVertex geoVertex, VertexBehaviour vertexBehaviour)
     {

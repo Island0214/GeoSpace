@@ -70,6 +70,7 @@ public class AddConditionOperation : Operation
 
     public void addCondition(Geometry geometry, FormInput form)
     {
+        
         Condition condition = conditionTool.GenerateCondition(geometry, form);
 
         bool result = geometry.Constructor.AddCondition(condition);

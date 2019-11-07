@@ -14,7 +14,7 @@ public class AddMeasureOperation : Operation
     Tool tool;
 
     MeasureTool measureTool;
-
+    FormInput writeInput;
     public AddMeasureOperation(GeoController geoController, StateController stateController, Geometry geometry, GeometryBehaviour geometryBehaviour, GeoUI geoUI, Tool tool)
     {
         CanRotateCamera = true;
@@ -40,29 +40,35 @@ public class AddMeasureOperation : Operation
             geoController.EndOperation();
             return;
         }
-        FormInput formInput = measureTool.FormInput();
-        if (formInput != null)
+        if (writeInput == null)
         {
-            inputPanel.SetFormForInput(formInput);
-
-            inputPanel.OnValidate = (form) =>
+            FormInput formInput = measureTool.FormInput();
+            if (formInput != null)
             {
-                return measureTool.ValidateInput(geometry, form);
-            };
+                inputPanel.SetFormForInput(formInput);
 
-            inputPanel.OnClickSubmit = (form) =>
-            {
-                AddMeasure(geometry, form);
-            };
+                inputPanel.OnValidate = (form) =>
+                {
+                    return measureTool.ValidateInput(geometry, form);
+                };
 
-            inputPanel.OnClickCancel = (form) =>
+                inputPanel.OnClickSubmit = (form) =>
+                {
+                    AddMeasure(geometry, form);
+                };
+
+                inputPanel.OnClickCancel = (form) =>
+                {
+                    geoController.EndOperation();
+                };
+            }
+            else
             {
-                geoController.EndOperation();
-            };
+                AddMeasure(geometry, null);
+            }
         }
-        else
-        {
-            AddMeasure(geometry, null);
+        else {
+            AddMeasure(geometry, writeInput);
         }
     }
 
@@ -119,6 +125,11 @@ public class AddMeasureOperation : Operation
             form = geoController.FaceForm((GeoFace)element);
         if (form != null)
             inputPanel.InputFields(form.fields);
+    }
+
+    public void SetWriteInput(FormInput writeInput)
+    {
+        this.writeInput = writeInput;
     }
 
     private void AddState(Measure measure)
