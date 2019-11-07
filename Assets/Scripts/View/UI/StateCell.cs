@@ -111,16 +111,6 @@ public class StateCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     void ToggleButtonDoubleClicked()
     {
         
-        // if (OnElementHighlight != null && isHighlighted == false)
-        //     {
-        //         OnElementHighlight(); 
-        //     }
-        // //SetState(StateCellState.Close);
-        // if (DoubleClick != null && isHighlighted == false)
-        //     {
-        //         DoubleClick();
-        //        // isHighlighted = true;
-        //     }
         if(isHighlighted == true)
         {
             if(UndoFaceHighlight != null)

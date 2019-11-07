@@ -26,6 +26,7 @@ public class GeoUI
     public ElementPanel elementPanel;
     public ActivePanel activePanel;
     public CameraPanel cameraPanel;
+    public WritingPanel writingPanel;
 }
 
 public class GeoController : MonoBehaviour
@@ -44,6 +45,7 @@ public class GeoController : MonoBehaviour
 
     StateController stateController;
     ToolController toolController;
+    RecognizeController recognizeController;
 
     bool isCameraRotate;
     bool canCameraRotate;
@@ -74,6 +76,9 @@ public class GeoController : MonoBehaviour
 
         toolController = GetComponent<ToolController>();
         toolController.Init(geoUI.toolPanel);
+
+        recognizeController = GetComponent<RecognizeController>();
+        recognizeController.Init(geoUI.writingPanel);
         
         ClearGeometry();
     }
@@ -86,6 +91,8 @@ public class GeoController : MonoBehaviour
         Transform canvasFront = GameObject.Find("/UI/CanvasFront").transform;
 
         NavPanel navPanel = canvasBack.Find("NavPanel").GetComponent<NavPanel>();
+        navPanel.OnWritingButtonClick = HandleClickWritingButton;
+        navPanel.OnSpeechButtonClick = HandleClickSpeechButton;
         navPanel.OnShadeButtonClick = HandleClickShadeButton;
         navPanel.OnLockButtonClick = HandleClickLockButton;
         navPanel.OnDisplayButtonClick = HandleClickDisplayButton;
@@ -111,6 +118,9 @@ public class GeoController : MonoBehaviour
         ActivePanel activePanel = canvasFront.Find("ActivePanel").GetComponent<ActivePanel>();
         activePanel.Init();
 
+        WritingPanel writingPanel = canvasFront.Find("WritingPanel").GetComponent<WritingPanel>();
+        writingPanel.Init();
+
         CameraPanel cameraPanel = canvasFront.Find("CameraPanel").GetComponent<CameraPanel>();
         cameraPanel.OnCenterButtonClick = HandleClickCenterButton;
         cameraPanel.OnZoomInButtonClick = HandleClickZoomInButton;
@@ -127,6 +137,7 @@ public class GeoController : MonoBehaviour
         geoUI.elementPanel = elementPanel;
         geoUI.activePanel = activePanel;
         geoUI.cameraPanel = cameraPanel;
+        geoUI.writingPanel = writingPanel;
     }
 
     void InitTouchSystem()
@@ -357,6 +368,16 @@ public class GeoController : MonoBehaviour
                 break;
         }
     }
+    public void HandleClickWritingButton(int i)
+    {
+        if (geoUI.writingPanel != null)
+            geoUI.writingPanel.OpenWritingPanel();
+    }
+
+    public void HandleClickSpeechButton(int i)
+    {
+    }
+
     public void HandleClickShadeButton(int i)
     {
         shadeType = (GeometryShadeType)i;
