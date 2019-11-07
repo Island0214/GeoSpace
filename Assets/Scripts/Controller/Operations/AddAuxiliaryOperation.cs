@@ -50,6 +50,7 @@ public class AddAuxiliaryOperation : Operation
         }
         if (writeInput == null)
         {
+            
             FormInput formInput = auxiliaryTool.FormInput();
 
             if (formInput != null)
@@ -85,7 +86,7 @@ public class AddAuxiliaryOperation : Operation
     {
         //Debug.Log(form.inputs[0] + " " + form.inputs[1] + " " + form.inputs[2] + " " + form.inputs[3]);
         //Debug.Log(form.inputs[0].GetType() + " " + form.inputs[1].GetType() + " " + form.inputs[2].GetType() + " " + form.inputs[3].GetType());
-        Debug.Log(form.inputs[0].GetType() + " " + form.inputs[1].GetType() + " " + form.inputs[2].GetType());
+        //Debug.Log(form.inputs[0].GetType() + " " + form.inputs[1].GetType() + " " + form.inputs[2].GetType());
         Auxiliary auxiliary = auxiliaryTool.GenerateAuxiliary(geometry, form);
         if (auxiliary == null) {
             geoController.EndOperation();
@@ -134,6 +135,7 @@ public class AddAuxiliaryOperation : Operation
         else
         {
             // TODO
+            //Debug.Log("pp");
         }
 
         geoController.EndOperation();

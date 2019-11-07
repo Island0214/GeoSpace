@@ -70,19 +70,27 @@ public class LineVerticalAuxiliaryTool : AuxiliaryTool
         FormElement SignElement = (FormElement)formInput.inputs[6];
 
         if (!IsNewSign(geometry, SignElement))
+        {
             return false;
+        }
 
         bool judge = IsVertex(geometry, formElement1) && IsEdge(geometry, formElement2);
         if (!judge)
+        {
             return false;
+        }
         return true;
     }
 
     public override Auxiliary GenerateAuxiliary(Geometry geometry, FormInput formInput)
     {
+        //Debug.Log("generate");
         bool valid = ValidateInput(geometry, formInput);
         if (!valid)
+        {
+            //Debug.Log("invalid");
             return null;
+        }
 
         FormElement formElement1 = (FormElement)formInput.inputs[1];
         FormElement formElement2 = (FormElement)formInput.inputs[3];
