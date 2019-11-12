@@ -27,6 +27,7 @@ public class GeoUI
     public ActivePanel activePanel;
     public CameraPanel cameraPanel;
     public WritingPanel writingPanel;
+    public RecognizePanel recognizePanel;
 }
 
 public class GeoController : MonoBehaviour
@@ -118,8 +119,8 @@ public class GeoController : MonoBehaviour
         ActivePanel activePanel = canvasFront.Find("ActivePanel").GetComponent<ActivePanel>();
         activePanel.Init();
 
-        WritingPanel writingPanel = canvasFront.Find("WritingPanel").GetComponent<WritingPanel>();
-        writingPanel.Init();
+        RecognizePanel recognizePanel = canvasFront.Find("RecognizePanel").GetComponent<RecognizePanel>();
+        recognizePanel.Init();
 
         CameraPanel cameraPanel = canvasFront.Find("CameraPanel").GetComponent<CameraPanel>();
         cameraPanel.OnCenterButtonClick = HandleClickCenterButton;
@@ -137,6 +138,10 @@ public class GeoController : MonoBehaviour
         geoUI.elementPanel = elementPanel;
         geoUI.activePanel = activePanel;
         geoUI.cameraPanel = cameraPanel;
+        geoUI.recognizePanel = recognizePanel;
+
+        WritingPanel writingPanel = canvasFront.Find("WritingPanel").GetComponent<WritingPanel>();
+        writingPanel.Init(geoUI);
         geoUI.writingPanel = writingPanel;
     }
 
