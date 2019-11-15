@@ -19,7 +19,7 @@ public class ToolPanel : MonoBehaviour
 
     List<ButtonGroup> buttonGroups;
     // Dictionary<int, ButtonGroup> buttonGroupMap;
-    List<ToolGroup> toolGroups;
+    public List<ToolGroup> toolGroups;
 
     GameObject toolTip;
 

@@ -185,6 +185,17 @@ public class StyleManager : MonoBehaviour
         prop.SetColor("_ColorH", ElementH);
         renderer.SetPropertyBlock(prop);
     }
+
+    public static void SetLineProperty(LineRenderer renderer, int colorIndex = 0)
+    {
+        colorIndex = ClampColorIndex(colorIndex);
+        MaterialPropertyBlock prop = new MaterialPropertyBlock();
+        renderer.GetPropertyBlock(prop);
+        prop.SetColor("_Color", colorIndex == 0 ? Line : Themes[colorIndex - 1]);
+        prop.SetColor("_ColorH", ElementH);
+        renderer.SetPropertyBlock(prop);
+    }
+
     public static void SetPlaneProperty(MeshRenderer renderer, int colorIndex = 0)
     {
         colorIndex = ClampColorIndex(colorIndex);

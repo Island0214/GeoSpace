@@ -19,7 +19,7 @@ public class AddAuxiliaryOperation : Operation
     GeoUI geoUI;
     List<Measure> measure_list = new List<Measure>();
     List<ElementBehaviour> elementBehaviour_list = new List<ElementBehaviour>();
-
+    FormInput writeInput;
     public AddAuxiliaryOperation(GeoController geoController,GeoCamera geoCamera, StateController stateController, Geometry geometry, GeometryBehaviour geometryBehaviour, GeoUI geoUI, Tool tool)
     {
         CanRotateCamera = true;
@@ -48,36 +48,45 @@ public class AddAuxiliaryOperation : Operation
             geoController.EndOperation();
             return;
         }
-        FormInput formInput = auxiliaryTool.FormInput();
-
-        if (formInput != null)
+        if (writeInput == null)
         {
-            inputPanel.SetFormForInput(formInput);
+            
+            FormInput formInput = auxiliaryTool.FormInput();
 
-            inputPanel.OnValidate = (form) =>
+            if (formInput != null)
             {
-                return auxiliaryTool.ValidateInput(geometry, form);
-            };
+                inputPanel.SetFormForInput(formInput);
 
-            inputPanel.OnClickSubmit = (form) =>
-            {
-                addAuxiliary(geometry, form);
-            };
+                inputPanel.OnValidate = (form) =>
+                {
+                    return auxiliaryTool.ValidateInput(geometry, form);
+                };
 
-            inputPanel.OnClickCancel = (form) =>
+                inputPanel.OnClickSubmit = (form) =>
+                {
+                    addAuxiliary(geometry, form);
+                };
+
+                inputPanel.OnClickCancel = (form) =>
+                {
+                    geoController.EndOperation();
+                };
+            }
+            else
             {
-                geoController.EndOperation();
-            };
+                addAuxiliary(geometry, null);
+            }
         }
-        else
-        {
-            addAuxiliary(geometry, null);
+        else {
+            addAuxiliary(geometry, writeInput);
         }
-
     }
 
     public void addAuxiliary(Geometry geometry, FormInput form)
     {
+        //Debug.Log(form.inputs[0] + " " + form.inputs[1] + " " + form.inputs[2] + " " + form.inputs[3]);
+        //Debug.Log(form.inputs[0].GetType() + " " + form.inputs[1].GetType() + " " + form.inputs[2].GetType() + " " + form.inputs[3].GetType());
+        //Debug.Log(form.inputs[0].GetType() + " " + form.inputs[1].GetType() + " " + form.inputs[2].GetType());
         Auxiliary auxiliary = auxiliaryTool.GenerateAuxiliary(geometry, form);
         if (auxiliary == null) {
             geoController.EndOperation();
@@ -126,6 +135,7 @@ public class AddAuxiliaryOperation : Operation
         else
         {
             // TODO
+            //Debug.Log("pp");
         }
 
         geoController.EndOperation();
@@ -147,6 +157,10 @@ public class AddAuxiliaryOperation : Operation
             form = geoController.FaceForm((GeoFace)element);
         if (form != null)
             inputPanel.InputFields(form.fields);
+    }
+
+    public void SetWriteInput(FormInput writeInput) {
+        this.writeInput = writeInput;
     }
 
     private void AddState(Auxiliary auxiliary,FormInput form)

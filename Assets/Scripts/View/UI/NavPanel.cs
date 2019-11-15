@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class NavPanel : MonoBehaviour
 {
+    public Action<int> OnWritingButtonClick;
+    public Action<int> OnSpeechButtonClick;
     public Action<int> OnShadeButtonClick;
     public Action<int> OnLockButtonClick;
     public Action<int> OnDisplayButtonClick;
@@ -13,6 +15,8 @@ public class NavPanel : MonoBehaviour
     public Action<int> OnSnapButtonClick;
     public Action<int> OnVoiceButtonClick;
 
+    private StatusButton writingButton;
+    private StatusButton speechButton;
     private StatusButton shadeButton;
     private StatusButton lockButton;
     private StatusButton displayButton;
@@ -23,6 +27,24 @@ public class NavPanel : MonoBehaviour
 
     public void Init()
     {
+        writingButton = transform.Find("WritingButton").GetComponent<StatusButton>();
+        writingButton.Init();
+        writingButton.OnStatusChange = (last, current) =>
+        {
+            if (OnWritingButtonClick != null)
+                OnWritingButtonClick(current);
+        };
+        writingButton.SetStatus(0);
+
+        speechButton = transform.Find("SpeechButton").GetComponent<StatusButton>();
+        speechButton.Init();
+        speechButton.OnStatusChange = (last, current) =>
+        {
+            if (OnSpeechButtonClick != null)
+                OnSpeechButtonClick(current);
+        };
+        speechButton.SetStatus(1);
+
         shadeButton = transform.Find("ShadeButton").GetComponent<StatusButton>();
         shadeButton.Init();
         shadeButton.OnStatusChange = (last, current) =>
