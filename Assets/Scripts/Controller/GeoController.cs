@@ -573,6 +573,8 @@ public class GeoController : MonoBehaviour
 
     public void Classify(String str)
     {
+        str = str.ToUpper();
+        str = str.Replace(" ","");
         /*
         正方体/立方体ABCD-A1B1C1D1
         三棱锥P-ABC
@@ -732,7 +734,7 @@ public class GeoController : MonoBehaviour
             Tool tool = geoUI.toolPanel.toolGroups[0].Tools[2];
             currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
             currentOperation.Start();
-            if (str == "矩形旋转体")
+            if (str == "矩形旋转体" || str == "长方形旋转体")
             {
                 Tool tool1 = geoUI.toolPanel.toolGroups[1].Tools[0];
                 Debug.Log(tool1.Description);
@@ -813,7 +815,7 @@ public class GeoController : MonoBehaviour
             opt.SetWriteInput(writeInput);
             currentOperation.Start();
         }
-        else if ((str.IndexOf("一点") != -1 && str.IndexOf("线段") != -1) || (str.IndexOf("作线段") != -1 && str.IndexOf("的点") != -1))
+        else if ((str.IndexOf("一点") != -1 && str.IndexOf("线段") != -1) || ((str.IndexOf("作线段") != -1 || str.IndexOf("做线段") != -1) && str.IndexOf("的点") != -1))
         {
             Debug.Log("取线段一点");
 
@@ -1156,7 +1158,7 @@ public class GeoController : MonoBehaviour
             opt.SetWriteInput(writeInput);
             currentOperation.Start();
         }
-        else if (str.IndexOf("连接") != -1 && str.IndexOf("作平面") != -1)
+        else if (str.IndexOf("连接") != -1 && (str.IndexOf("作平面") != -1 || str.IndexOf("做平面") != -1))
         {
             Debug.Log("平面");
 
