@@ -589,7 +589,7 @@ public class GeoController : MonoBehaviour
         过点作线段垂线               过点A作线段MN垂线交线段于点P
 	    过点作平面垂线               过点A作面ABC..垂线交面于点Q
         连接点作平面                 连接ABC..作平面
-        测量长度、角度、面积
+        测量长度、角度、面积          ...的长度/角度/面积
          */
         if (state != GeoState.Normal)
             return;
@@ -868,11 +868,11 @@ public class GeoController : MonoBehaviour
             opt.SetWriteInput(writeInput);
             currentOperation.Start();
         }
-        else if (str.IndexOf("重心") != -1)
+        else if (str.IndexOf("重心") != -1 || str.IndexOf("中心") != -1)
         {
             Debug.Log("重心");
             String face = "";
-            for (int i = 3; i < str.Length - 3; i++)
+            for (int i = 1; i < str.Length - 3; i++)
             {
                 if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                 {
