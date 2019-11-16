@@ -27,6 +27,7 @@ public class GeoUI
     public ActivePanel activePanel;
     public CameraPanel cameraPanel;
     public WritingPanel writingPanel;
+    public RecognizePanel recognizePanel;
 }
 
 public class GeoController : MonoBehaviour
@@ -98,7 +99,9 @@ public class GeoController : MonoBehaviour
         navPanel.OnDisplayButtonClick = HandleClickDisplayButton;
         navPanel.OnCoordinateButtonClick = HandleClickCoordinateButton;
         navPanel.OnGridButtonClick = HandleClickGridButton;
+        //Speech Recognition
         navPanel.OnSnapButtonClick = HandleClickSnapButton;
+        navPanel.OnVoiceButtonClick = HandleClickVoiceButton;
         geometryBehaviour.OnElementDisplayChange = HandleElementDisplayChange;
         navPanel.Init();
 
@@ -118,8 +121,8 @@ public class GeoController : MonoBehaviour
         ActivePanel activePanel = canvasFront.Find("ActivePanel").GetComponent<ActivePanel>();
         activePanel.Init();
 
-        WritingPanel writingPanel = canvasFront.Find("WritingPanel").GetComponent<WritingPanel>();
-        writingPanel.Init();
+        RecognizePanel recognizePanel = canvasFront.Find("RecognizePanel").GetComponent<RecognizePanel>();
+        recognizePanel.Init();
 
         CameraPanel cameraPanel = canvasFront.Find("CameraPanel").GetComponent<CameraPanel>();
         cameraPanel.OnCenterButtonClick = HandleClickCenterButton;
@@ -137,6 +140,10 @@ public class GeoController : MonoBehaviour
         geoUI.elementPanel = elementPanel;
         geoUI.activePanel = activePanel;
         geoUI.cameraPanel = cameraPanel;
+        geoUI.recognizePanel = recognizePanel;
+
+        WritingPanel writingPanel = canvasFront.Find("WritingPanel").GetComponent<WritingPanel>();
+        writingPanel.Init(geoUI);
         geoUI.writingPanel = writingPanel;
     }
 
@@ -379,7 +386,8 @@ public class GeoController : MonoBehaviour
     }
 
     public void HandleClickSpeechButton(int i)
-    {
+     {   
+         //To do
     }
 
     public void HandleClickShadeButton(int i)
@@ -412,6 +420,12 @@ public class GeoController : MonoBehaviour
     public void HandleClickSnapButton(int i)
     {
         isSnapToGrid = i == 0;
+    }
+
+    public void HandleClickVoiceButton(int i)
+    {
+        Debug.Log("Speech Recognition");
+        ///TODO: 语音识别接口加入
     }
 
     public void HandleElementDisplayChange(int i)
@@ -749,7 +763,7 @@ public class GeoController : MonoBehaviour
         }
         else if (str.IndexOf("中点") != -1)
         {
-            Debug.Log("中点");
+              Debug.Log("中点");
             String line = "";
             for (int i = 1; i < str.Length - 2; i++)
             {

@@ -43,8 +43,10 @@ public class Word
         this.id = id;
         this.pens = pens;
         points = new List<Vector2>();
-        pens.ForEach(pen => {
-            pen.GetPoints().ForEach(p => {
+        pens.ForEach(pen =>
+        {
+            pen.GetPoints().ForEach(p =>
+            {
                 points.Add(new Vector2(p.x, p.y));
             });
         });
@@ -94,6 +96,14 @@ public class PenBehaviour : ElementBehaviour
     Button btnCancel;
 
     Dictionary<Pen, GameObject> penMap;
+    RecognizePanel recognizePanel;
+
+    bool CanWrite = false;
+
+    public void Init(GeoUI geoUI)
+    {
+        recognizePanel = geoUI.recognizePanel;
+    }
 
     public void Start()
     {
@@ -123,6 +133,7 @@ public class PenBehaviour : ElementBehaviour
 
         visiable = true;
         waitTime = 0;
+        CanWrite = true;
     }
 
     private void InitRenderer(LineRenderer renderer)
@@ -145,37 +156,42 @@ public class PenBehaviour : ElementBehaviour
 
     void FixedUpdate()
     {
-        waitTime += Time.deltaTime;
-        if (waitTime > MAX_TIME && pens.Count > 0)
+        if (CanWrite)
         {
-            AddWord();
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            pen = new Pen(PenCount++);
-            i = 0;
-            Init(pen);
-        }
-        if (Input.GetMouseButton(0))
-        {
-            Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
-            if (IsValidPoint(point))
+            waitTime += Time.deltaTime;
+            if (waitTime > MAX_TIME && pens.Count > 0)
             {
+                AddWord();
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                pen = new Pen(PenCount++);
+                i = 0;
+                Init(pen);
+            }
+            if (Input.GetMouseButton(0))
+            {
+                Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
+                // if (IsValidPoint(point))
+                // {
                 pen.AddPoint(point);
                 SetData(i, point);
                 i++;
+                // }
+                waitTime = 0;
             }
-            waitTime = 0;
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-            AddPen(pen);
+            if (Input.GetMouseButtonUp(0))
+            {
+                AddPen(pen);
+            }
         }
     }
 
     private void AddPen(Pen pen)
     {
         if (penMap.ContainsKey(pen))
+            return;
+        if (pen.GetPoints().Count <= 1) 
             return;
         pens.Add(pen);
         GameObject penObject = new GameObject(pen.ToString());
@@ -192,6 +208,8 @@ public class PenBehaviour : ElementBehaviour
         curLineRenderer.positionCount = pen.GetPoints().Count;
         curLineRenderer.SetPositions(pen.GetPoints().ToArray());
         penMap.Add(pen, penObject);
+        // todo 
+        recognizePanel.AddWord("字");
     }
 
     private void AddWord()
@@ -228,6 +246,8 @@ public class PenBehaviour : ElementBehaviour
         foreach (KeyValuePair<Pen, GameObject> pair in penMap)
             Destroy(pair.Value);
         penMap.Clear();
+
+        CanWrite = true;
     }
 
     private void ClickSubmit()
@@ -235,11 +255,13 @@ public class PenBehaviour : ElementBehaviour
         // if (OnClickSubmit != null)
         //     OnClickSubmit(form);
         transform.parent.gameObject.SetActive(false);
+        recognizePanel.Clear();
     }
 
     private void ClickCancel()
     {
         transform.parent.gameObject.SetActive(false);
         Clear();
+        recognizePanel.Clear();
     }
 }
