@@ -13,6 +13,7 @@ public class NavPanel : MonoBehaviour
     public Action<int> OnCoordinateButtonClick;
     public Action<int> OnGridButtonClick;
     public Action<int> OnSnapButtonClick;
+    public Action<int> OnVoiceButtonClick;
 
     private StatusButton writingButton;
     private StatusButton speechButton;
@@ -22,6 +23,7 @@ public class NavPanel : MonoBehaviour
     private StatusButton coordinatButton;
     private StatusButton gridButton;
     private StatusButton snapButton;
+    private StatusButton voiceButton;
 
     public void Init()
     {
@@ -97,6 +99,7 @@ public class NavPanel : MonoBehaviour
                 OnSnapButtonClick(current);
         };
         snapButton.SetStatus(0);
+
 
     }
 
