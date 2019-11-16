@@ -197,6 +197,8 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// 发起语音识别请求
     /// </summary>
     /// <returns></returns>
+
+    public String res = String.Empty;
     IEnumerator _StartBaiduYuYin()
     {
         if (string.IsNullOrEmpty(accessToken))
@@ -244,7 +246,14 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 asrResult = "识别结果为空";
             }
             //textResult.text = asrResult;
-            Debug.Log(asrResult);
+            res = asrResult;
+            GameObject.Find("GeoController").GetComponent<GeoController>().Classify(res);
+            Debug.Log(res);
         }
+    }
+
+    public String getRes(int i)
+    {
+        return res;
     }
 }

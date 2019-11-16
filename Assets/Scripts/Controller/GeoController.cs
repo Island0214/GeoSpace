@@ -387,7 +387,8 @@ public class GeoController : MonoBehaviour
     }
 
     public void HandleClickSpeechButton(int i)
-    {
+     {   
+         //To do
     }
 
     public void HandleClickShadeButton(int i)
@@ -763,7 +764,7 @@ public class GeoController : MonoBehaviour
         }
         else if (str.IndexOf("中点") != -1)
         {
-            Debug.Log("中点");
+              Debug.Log("中点");
             String line = "";
             for (int i = 1; i < str.Length - 2; i++)
             {

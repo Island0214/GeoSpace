@@ -100,14 +100,6 @@ public class NavPanel : MonoBehaviour
         };
         snapButton.SetStatus(0);
 
-        voiceButton = transform.Find("VoiceButton").GetComponent<StatusButton>();
-        voiceButton.Init();
-        voiceButton.OnStatusChange = (last, current) =>
-        {
-            if (OnVoiceButtonClick != null)
-                OnVoiceButtonClick(current);
-        };
-        voiceButton.SetStatus(0);
 
     }
 
