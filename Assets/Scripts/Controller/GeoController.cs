@@ -351,7 +351,6 @@ public class GeoController : MonoBehaviour
                 //Classify("正方体ABCD-A1B1C1D1");
                 //Classify("三棱锥P-ABC");
                 //Classify("三角形旋转体");
-                
                 break;
             case ToolGroupType.Condition:
                 AddConditionOperation(tool);
