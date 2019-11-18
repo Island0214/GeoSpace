@@ -266,7 +266,7 @@ public class GeoCircular : GeoElement
 
         this.vertexs = vertexs;
         this.radius1 = radius1;
-        this.radius1 = radius2;
+        this.radius2 = radius2;
         this.type = type;
     }
 

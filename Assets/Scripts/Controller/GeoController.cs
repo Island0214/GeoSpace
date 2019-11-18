@@ -143,7 +143,7 @@ public class GeoController : MonoBehaviour
         geoUI.recognizePanel = recognizePanel;
 
         WritingPanel writingPanel = canvasFront.Find("WritingPanel").GetComponent<WritingPanel>();
-        writingPanel.Init(geoUI);
+        writingPanel.Init(geoUI, this);
         geoUI.writingPanel = writingPanel;
     }
 
@@ -431,6 +431,11 @@ public class GeoController : MonoBehaviour
     public void HandleElementDisplayChange(int i)
     {
         geoUI.navPanel.SetDisplayButtonStatus(i > 0 ? 1 : 0);
+    }
+
+    public string HandleRecognizeResult(string base64)
+    {
+        return recognizeController.GetRecognizeResult(base64);
     }
 
     public void ClickVertex(GeoVertex vertex)

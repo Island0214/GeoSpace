@@ -11,7 +11,7 @@ public class WritingPanel : MonoBehaviour
     RecognizePanel recognizePanel;
     PenBehaviour penBehaviour;
 
-    public void Init(GeoUI geoUI)
+    public void Init(GeoUI geoUI, GeoController geoController)
     {
         Clear();
 
@@ -21,7 +21,7 @@ public class WritingPanel : MonoBehaviour
         penWrapper.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, writingPanel.rect.height);
 
         penBehaviour = transform.GetComponentInChildren<PenBehaviour>();
-        penBehaviour.Init(geoUI);
+        penBehaviour.Init(geoUI, geoController);
         recognizePanel = geoUI.recognizePanel;
     }
 

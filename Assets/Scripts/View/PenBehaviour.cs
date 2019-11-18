@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+// using System.IO;
 
 public class Pen
 {
@@ -103,14 +104,15 @@ public class PenBehaviour : ElementBehaviour
 
     bool Drawing;
     Geometry geometry;
-     GeometryBehaviour geometryBehaviour;
+    GeometryBehaviour geometryBehaviour;
+    GeoController geoController;
 
-    public void Init(GeoUI geoUI)
+    public void Init(GeoUI geoUI, GeoController geoController)
     {
         recognizePanel = geoUI.recognizePanel;
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
+        this.geoController = geoController;
     }
-
 
     public void SetDrawing(bool Drawing)
     {
@@ -194,9 +196,12 @@ public class PenBehaviour : ElementBehaviour
         if (Input.GetMouseButton(0))
         {
             Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
-            pen.AddPoint(point);
-            SetData(i, point);
-            i++;
+            if (!pen.GetPoints().Contains(point))
+            {
+                pen.AddPoint(point);
+                SetData(i, point);
+                i++;
+            }
             waitTime = 0;
         }
         if (Input.GetMouseButtonUp(0))
@@ -259,7 +264,8 @@ public class PenBehaviour : ElementBehaviour
                 foreach (Vector3 point in ShapePositions)
                 {
                     IsNew = !IsSamePoint(position, point);
-                    if (!IsNew) {
+                    if (!IsNew)
+                    {
                         break;
                     }
                 }
@@ -274,7 +280,8 @@ public class PenBehaviour : ElementBehaviour
     private bool IsSamePoint(Vector3 point1, Vector3 point2)
     {
         Vector3 diff = point1 - point2;
-        if (diff.sqrMagnitude < new Vector3(ValidDiff, ValidDiff, ValidDiff).sqrMagnitude) {
+        if (diff.sqrMagnitude < new Vector3(ValidDiff, ValidDiff, ValidDiff).sqrMagnitude)
+        {
             return true;
         }
         return false;
@@ -285,17 +292,96 @@ public class PenBehaviour : ElementBehaviour
         Word word = new Word(WordCount++, new List<Pen>(pens));
         words.Add(word);
         pens.Clear();
+        recognizePanel.AddWord(PointsToBitmap(word));
+    }
 
-        // todo 
-        recognizePanel.AddWord("字");
+    private string PointsToBitmap(Word word)
+    {
+        List<Vector2> points = word.GetPoints();
+        int Thickness = 6;
+        int left = (int)penWrapper.rect.width;
+        int right = 0;
+        int top = (int)penWrapper.rect.height;
+        int bottom = 0;
+        points.ForEach(point =>
+        {
+            point += new Vector2(startPoint.x, startPoint.y);
+            left = Mathf.Min(left, (int)point.x);
+            right = Mathf.Max(right, (int)point.x);
+            top = Mathf.Min(top, (int)point.y);
+            bottom = Mathf.Max(bottom, (int)point.y);
+        });
+        int width = right - left + Thickness;
+        int height = bottom - top + Thickness;
+
+        Texture2D png = new Texture2D(width, height);
+        foreach (Pen pen in word.GetPens())
+        {
+            List<Vector3> positions = pen.GetPoints();
+            for (int i = 0; i < positions.Count - 1; i++)
+            {
+                Vector2 start = new Vector2(positions[i].x, positions[i].y) + new Vector2(startPoint.x, startPoint.y);
+                Vector2 end = new Vector2(positions[i + 1].x, positions[i + 1].y) + new Vector2(startPoint.x, startPoint.y);
+                List<Vector2> betweenPoints = GetPointsBetweenStartAndEnd(start, end);
+                foreach (Vector2 point in betweenPoints)
+                {
+                    for (int m = 0; m < Thickness; m++)
+                    {
+                        for (int n = 0; n < Thickness; n++)
+                        {
+                            png.SetPixel((int)point.x - left + m, (int)point.y - top + n, new Color(0, 0, 0, 1));
+                        }
+                    }
+                }
+            }
+        }
+
+        string base64 = System.Convert.ToBase64String(png.EncodeToPNG());
+        png = null;
+        return geoController.HandleRecognizeResult(base64);
+        // string contents = Application.dataPath + "/temp";
+        // string pngName = "image";
+        // byte[] bytes = png.EncodeToPNG();
+        // if (!Directory.Exists(contents))
+        //     Directory.CreateDirectory(contents);
+        // FileStream file = File.Open(contents + "/" + pngName + ".png", FileMode.Create);
+        // BinaryWriter writer = new BinaryWriter(file);
+        // writer.Write(bytes);
+        // file.Close();
+        // Texture2D.DestroyImmediate(png);
+    }
+
+    private List<Vector2> GetPointsBetweenStartAndEnd(Vector2 start, Vector2 end)
+    {
+        List<Vector2> linePoint = new List<Vector2>();
+        Vector2 pointMaxX = new Vector2();
+        Vector2 pointMinX = new Vector2();
+        if (Mathf.Max(start.x, end.x) == start.x)
+        {
+            pointMaxX = start;
+            pointMinX = end;
+        }
+        else
+        {
+            pointMaxX = end;
+            pointMinX = start;
+        }
+        for (int i = (int)pointMinX.x; i <= pointMaxX.x; i++)
+        {
+            double k = ((double)(pointMinX.y - pointMaxX.y)) / (pointMinX.x - pointMaxX.x);
+            double y = k * (i - pointMinX.x) + pointMinX.y;
+            linePoint.Add(new Vector2(i, (int)y));
+        }
+        return linePoint;
     }
 
     private bool AddShape()
     {
         if (geometry is ResolvedBody)
         {
-            ResolvedBody resolvedBody = (ResolvedBody) geometry;
-            if (resolvedBody.shapeSetted) {
+            ResolvedBody resolvedBody = (ResolvedBody)geometry;
+            if (resolvedBody.shapeSetted)
+            {
                 return false;
             }
             switch (ShapePositions.Count)
@@ -355,7 +441,8 @@ public class PenBehaviour : ElementBehaviour
         recognizePanel.Clear();
         Clear();
 
-        if (Drawing) {
+        if (Drawing)
+        {
             AddShape();
         }
     }

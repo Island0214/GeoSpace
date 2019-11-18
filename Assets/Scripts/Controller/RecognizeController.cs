@@ -11,4 +11,10 @@ public class RecognizeController : MonoBehaviour
     {
         this.writingPanel = writingPanel;
     }
+
+    public string GetRecognizeResult(string base64)
+    {
+        ///TODO
+        return "s";
+    }
 }
