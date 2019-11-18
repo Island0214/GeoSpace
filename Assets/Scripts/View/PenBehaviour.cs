@@ -72,6 +72,7 @@ public class PenBehaviour : ElementBehaviour
 {
     const string LAYER = "UI";
     const float MAX_TIME = 1f;
+    const float ValidDiff = 0.2f;
 
     LineRenderer lineRenderer;
     int i;
@@ -98,11 +99,31 @@ public class PenBehaviour : ElementBehaviour
     Dictionary<Pen, GameObject> penMap;
     RecognizePanel recognizePanel;
 
-    bool CanWrite = false;
+    List<Vector3> ShapePositions;
+
+    bool Drawing;
+    Geometry geometry;
+     GeometryBehaviour geometryBehaviour;
 
     public void Init(GeoUI geoUI)
     {
         recognizePanel = geoUI.recognizePanel;
+        geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
+    }
+
+
+    public void SetDrawing(bool Drawing)
+    {
+        this.Drawing = Drawing;
+        if (Drawing)
+        {
+            ShapePositions = new List<Vector3>();
+        }
+    }
+
+    public void SetGeometry(Geometry geometry)
+    {
+        this.geometry = geometry;
     }
 
     public void Start()
@@ -133,7 +154,6 @@ public class PenBehaviour : ElementBehaviour
 
         visiable = true;
         waitTime = 0;
-        CanWrite = true;
     }
 
     private void InitRenderer(LineRenderer renderer)
@@ -156,42 +176,60 @@ public class PenBehaviour : ElementBehaviour
 
     void FixedUpdate()
     {
-        if (CanWrite)
+        if (!Drawing)
         {
             waitTime += Time.deltaTime;
             if (waitTime > MAX_TIME && pens.Count > 0)
             {
                 AddWord();
-            }
-            if (Input.GetMouseButtonDown(0))
-            {
-                pen = new Pen(PenCount++);
-                i = 0;
-                Init(pen);
-            }
-            if (Input.GetMouseButton(0))
-            {
-                Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
-                // if (IsValidPoint(point))
-                // {
-                pen.AddPoint(point);
-                SetData(i, point);
-                i++;
-                // }
                 waitTime = 0;
             }
-            if (Input.GetMouseButtonUp(0))
-            {
-                AddPen(pen);
-            }
         }
+        if (Input.GetMouseButtonDown(0))
+        {
+            pen = new Pen(PenCount++);
+            i = 0;
+            Init(pen);
+        }
+        if (Input.GetMouseButton(0))
+        {
+            Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
+            pen.AddPoint(point);
+            SetData(i, point);
+            i++;
+            waitTime = 0;
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            AddPen(pen);
+        }
+    }
+
+    private Vector3 ScreenPositionToAxis(Vector3 mousePosition)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+        Vector3 position = new Vector3(0, 0, 0);
+        Plane screenPlane = new Plane(-ray.direction, position);
+
+        float distance = 0;
+        if (screenPlane.Raycast(ray, out distance))
+        {
+            position = ray.GetPoint(distance);
+        }
+
+        // Normalize
+        if (Mathf.Abs(position.z) <= ValidDiff)
+        {
+            position.z = 0;
+        }
+        return position;
     }
 
     private void AddPen(Pen pen)
     {
         if (penMap.ContainsKey(pen))
             return;
-        if (pen.GetPoints().Count <= 1) 
+        if (pen.GetPoints().Count <= 1)
             return;
         pens.Add(pen);
         GameObject penObject = new GameObject(pen.ToString());
@@ -208,8 +246,38 @@ public class PenBehaviour : ElementBehaviour
         curLineRenderer.positionCount = pen.GetPoints().Count;
         curLineRenderer.SetPositions(pen.GetPoints().ToArray());
         penMap.Add(pen, penObject);
-        // todo 
-        recognizePanel.AddWord("字");
+
+        if (Drawing)
+        {
+            List<Vector3> points = pen.GetPoints();
+            Vector3 start = ScreenPositionToAxis(points[0] + startPoint);
+            Vector3 end = ScreenPositionToAxis(points[points.Count - 1] + startPoint);
+
+            foreach (Vector3 position in new Vector3[] { start, end })
+            {
+                bool IsNew = true;
+                foreach (Vector3 point in ShapePositions)
+                {
+                    IsNew = !IsSamePoint(position, point);
+                    if (!IsNew) {
+                        break;
+                    }
+                }
+                if (IsNew)
+                {
+                    ShapePositions.Add(position);
+                }
+            }
+        }
+    }
+
+    private bool IsSamePoint(Vector3 point1, Vector3 point2)
+    {
+        Vector3 diff = point1 - point2;
+        if (diff.sqrMagnitude < new Vector3(ValidDiff, ValidDiff, ValidDiff).sqrMagnitude) {
+            return true;
+        }
+        return false;
     }
 
     private void AddWord()
@@ -217,7 +285,35 @@ public class PenBehaviour : ElementBehaviour
         Word word = new Word(WordCount++, new List<Pen>(pens));
         words.Add(word);
         pens.Clear();
+
+        // todo 
+        recognizePanel.AddWord("字");
     }
+
+    private bool AddShape()
+    {
+        if (geometry is ResolvedBody)
+        {
+            ResolvedBody resolvedBody = (ResolvedBody) geometry;
+            if (resolvedBody.shapeSetted) {
+                return false;
+            }
+            switch (ShapePositions.Count)
+            {
+                case 3:
+                    resolvedBody.SetTriangle(ShapePositions.ToArray());
+                    break;
+                case 4:
+                    resolvedBody.SetRectangle(ShapePositions.ToArray());
+                    break;
+                default:
+                    return false;
+            }
+        }
+        geometryBehaviour.InitGeometry(geometry);
+        return true;
+    }
+
     public void Init(Pen pen)
     {
         lineRenderer.SetPositions(pen.GetPoints().ToArray());
@@ -247,7 +343,8 @@ public class PenBehaviour : ElementBehaviour
             Destroy(pair.Value);
         penMap.Clear();
 
-        CanWrite = true;
+        StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
+        lockButton.SetStatus(0);
     }
 
     private void ClickSubmit()
@@ -256,12 +353,17 @@ public class PenBehaviour : ElementBehaviour
         //     OnClickSubmit(form);
         transform.parent.gameObject.SetActive(false);
         recognizePanel.Clear();
+        Clear();
+
+        if (Drawing) {
+            AddShape();
+        }
     }
 
     private void ClickCancel()
     {
         transform.parent.gameObject.SetActive(false);
-        Clear();
         recognizePanel.Clear();
+        Clear();
     }
 }

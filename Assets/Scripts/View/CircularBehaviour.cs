@@ -16,7 +16,7 @@ public class CircularBehaviour : ElementBehaviour
     private MeshCollider meshCollider;
     private GeoCircular geoCircular;
     private Circular circular;
-    public int Segments = 32;   // Segment count
+    public int Segments = 64;   // Segment count
     public Vector3[] vertexs;
     private int[] triangles;
     private GeometryBehaviour geometryBehaviour;
@@ -90,7 +90,8 @@ public class CircularBehaviour : ElementBehaviour
 
     private void CylinderMesh(Mesh mesh, Circular circular)
     {
-        float Radius = circular.radius - 0.02f;
+        float Radius1 = Mathf.Abs(circular.Vertices[3].z) - 0.02f;
+        float Radius2 = Mathf.Abs(circular.Vertices[2].z) - 0.02f;
         int segments = Segments;
         Vector3 vertice1 = circular.Vertices[0];
         Vector3 vertice2 = circular.Vertices[1];
@@ -114,10 +115,10 @@ public class CircularBehaviour : ElementBehaviour
             float cosA = Mathf.Cos(angleCur);
             float sinA = Mathf.Sin(angleCur);
 
-            vertices[i] = new Vector3(Radius * cosA, y1, Radius * sinA);
-            vertices[vertices_count + i] = new Vector3(Radius * cosA, y2, Radius * sinA);
-            vertexs[i - 1] = new Vector3(circular.radius * cosA, y1, circular.radius * sinA);
-            vertexs[Segments + i - 1] = new Vector3(circular.radius * cosA, y2, circular.radius * sinA);
+            vertices[i] = new Vector3(Radius1 * cosA, y1, Radius1 * sinA);
+            vertices[vertices_count + i] = new Vector3(Radius2 * cosA, y2, Radius2 * sinA);
+            vertexs[i - 1] = new Vector3(Radius1 * cosA, y1, Radius1 * sinA);
+            vertexs[Segments + i - 1] = new Vector3(Radius2 * cosA, y2, Radius2 * sinA);
             angleCur -= angledelta;
         }
         mesh.vertices = vertices;
@@ -166,15 +167,15 @@ public class CircularBehaviour : ElementBehaviour
         Vector2[] uvs = new Vector2[vertices_count * 2];
         for (int i = 0; i < vertices_count; i++)
         {
-            uvs[i] = new Vector2(vertices[i].x / Radius / 2 + 0.5f, vertices[i].z / Radius / 2 + 0.5f);
-            uvs[vertices_count + i] = new Vector2(vertices[i].x / Radius / 2 + 0.5f, vertices[i].z / Radius / 2 + 0.5f);
+            uvs[i] = new Vector2(vertices[i].x / Radius1 / 2 + 0.5f, vertices[i].z / Radius1 / 2 + 0.5f);
+            uvs[vertices_count + i] = new Vector2(vertices[i].x / Radius2 / 2 + 0.5f, vertices[i].z / Radius2 / 2 + 0.5f);
         }
         mesh.uv = uvs;
     }
 
     private void ConeMesh(Mesh mesh, Circular circular)
     {
-        float Radius = circular.radius;
+        float Radius = circular.radius1;
         int segments = Segments;
         Vector3 vertice1 = circular.Vertices[0];
         Vector3 vertice2 = circular.Vertices[1];
@@ -316,16 +317,21 @@ public class CircularBehaviour : ElementBehaviour
         }
         Vector3 cameraView = geoCamera.transform.position.normalized;
         // calculate vertical vector
-        float x = Mathf.Sqrt(Mathf.Pow(circular.radius, 2) / (1 + Mathf.Pow(cameraView.x / cameraView.z, 2)));
-        float z = -cameraView.x * x / cameraView.z;
+        float Radius1 = Mathf.Abs(circular.Vertices[2].z);
+
+        float x1 = Mathf.Sqrt(Mathf.Pow(Radius1, 2) / (1 + Mathf.Pow(cameraView.x / cameraView.z, 2)));
+        float z1 = -cameraView.x * x1 / cameraView.z;
 
         if (circular.type == CircularType.Cylinder)
         {
-            Vector3 vertice1 = new Vector3(x, circular.Vertices[2].y, z);
-            Vector3 vertice2 = new Vector3(x, circular.Vertices[3].y, z);
+            float Radius2 = Mathf.Abs(circular.Vertices[3].z);
+            float x2 = Mathf.Sqrt(Mathf.Pow(Radius2, 2) / (1 + Mathf.Pow(cameraView.x / cameraView.z, 2)));
+            float z2 = -cameraView.x * x2 / cameraView.z;
+            Vector3 vertice1 = new Vector3(x1, circular.Vertices[2].y, z1);
+            Vector3 vertice2 = new Vector3(x2, circular.Vertices[3].y, z2);
             addBorderLine(vertice1, vertice2);
-            Vector3 vertice3 = new Vector3(-x, circular.Vertices[2].y, -z);
-            Vector3 vertice4 = new Vector3(-x, circular.Vertices[3].y, -z);
+            Vector3 vertice3 = new Vector3(-x1, circular.Vertices[2].y, -z1);
+            Vector3 vertice4 = new Vector3(-x2, circular.Vertices[3].y, -z2);
             addBorderLine(vertice3, vertice4);
             addBorderLine(circular.Vertices[0], vertice2);
             addBorderLine(circular.Vertices[0], vertice4);
@@ -334,10 +340,10 @@ public class CircularBehaviour : ElementBehaviour
         }
         else if (circular.type == CircularType.Cone)
         {
-            Vector3 vertice1 = new Vector3(x, circular.Vertices[2].y, z);
+            Vector3 vertice1 = new Vector3(x1, circular.Vertices[2].y, z1);
             addBorderLine(circular.Vertices[0], vertice1);
             addBorderLine(circular.Vertices[1], vertice1);
-            Vector3 vertice2 = new Vector3(-x, circular.Vertices[2].y, -z);
+            Vector3 vertice2 = new Vector3(-x1, circular.Vertices[2].y, -z1);
             addBorderLine(circular.Vertices[0], vertice2);
             addBorderLine(circular.Vertices[1], vertice2);
         }

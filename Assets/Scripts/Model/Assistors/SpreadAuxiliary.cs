@@ -66,7 +66,7 @@ public class SpreadAuxiliary : Auxiliary
 
     private void SpreadCylinder()
     {
-        float Radius = circular.radius;
+        float Radius = circular.radius1;
         float height = circular.Vertices[0].y - circular.Vertices[1].y;
         float width = 2 * Mathf.PI * Radius;
         positionZ = width / 2;
@@ -99,7 +99,7 @@ public class SpreadAuxiliary : Auxiliary
 
     private void SpreadCone()
     {
-        float Radius = circular.radius;
+        float Radius = circular.radius1;
         float height = circular.Vertices[0].y - circular.Vertices[1].y;
         float width = circular.Vertices[2].z - circular.Vertices[1].z;
         float fanRadius = Mathf.Sqrt(height * height + width * width);

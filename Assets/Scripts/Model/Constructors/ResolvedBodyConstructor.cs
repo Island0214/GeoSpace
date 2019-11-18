@@ -96,13 +96,22 @@ public class ResolvedBodyConstructor : Constructor
         GeometryBehaviour geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
         if (rectangleCondition != null){
             Vector2 position = new Vector2(rectangleCondition.height, rectangleCondition.width);
-            geometry.SetRectangle(position);
+            Vector3[] points = new Vector3[4];
+            points[0] = new Vector3(0, position.x / 2, 0);
+            points[1] = new Vector3(0, -position.x / 2, 0);
+            points[2] = new Vector3(0, -position.x / 2, position.y);
+            points[3] = new Vector3(0, position.x / 2, position.y);
+            geometry.SetRectangle(points);
             geometryBehaviour.InitGeometry(geometry);
             geometrySetted = true;
         }
 		if (triangleCondition != null) {
             Vector2 position = new Vector2(triangleCondition.height, triangleCondition.width);
-            geometry.SetTriangle(position);
+            Vector3[] points = new Vector3[3];
+            points[0] = new Vector3(0, position.x / 2, 0);
+            points[1] = new Vector3(0, -position.x / 2, 0);
+            points[2] = new Vector3(0, -position.x / 2, position.y);
+            geometry.SetTriangle(points);
             geometryBehaviour.InitGeometry(geometry);
             geometrySetted = true;
         }

@@ -382,7 +382,7 @@ public class GeoController : MonoBehaviour
     public void HandleClickWritingButton(int i)
     {
         if (geoUI.writingPanel != null)
-            geoUI.writingPanel.OpenWritingPanel();
+            geoUI.writingPanel.OpenWritingPanel(geometry);
     }
 
     public void HandleClickSpeechButton(int i)
