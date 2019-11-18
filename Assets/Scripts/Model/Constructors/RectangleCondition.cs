@@ -84,7 +84,7 @@ public class RectangleConditionState : ConditionState
     {
         FormInput formInput = new FormInput(1);
 
-        formInput.inputs[0] = new FormText("旋转图形: 矩形");
+        formInput.inputs[0] = new FormText("旋转图形: 四边形");
 
         return formInput;
     }

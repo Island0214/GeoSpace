@@ -48,13 +48,19 @@ public class SpreadAuxiliary : Auxiliary
     {
         if (circular.type == CircularType.Cylinder)
         {
-            SpreadCylinder();
-            resolvedBody.isSpread = true;
+            if (circular.Vertices[0].y == circular.Vertices[3].y && circular.Vertices[1].y == circular.Vertices[2].y)
+            {
+                SpreadCylinder();
+                resolvedBody.isSpread = true;
+            }
         }
         else if (circular.type == CircularType.Cone)
         {
-            SpreadCone();
-            resolvedBody.isSpread = true;
+            if (circular.Vertices[1].y == circular.Vertices[2].y)
+            {
+                SpreadCone();
+                resolvedBody.isSpread = true;
+            }
         }
     }
 
@@ -142,7 +148,7 @@ public class SpreadAuxiliary : Auxiliary
         geometryBehaviour.AddElement(c2);
     }
 
-    public override void RemoveAuxiliary() 
+    public override void RemoveAuxiliary()
     {
         geoCamera.TriggerMoveZAnimation(225, 30, -positionZ);
         geometryBehaviour.clearExtraElements();

@@ -43,8 +43,8 @@ public class ObjectSpin : MonoBehaviour
         {
             VertexSpace v1 = new VertexSpace(vertices[0].Position());
             VertexSpace v2 = new VertexSpace(vertices[1].Position());
-            VertexSpace v3 = new VertexSpace(X, vertices[1].Position().y, Z);
-            VertexSpace v4 = new VertexSpace(preX, vertices[1].Position().y, preZ);
+            VertexSpace v3 = new VertexSpace(X, vertices[2].Position().y, Z);
+            VertexSpace v4 = new VertexSpace(preX, vertices[2].Position().y, preZ);
             geometryBehaviour.AddElement(new GeoFace(new VertexUnit[] { v1, v3, v4 }));
             geometryBehaviour.AddElement(new GeoFace(new VertexUnit[] { v2, v3, v4 }));
             geometryBehaviour.AddElement(new GeoEdge(v3, v4));
@@ -54,11 +54,11 @@ public class ObjectSpin : MonoBehaviour
         else if (vertices.Length == 4)
         {
             VertexSpace v1 = new VertexSpace(vertices[0].Position());
-            VertexSpace v2 = new VertexSpace(X, vertices[0].Position().y, Z);
-            VertexSpace v3 = new VertexSpace(preX, vertices[0].Position().y, preZ);
+            VertexSpace v2 = new VertexSpace(X, vertices[3].Position().y, Z);
+            VertexSpace v3 = new VertexSpace(preX, vertices[3].Position().y, preZ);
             VertexSpace v4 = new VertexSpace(vertices[1].Position());
-            VertexSpace v5 = new VertexSpace(X, vertices[1].Position().y, Z);
-            VertexSpace v6 = new VertexSpace(preX, vertices[1].Position().y, preZ);
+            VertexSpace v5 = new VertexSpace(X, vertices[2].Position().y, Z);
+            VertexSpace v6 = new VertexSpace(preX, vertices[2].Position().y, preZ);
             geometryBehaviour.AddElement(new GeoFace(new VertexUnit[] { v1, v2, v3 }));
             geometryBehaviour.AddElement(new GeoFace(new VertexUnit[] { v4, v5, v6 }));
             geometryBehaviour.AddElement(new GeoFace(new VertexUnit[] { v2, v5, v6, v3 }));

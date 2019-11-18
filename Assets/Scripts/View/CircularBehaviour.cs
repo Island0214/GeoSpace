@@ -94,6 +94,8 @@ public class CircularBehaviour : ElementBehaviour
         int segments = Segments;
         Vector3 vertice1 = circular.Vertices[0];
         Vector3 vertice2 = circular.Vertices[1];
+        Vector3 vertice3 = circular.Vertices[2];
+        Vector3 vertice4 = circular.Vertices[3];
 
         int vertices_count = Segments + 1;
         Vector3[] vertices = new Vector3[vertices_count * 2];
@@ -104,8 +106,8 @@ public class CircularBehaviour : ElementBehaviour
         float angleRad = Mathf.Deg2Rad * angledegree;
         float angleCur = angleRad;
         float angledelta = angleRad / Segments;
-        float y1 = vertice1.y;
-        float y2 = vertice2.y;
+        float y1 = vertice4.y;
+        float y2 = vertice3.y;
 
         for (int i = 1; i < vertices_count; i++)
         {
@@ -122,20 +124,20 @@ public class CircularBehaviour : ElementBehaviour
         mesh.RecalculateNormals();
 
         //triangles
-        int circle_count = 0;
+        int circle_count = 2;
         int circle_triangle_count = segments * 3;
         int rectangle_count = segments;
         int rectangle_triangle_count = 2 * 3;
         triangles = new int[circle_triangle_count * circle_count + rectangle_count * rectangle_triangle_count];
 
         int index = 0;
-        // int vertice_index = 0;
-        // for (int i = 0; i < circle_count; i++)
-        // {
-        //     GetCircleTriangles(circle_triangle_count, vertices_count, vertice_index, index);
-        //     index += circle_triangle_count;
-        //     vertice_index += vertices_count;
-        // }
+        int vertice_index = 0;
+        for (int i = 0; i < circle_count; i++)
+        {
+            GetCircleTriangles(circle_triangle_count, vertices_count, vertice_index, index);
+            index += circle_triangle_count;
+            vertice_index += vertices_count;
+        }
 
         for (int i = 1; i < rectangle_count; i++)
         {
@@ -175,12 +177,12 @@ public class CircularBehaviour : ElementBehaviour
         float Radius = circular.radius;
         int segments = Segments;
         Vector3 vertice1 = circular.Vertices[0];
-        Vector3 vertice2 = circular.Vertices[2];
-        Vector3 vertice3 = circular.Vertices[1];
+        Vector3 vertice2 = circular.Vertices[1];
+        Vector3 vertice3 = circular.Vertices[2];
         int vertices_count = Segments + 1;
-        Vector3[] vertices = new Vector3[vertices_count *  1];
+        Vector3[] vertices = new Vector3[vertices_count *  2];
         vertices[0] = vertice1;
-        // vertices[vertices_count] = vertice2;
+        vertices[vertices_count] = vertice2;
         float angledegree = 360.0f;
         float angleRad = Mathf.Deg2Rad * angledegree;
         float angleCur = angleRad;
@@ -193,14 +195,14 @@ public class CircularBehaviour : ElementBehaviour
             float sinA = Mathf.Sin(angleCur);
 
             vertices[i] = new Vector3(Radius * cosA, y, Radius * sinA);
-            // vertices[vertices_count + i] = new Vector3(Radius * cosA, y, Radius * sinA);
+            vertices[vertices_count + i] = new Vector3(Radius * cosA, y, Radius * sinA);
             angleCur -= angledelta;
         }
         mesh.vertices = vertices;
         mesh.RecalculateNormals();
 
         //triangles
-        int circle_count = 1;
+        int circle_count = 2;
         int circle_triangle_count = segments * 3;
         triangles = new int[circle_triangle_count * circle_count];
 
@@ -217,11 +219,11 @@ public class CircularBehaviour : ElementBehaviour
         mesh.triangles = triangles;
 
         //uv:
-        Vector2[] uvs = new Vector2[vertices_count * 1];
+        Vector2[] uvs = new Vector2[vertices_count * 2];
         for (int i = 0; i < vertices_count; i++)
         {
             uvs[i] = new Vector2(vertices[i].x / Radius / 2 + 0.5f, vertices[i].z / Radius / 2 + 0.5f);
-            // uvs[vertices_count + i] = new Vector2(vertices[i].x / Radius / 2 + 0.5f, vertices[i].z / Radius / 2 + 0.5f);
+            uvs[vertices_count + i] = new Vector2(vertices[vertices_count + i].x / Radius / 2 + 0.5f, vertices[vertices_count + i].z / Radius / 2 + 0.5f);
         }
         mesh.uv = uvs;
     }
@@ -319,19 +321,25 @@ public class CircularBehaviour : ElementBehaviour
 
         if (circular.type == CircularType.Cylinder)
         {
-            Vector3 vertice1 = new Vector3(x, circular.Vertices[0].y, z);
-            Vector3 vertice2 = new Vector3(x, circular.Vertices[1].y, z);
+            Vector3 vertice1 = new Vector3(x, circular.Vertices[2].y, z);
+            Vector3 vertice2 = new Vector3(x, circular.Vertices[3].y, z);
             addBorderLine(vertice1, vertice2);
-            Vector3 vertice3 = new Vector3(-x, circular.Vertices[0].y, -z);
-            Vector3 vertice4 = new Vector3(-x, circular.Vertices[1].y, -z);
+            Vector3 vertice3 = new Vector3(-x, circular.Vertices[2].y, -z);
+            Vector3 vertice4 = new Vector3(-x, circular.Vertices[3].y, -z);
             addBorderLine(vertice3, vertice4);
+            addBorderLine(circular.Vertices[0], vertice2);
+            addBorderLine(circular.Vertices[0], vertice4);
+            addBorderLine(circular.Vertices[1], vertice1);
+            addBorderLine(circular.Vertices[1], vertice3);
         }
         else if (circular.type == CircularType.Cone)
         {
             Vector3 vertice1 = new Vector3(x, circular.Vertices[2].y, z);
             addBorderLine(circular.Vertices[0], vertice1);
+            addBorderLine(circular.Vertices[1], vertice1);
             Vector3 vertice2 = new Vector3(-x, circular.Vertices[2].y, -z);
             addBorderLine(circular.Vertices[0], vertice2);
+            addBorderLine(circular.Vertices[1], vertice2);
         }
     }
 

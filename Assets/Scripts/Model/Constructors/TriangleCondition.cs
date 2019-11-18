@@ -84,7 +84,7 @@ public class TriangleConditionState : ConditionState
     {
         FormInput formInput = new FormInput(1);
 
-        formInput.inputs[0] = new FormText("旋转图形: 直角三角形");
+        formInput.inputs[0] = new FormText("旋转图形: 三角形");
 
         return formInput;
     }

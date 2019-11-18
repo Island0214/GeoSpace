@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Circular 
 {
-    // Cylinder has 2 Vertices and Cone has 3 Vertices.
+    // Cylinder has 4 Vertices and Cone has 3 Vertices.
     public Vector3[] Vertices;
     public float radius;
     public CircularType type;

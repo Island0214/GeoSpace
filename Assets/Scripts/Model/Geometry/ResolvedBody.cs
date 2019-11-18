@@ -16,19 +16,30 @@ public class ResolvedBody : Geometry
 
         Name = "ResolvedBody";
         Type = GeometryType.ResolvedBody;
+        vertexResolvedBodies = new VertexResolvedBody[] { };
 
     }
 
     public override void MoveVertex(VertexUnit vertex, Ray ray, Transform camera, bool snap)
     {
-        if (isSpinned) {
+        if (isSpinned)
+        {
             return;
         }
         base.MoveVertex(vertex, ray, camera, snap);
+        int i = 0;
+        foreach (VertexUnit item in (VertexUnit[])vertexResolvedBodies)
+        {
+            if (vertex == item)
+            {
+                break;
+            }
+            i++;
+        }
         if (!vertex.isBase)
             return;
         Vector3 position = vertex.Position();
-        SetVerticesAbsPosition(position);
+        SetVerticesAbsPosition(i, position);
     }
 
     public override VertexUnit[] VerticesOfMoveVertex(VertexUnit vertex)
@@ -39,15 +50,38 @@ public class ResolvedBody : Geometry
             return (VertexUnit[])vertexResolvedBodies.Clone();
     }
 
-    public void SetVerticesAbsPosition(Vector3 position)
+    public void SetVerticesAbsPosition(int index, Vector3 position)
     {
-        float y = Mathf.Abs(position.y);
-        float z = Mathf.Abs(position.z);
         Vector3[] vectors = new Vector3[4];
-        vectors[0] = new Vector3(0, y, 0);
-        vectors[1] = new Vector3(0, -y, 0);
-        vectors[2] = new Vector3(0, -y, z);
-        vectors[3] = new Vector3(0, y, z);
+
+        for (int i = 0; i < vertexResolvedBodies.Length; i++)
+        {
+            vectors[i] = vertexResolvedBodies[i].Position();
+        }
+
+        if (index == 0 || index == 1)
+        {
+            float y = Mathf.Abs(position.y);
+            vectors[0].y = y;
+            vectors[1].y = -y;
+        }
+        else if (index == 2)
+        {
+            float y = position.y;
+            float z = position.z;
+            vectors[2].y = y;
+            vectors[2].z = z;
+            vectors[3].z = z;
+        }
+        else if (index == 3)
+        {
+            float y = position.y;
+            float z = position.z;
+            vectors[3].y = y;
+            vectors[3].z = z;
+            vectors[2].z = z;
+        }
+
         for (int i = 0; i < vertexResolvedBodies.Length; i++)
         {
             VertexResolvedBody unit = vertexResolvedBodies[i];
@@ -60,9 +94,9 @@ public class ResolvedBody : Geometry
         Vector3 faceNormal = Vector3.right;
 
         VertexResolvedBody u0 = new VertexResolvedBody(0, position.x / 2, 0, faceNormal);
-        u0.isFixed = true;
+        // u0.isFixed = true;
         VertexResolvedBody u1 = new VertexResolvedBody(0, -position.x / 2, 0, faceNormal);
-        u1.isFixed = true;
+        // u1.isFixed = true;
         VertexResolvedBody u2 = new VertexResolvedBody(0, -position.x / 2, position.y, faceNormal);
         // u2.isFixed = true;
         VertexResolvedBody u3 = new VertexResolvedBody(0, position.x / 2, position.y, faceNormal);
@@ -106,9 +140,9 @@ public class ResolvedBody : Geometry
         Vector3 faceNormal = Vector3.right;
 
         VertexResolvedBody u0 = new VertexResolvedBody(0, position.x / 2, 0, faceNormal);
-        u0.isFixed = true;
+        // u0.isFixed = true;
         VertexResolvedBody u1 = new VertexResolvedBody(0, -position.x / 2, 0, faceNormal);
-        u1.isFixed = true;
+        // u1.isFixed = true;
         VertexResolvedBody u2 = new VertexResolvedBody(0, -position.x / 2, position.y, faceNormal);
         // u2.isFixed = true;
         AddBaseVertex(u0);
@@ -134,7 +168,7 @@ public class ResolvedBody : Geometry
         AddGeoFace(f0);
 
         InitDatas();
-        
+
         NavAxisBehaviour axis = GameObject.Find("X").GetComponent<NavAxisBehaviour>();
         PointerEventData data = new PointerEventData(EventSystem.current);
         axis.OnPointerClick(data);
