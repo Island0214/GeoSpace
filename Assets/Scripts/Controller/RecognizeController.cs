@@ -25,9 +25,52 @@ public class RecognizeController : MonoBehaviour
 
     public string GetRecognizeResult(string base64)
     {
-        ///TODO
-        return "s";
+
         try
+        {
+            string img = WebUtility.UrlEncode(base64);
+            string token = GetAccessToken();
+            token = new Regex(
+                    "\"access_token\":\"(?<token>[^\"]*?)\"",
+                    RegexOptions.CultureInvariant
+                    | RegexOptions.Compiled
+                    ).Match(token).Groups["token"].Value.Trim();
+
+                //var url = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic";
+                string url = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
+                var list = new List<KeyValuePair<string, string>>
+                               {
+                                   new KeyValuePair<string, string>("access_token", token),
+                                   new KeyValuePair<string, string>("image", img),
+                                   new KeyValuePair<string, string>("language_type", "CHN_ENG")
+                               };
+                var data = new List<string>();
+                foreach (var pair in list)
+                    data.Add(pair.Key + "=" + pair.Value);
+                string json = HttpPost(url, string.Join("&", data.ToArray()));
+                Debug.Log(json);
+                var regex = new Regex(
+                    "\"words\": \"(?<word>[\\s\\S]*?)\"",
+                    RegexOptions.CultureInvariant
+                    | RegexOptions.Compiled
+                    );
+                var str = new StringBuilder();
+                foreach (Match match in regex.Matches(json))
+                {
+                    str.AppendLine(match.Groups["word"].Value.Trim() );
+                }
+
+                Debug.Log(str.ToString());
+                return str.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                
+                Debug.Log(ex.Message);
+                return ex.Message;
+            
+            }
     }
 
 
