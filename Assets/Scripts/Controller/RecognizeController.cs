@@ -36,8 +36,8 @@ public class RecognizeController : MonoBehaviour
                     | RegexOptions.Compiled
                     ).Match(token).Groups["token"].Value.Trim();
 
-                //var url = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic";
-                string url = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
+                //var url = "https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting";
+                string url = "https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting";
                 var list = new List<KeyValuePair<string, string>>
                                {
                                    new KeyValuePair<string, string>("access_token", token),
