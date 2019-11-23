@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-// using System.IO;
+using System.IO;
 
 public class Pen
 {
@@ -91,6 +91,7 @@ public class PenBehaviour : ElementBehaviour
     Vector2 xRange;
     Vector2 yRange;
     Vector3 startPoint;
+    string recognizeResult;
 
     public Action<FormInput> OnClickSubmit;
     public Action<FormInput> OnClickCancel;
@@ -156,6 +157,7 @@ public class PenBehaviour : ElementBehaviour
 
         visiable = true;
         waitTime = 0;
+        recognizeResult = "";
     }
 
     private void InitRenderer(LineRenderer renderer)
@@ -292,13 +294,16 @@ public class PenBehaviour : ElementBehaviour
         Word word = new Word(WordCount++, new List<Pen>(pens));
         words.Add(word);
         pens.Clear();
-        recognizePanel.AddWord(PointsToBitmap(word));
+        string res = PointsToBitmap(word);
+        recognizePanel.AddWord(res);
+        recognizeResult = recognizePanel.GetWords() + res;
     }
 
     private string PointsToBitmap(Word word)
     {
         List<Vector2> points = word.GetPoints();
-        int Thickness = 6;
+        int border = 20;
+        int Thickness = 10;
         int left = (int)penWrapper.rect.width;
         int right = 0;
         int top = (int)penWrapper.rect.height;
@@ -311,8 +316,8 @@ public class PenBehaviour : ElementBehaviour
             top = Mathf.Min(top, (int)point.y);
             bottom = Mathf.Max(bottom, (int)point.y);
         });
-        int width = right - left + Thickness;
-        int height = bottom - top + Thickness;
+        int width = right - left + Thickness + 2 * border;
+        int height = bottom - top + Thickness + 2 * border;
 
         Texture2D png = new Texture2D(width, height);
         foreach (Pen pen in word.GetPens())
@@ -329,7 +334,7 @@ public class PenBehaviour : ElementBehaviour
                     {
                         for (int n = 0; n < Thickness; n++)
                         {
-                            png.SetPixel((int)point.x - left + m, (int)point.y - top + n, new Color(0, 0, 0, 1));
+                            png.SetPixel((int)point.x - left + m + border, (int)point.y - top + n + border, new Color(0, 0, 0, 1));
                         }
                     }
                 }
@@ -337,8 +342,6 @@ public class PenBehaviour : ElementBehaviour
         }
 
         string base64 = System.Convert.ToBase64String(png.EncodeToPNG());
-        png = null;
-        return geoController.HandleRecognizeResult(base64);
         // string contents = Application.dataPath + "/temp";
         // string pngName = "image";
         // byte[] bytes = png.EncodeToPNG();
@@ -349,6 +352,8 @@ public class PenBehaviour : ElementBehaviour
         // writer.Write(bytes);
         // file.Close();
         // Texture2D.DestroyImmediate(png);
+        png = null;
+        return geoController.HandleRecognizeResult(base64);
     }
 
     private List<Vector2> GetPointsBetweenStartAndEnd(Vector2 start, Vector2 end)
@@ -366,11 +371,16 @@ public class PenBehaviour : ElementBehaviour
             pointMaxX = end;
             pointMinX = start;
         }
+        double k = ((double)(pointMinX.y - pointMaxX.y)) / (pointMinX.x - pointMaxX.x);
         for (int i = (int)pointMinX.x; i <= pointMaxX.x; i++)
         {
-            double k = ((double)(pointMinX.y - pointMaxX.y)) / (pointMinX.x - pointMaxX.x);
             double y = k * (i - pointMinX.x) + pointMinX.y;
             linePoint.Add(new Vector2(i, (int)y));
+        }
+        for (int i = (int)pointMinX.y; i <= pointMaxX.y; i++)
+        {
+            double x = (i - pointMinX.y) / k + pointMinX.x;
+            linePoint.Add(new Vector2((int)x, i));
         }
         return linePoint;
     }
@@ -431,20 +441,21 @@ public class PenBehaviour : ElementBehaviour
 
         StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
         lockButton.SetStatus(0);
+        recognizeResult = "";
     }
 
     private void ClickSubmit()
     {
-        // if (OnClickSubmit != null)
-        //     OnClickSubmit(form);
-        transform.parent.gameObject.SetActive(false);
-        recognizePanel.Clear();
-        Clear();
-
         if (Drawing)
         {
             AddShape();
+        } else {
+            GameObject.Find("GeoController").GetComponent<GeoController>().Classify(recognizePanel.GetWords());
         }
+
+        transform.parent.gameObject.SetActive(false);
+        recognizePanel.Clear();
+        Clear();
     }
 
     private void ClickCancel()

@@ -31,6 +31,11 @@ public class RecognizePanel : MonoBehaviour
         gameObject.SetActive(true);
     }
 
+    public string GetWords()
+    {
+        return input.text;
+    }
+
     public void OnDestroy()
     {
     }
