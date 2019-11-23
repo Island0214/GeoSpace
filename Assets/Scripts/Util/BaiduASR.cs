@@ -138,7 +138,7 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         //textBtn.text = "松开识别";
-        Debug.Log("松开识别");
+        Debug.Log("按下");
         StartRecording();
     }
 
@@ -149,11 +149,11 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         //textBtn.text = "按住说话";
-        Debug.Log("按住说话");
+        Debug.Log("松开");
         trueLength = EndRecording();
         if (trueLength > 1)
         {
-            audioSource.PlayOneShot(saveAudioClip);
+            //audioSource.PlayOneShot(saveAudioClip);
             StartCoroutine(_StartBaiduYuYin());
         }
         else
@@ -178,7 +178,6 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
         if (unityWebRequest.isDone)
         {
-            //这里可以考虑用Json,本人比较懒所以用正则匹配出accessToken
             Match match = Regex.Match(unityWebRequest.downloadHandler.text, @"access_token.:.(.*?).,");
             if (match.Success)
             {
@@ -187,7 +186,6 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             }
             else
             {
-                //textResult.text = "验证错误,获取AccessToken失败!!!";
                 Debug.Log("验证错误,获取AccessToken失败!!!");
             }
         }
