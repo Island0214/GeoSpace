@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.IO;
 
 public class Pen
 {
@@ -72,6 +73,7 @@ public class PenBehaviour : ElementBehaviour
 {
     const string LAYER = "UI";
     const float MAX_TIME = 1f;
+    const float ValidDiff = 0.2f;
 
     LineRenderer lineRenderer;
     int i;
@@ -89,6 +91,7 @@ public class PenBehaviour : ElementBehaviour
     Vector2 xRange;
     Vector2 yRange;
     Vector3 startPoint;
+    string recognizeResult;
 
     public Action<FormInput> OnClickSubmit;
     public Action<FormInput> OnClickCancel;
@@ -98,11 +101,32 @@ public class PenBehaviour : ElementBehaviour
     Dictionary<Pen, GameObject> penMap;
     RecognizePanel recognizePanel;
 
-    bool CanWrite = false;
+    List<Vector3> ShapePositions;
 
-    public void Init(GeoUI geoUI)
+    bool Drawing;
+    Geometry geometry;
+    GeometryBehaviour geometryBehaviour;
+    GeoController geoController;
+
+    public void Init(GeoUI geoUI, GeoController geoController)
     {
         recognizePanel = geoUI.recognizePanel;
+        geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
+        this.geoController = geoController;
+    }
+
+    public void SetDrawing(bool Drawing)
+    {
+        this.Drawing = Drawing;
+        if (Drawing)
+        {
+            ShapePositions = new List<Vector3>();
+        }
+    }
+
+    public void SetGeometry(Geometry geometry)
+    {
+        this.geometry = geometry;
     }
 
     public void Start()
@@ -133,7 +157,7 @@ public class PenBehaviour : ElementBehaviour
 
         visiable = true;
         waitTime = 0;
-        CanWrite = true;
+        recognizeResult = "";
     }
 
     private void InitRenderer(LineRenderer renderer)
@@ -156,42 +180,63 @@ public class PenBehaviour : ElementBehaviour
 
     void FixedUpdate()
     {
-        if (CanWrite)
+        if (!Drawing)
         {
             waitTime += Time.deltaTime;
             if (waitTime > MAX_TIME && pens.Count > 0)
             {
                 AddWord();
+                waitTime = 0;
             }
-            if (Input.GetMouseButtonDown(0))
+        }
+        if (Input.GetMouseButtonDown(0))
+        {
+            pen = new Pen(PenCount++);
+            i = 0;
+            Init(pen);
+        }
+        if (Input.GetMouseButton(0))
+        {
+            Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
+            if (!pen.GetPoints().Contains(point))
             {
-                pen = new Pen(PenCount++);
-                i = 0;
-                Init(pen);
-            }
-            if (Input.GetMouseButton(0))
-            {
-                Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
-                // if (IsValidPoint(point))
-                // {
                 pen.AddPoint(point);
                 SetData(i, point);
                 i++;
-                // }
-                waitTime = 0;
             }
-            if (Input.GetMouseButtonUp(0))
-            {
-                AddPen(pen);
-            }
+            waitTime = 0;
         }
+        if (Input.GetMouseButtonUp(0))
+        {
+            AddPen(pen);
+        }
+    }
+
+    private Vector3 ScreenPositionToAxis(Vector3 mousePosition)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+        Vector3 position = new Vector3(0, 0, 0);
+        Plane screenPlane = new Plane(-ray.direction, position);
+
+        float distance = 0;
+        if (screenPlane.Raycast(ray, out distance))
+        {
+            position = ray.GetPoint(distance);
+        }
+
+        // Normalize
+        if (Mathf.Abs(position.z) <= ValidDiff)
+        {
+            position.z = 0;
+        }
+        return position;
     }
 
     private void AddPen(Pen pen)
     {
         if (penMap.ContainsKey(pen))
             return;
-        if (pen.GetPoints().Count <= 1) 
+        if (pen.GetPoints().Count <= 1)
             return;
         pens.Add(pen);
         GameObject penObject = new GameObject(pen.ToString());
@@ -208,8 +253,40 @@ public class PenBehaviour : ElementBehaviour
         curLineRenderer.positionCount = pen.GetPoints().Count;
         curLineRenderer.SetPositions(pen.GetPoints().ToArray());
         penMap.Add(pen, penObject);
-        // todo 
-        recognizePanel.AddWord("字");
+
+        if (Drawing)
+        {
+            List<Vector3> points = pen.GetPoints();
+            Vector3 start = ScreenPositionToAxis(points[0] + startPoint);
+            Vector3 end = ScreenPositionToAxis(points[points.Count - 1] + startPoint);
+
+            foreach (Vector3 position in new Vector3[] { start, end })
+            {
+                bool IsNew = true;
+                foreach (Vector3 point in ShapePositions)
+                {
+                    IsNew = !IsSamePoint(position, point);
+                    if (!IsNew)
+                    {
+                        break;
+                    }
+                }
+                if (IsNew)
+                {
+                    ShapePositions.Add(position);
+                }
+            }
+        }
+    }
+
+    private bool IsSamePoint(Vector3 point1, Vector3 point2)
+    {
+        Vector3 diff = point1 - point2;
+        if (diff.sqrMagnitude < new Vector3(ValidDiff, ValidDiff, ValidDiff).sqrMagnitude)
+        {
+            return true;
+        }
+        return false;
     }
 
     private void AddWord()
@@ -217,7 +294,122 @@ public class PenBehaviour : ElementBehaviour
         Word word = new Word(WordCount++, new List<Pen>(pens));
         words.Add(word);
         pens.Clear();
+        string res = PointsToBitmap(word);
+        recognizePanel.AddWord(res);
+        recognizeResult = recognizePanel.GetWords() + res;
     }
+
+    private string PointsToBitmap(Word word)
+    {
+        List<Vector2> points = word.GetPoints();
+        int border = 20;
+        int Thickness = 10;
+        int left = (int)penWrapper.rect.width;
+        int right = 0;
+        int top = (int)penWrapper.rect.height;
+        int bottom = 0;
+        points.ForEach(point =>
+        {
+            point += new Vector2(startPoint.x, startPoint.y);
+            left = Mathf.Min(left, (int)point.x);
+            right = Mathf.Max(right, (int)point.x);
+            top = Mathf.Min(top, (int)point.y);
+            bottom = Mathf.Max(bottom, (int)point.y);
+        });
+        int width = right - left + Thickness + 2 * border;
+        int height = bottom - top + Thickness + 2 * border;
+
+        Texture2D png = new Texture2D(width, height);
+        foreach (Pen pen in word.GetPens())
+        {
+            List<Vector3> positions = pen.GetPoints();
+            for (int i = 0; i < positions.Count - 1; i++)
+            {
+                Vector2 start = new Vector2(positions[i].x, positions[i].y) + new Vector2(startPoint.x, startPoint.y);
+                Vector2 end = new Vector2(positions[i + 1].x, positions[i + 1].y) + new Vector2(startPoint.x, startPoint.y);
+                List<Vector2> betweenPoints = GetPointsBetweenStartAndEnd(start, end);
+                foreach (Vector2 point in betweenPoints)
+                {
+                    for (int m = 0; m < Thickness; m++)
+                    {
+                        for (int n = 0; n < Thickness; n++)
+                        {
+                            png.SetPixel((int)point.x - left + m + border, (int)point.y - top + n + border, new Color(0, 0, 0, 1));
+                        }
+                    }
+                }
+            }
+        }
+
+        string base64 = System.Convert.ToBase64String(png.EncodeToPNG());
+        // string contents = Application.dataPath + "/temp";
+        // string pngName = "image";
+        // byte[] bytes = png.EncodeToPNG();
+        // if (!Directory.Exists(contents))
+        //     Directory.CreateDirectory(contents);
+        // FileStream file = File.Open(contents + "/" + pngName + ".png", FileMode.Create);
+        // BinaryWriter writer = new BinaryWriter(file);
+        // writer.Write(bytes);
+        // file.Close();
+        // Texture2D.DestroyImmediate(png);
+        png = null;
+        return geoController.HandleRecognizeResult(base64);
+    }
+
+    private List<Vector2> GetPointsBetweenStartAndEnd(Vector2 start, Vector2 end)
+    {
+        List<Vector2> linePoint = new List<Vector2>();
+        Vector2 pointMaxX = new Vector2();
+        Vector2 pointMinX = new Vector2();
+        if (Mathf.Max(start.x, end.x) == start.x)
+        {
+            pointMaxX = start;
+            pointMinX = end;
+        }
+        else
+        {
+            pointMaxX = end;
+            pointMinX = start;
+        }
+        double k = ((double)(pointMinX.y - pointMaxX.y)) / (pointMinX.x - pointMaxX.x);
+        for (int i = (int)pointMinX.x; i <= pointMaxX.x; i++)
+        {
+            double y = k * (i - pointMinX.x) + pointMinX.y;
+            linePoint.Add(new Vector2(i, (int)y));
+        }
+        for (int i = (int)pointMinX.y; i <= pointMaxX.y; i++)
+        {
+            double x = (i - pointMinX.y) / k + pointMinX.x;
+            linePoint.Add(new Vector2((int)x, i));
+        }
+        return linePoint;
+    }
+
+    private bool AddShape()
+    {
+        if (geometry is ResolvedBody)
+        {
+            ResolvedBody resolvedBody = (ResolvedBody)geometry;
+            if (resolvedBody.shapeSetted)
+            {
+                return false;
+            }
+            switch (ShapePositions.Count)
+            {
+                case 3:
+                    resolvedBody.SetTriangle(ShapePositions.ToArray());
+                    break;
+                case 4:
+                    resolvedBody.SetRectangle(ShapePositions.ToArray());
+                    break;
+                default:
+                    return false;
+            }
+        }
+        geometryBehaviour.InitGeometry(geometry);
+        return true;
+    }
+
     public void Init(Pen pen)
     {
         lineRenderer.SetPositions(pen.GetPoints().ToArray());
@@ -247,21 +439,29 @@ public class PenBehaviour : ElementBehaviour
             Destroy(pair.Value);
         penMap.Clear();
 
-        CanWrite = true;
+        StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
+        lockButton.SetStatus(0);
+        recognizeResult = "";
     }
 
     private void ClickSubmit()
     {
-        // if (OnClickSubmit != null)
-        //     OnClickSubmit(form);
+        if (Drawing)
+        {
+            AddShape();
+        } else {
+            GameObject.Find("GeoController").GetComponent<GeoController>().Classify(recognizePanel.GetWords());
+        }
+
         transform.parent.gameObject.SetActive(false);
         recognizePanel.Clear();
+        Clear();
     }
 
     private void ClickCancel()
     {
         transform.parent.gameObject.SetActive(false);
-        Clear();
         recognizePanel.Clear();
+        Clear();
     }
 }

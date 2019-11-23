@@ -48,19 +48,25 @@ public class SpreadAuxiliary : Auxiliary
     {
         if (circular.type == CircularType.Cylinder)
         {
-            SpreadCylinder();
-            resolvedBody.isSpread = true;
+            if (circular.Vertices[0].y == circular.Vertices[3].y && circular.Vertices[1].y == circular.Vertices[2].y)
+            {
+                SpreadCylinder();
+                resolvedBody.isSpread = true;
+            }
         }
         else if (circular.type == CircularType.Cone)
         {
-            SpreadCone();
-            resolvedBody.isSpread = true;
+            if (circular.Vertices[1].y == circular.Vertices[2].y)
+            {
+                SpreadCone();
+                resolvedBody.isSpread = true;
+            }
         }
     }
 
     private void SpreadCylinder()
     {
-        float Radius = circular.radius;
+        float Radius = circular.radius1;
         float height = circular.Vertices[0].y - circular.Vertices[1].y;
         float width = 2 * Mathf.PI * Radius;
         positionZ = width / 2;
@@ -93,7 +99,7 @@ public class SpreadAuxiliary : Auxiliary
 
     private void SpreadCone()
     {
-        float Radius = circular.radius;
+        float Radius = circular.radius1;
         float height = circular.Vertices[0].y - circular.Vertices[1].y;
         float width = circular.Vertices[2].z - circular.Vertices[1].z;
         float fanRadius = Mathf.Sqrt(height * height + width * width);
@@ -142,7 +148,7 @@ public class SpreadAuxiliary : Auxiliary
         geometryBehaviour.AddElement(c2);
     }
 
-    public override void RemoveAuxiliary() 
+    public override void RemoveAuxiliary()
     {
         geoCamera.TriggerMoveZAnimation(225, 30, -positionZ);
         geometryBehaviour.clearExtraElements();

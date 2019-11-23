@@ -92,12 +92,15 @@ public class SpinAuxiliaryTool : AuxiliaryTool
             VertexUnit vertex2 = vertexUnits[1];
             VertexUnit vertex3 = vertexUnits[2];
             VertexUnit vertex4 = vertexUnits[3];
-            float radius = vertexUnits[2].Position().z;
+            float radius1 = vertexUnits[3].Position().z;
+            float radius2 = vertexUnits[2].Position().z;
 
-            GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2 }, radius, CircularType.Cylinder);
+            GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2, vertex3, vertex4 }, radius1, radius2, CircularType.Cylinder);
             geometry.AddGeoCircular(circular);
-            geometry.AddGeoCircle(new GeoCircle(vertex1, radius, CircleDirection.Y, true, FaceType.SpreadCylinderCircle));
-            geometry.AddGeoCircle(new GeoCircle(vertex2, radius, CircleDirection.Y, true, FaceType.SpreadCylinderCircle));
+            VertexSpace circle1 = new VertexSpace(0, vertex4.Position().y, 0);
+            VertexSpace circle2 = new VertexSpace(0, vertex3.Position().y, 0);
+            geometry.AddGeoCircle(new GeoCircle(circle1, radius1, CircleDirection.Y, false, FaceType.SpreadCylinderCircle));
+            geometry.AddGeoCircle(new GeoCircle(circle2, radius2, CircleDirection.Y, false, FaceType.SpreadCylinderCircle));
         }
         // Cone
         else if (vertexUnits.Length == 3)
@@ -108,9 +111,10 @@ public class SpinAuxiliaryTool : AuxiliaryTool
             VertexUnit vertex3 = vertexUnits[2];
             float radius = vertexUnits[2].Position().z;
 
-            GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2, vertex3 }, radius, CircularType.Cone);
+            GeoCircular circular = new GeoCircular(new VertexUnit[] { vertex1, vertex2, vertex3 }, radius, radius, CircularType.Cone);
             geometry.AddGeoCircular(circular);
-            geometry.AddGeoCircle(new GeoCircle(vertex2, radius, CircleDirection.Y, true, FaceType.SpreadConeCircle));
+            VertexSpace circle1 = new VertexSpace(0, vertex3.Position().y, 0);
+            geometry.AddGeoCircle(new GeoCircle(circle1, radius, CircleDirection.Y, false, FaceType.SpreadConeCircle));
         }
         geometryBehaviour.InitGeometry(geometry);
 

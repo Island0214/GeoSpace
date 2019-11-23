@@ -256,21 +256,23 @@ public enum CircularType
 public class GeoCircular : GeoElement
 {
     private VertexUnit[] vertexs;
-    private float radius; 
+    private float radius1; 
+    private float radius2; 
     private CircularType type;
 
-    public GeoCircular(VertexUnit[] vertexs, float radius, CircularType type, bool isBased = false) : base(0, 0, isBased)
+    public GeoCircular(VertexUnit[] vertexs, float radius1, float radius2, CircularType type, bool isBased = false) : base(0, 0, isBased)
     {
         name = "Circular";
 
         this.vertexs = vertexs;
-        this.radius = radius;
+        this.radius1 = radius1;
+        this.radius2 = radius2;
         this.type = type;
     }
 
     public Circular Circular()
     {
-        return new Circular(vertexs.Select(v => v.Position()).ToArray(), radius, type);
+        return new Circular(vertexs.Select(v => v.Position()).ToArray(), radius1, radius2, type);
     }
 
     public override string ToString()

@@ -8,13 +8,11 @@ using UnityEngine.EventSystems;
 public class WritingPanel : MonoBehaviour
 {
     RectTransform penWrapper;
-    StatusButton lockButton;
     RecognizePanel recognizePanel;
+    PenBehaviour penBehaviour;
 
-    public void Init(GeoUI geoUI)
+    public void Init(GeoUI geoUI, GeoController geoController)
     {
-        lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
-        lockButton.SetStatus(0);
         Clear();
 
         RectTransform writingPanel = (RectTransform)transform;
@@ -22,7 +20,8 @@ public class WritingPanel : MonoBehaviour
         penWrapper.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, writingPanel.rect.width);
         penWrapper.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, writingPanel.rect.height);
 
-        transform.GetComponentInChildren<PenBehaviour>().Init(geoUI);
+        penBehaviour = transform.GetComponentInChildren<PenBehaviour>();
+        penBehaviour.Init(geoUI, geoController);
         recognizePanel = geoUI.recognizePanel;
     }
 
@@ -31,13 +30,30 @@ public class WritingPanel : MonoBehaviour
         gameObject.SetActive(false);
         if (recognizePanel != null)
             recognizePanel.Clear();
-        lockButton.SetStatus(1);
     }
 
-    public void OpenWritingPanel()
+    public void OpenWritingPanel(Geometry geometry)
     {
         gameObject.SetActive(true);
+        StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
+        lockButton.SetStatus(1);
         recognizePanel.showRecognizePanel();
+        penBehaviour.SetDrawing(false);
+        penBehaviour.SetGeometry(geometry);
+
+        if (geometry is ResolvedBody)
+        {
+            ResolvedBody resolvedBody = (ResolvedBody)geometry;
+            if (!resolvedBody.shapeSetted)
+            {
+                NavAxisBehaviour axis = GameObject.Find("X").GetComponent<NavAxisBehaviour>();
+                PointerEventData data = new PointerEventData(EventSystem.current);
+                axis.OnPointerClick(data);
+                penBehaviour.SetDrawing(true);
+                penBehaviour.SetGeometry(geometry);
+                return;
+            }
+        }
     }
 
     public void OnDestroy()
