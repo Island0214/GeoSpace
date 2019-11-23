@@ -229,8 +229,10 @@ public class GeoCamera : MonoBehaviour
     {
         rotateY += iRotateY;
         rotateX += iRotateX;
-        if (positionZ != 0)
+        if (positionZ != 0) {
             positionZ -= iPositionZ;
+            iPositionZ = 0;
+        }
         SetCameraAttributes();
         count--;
 

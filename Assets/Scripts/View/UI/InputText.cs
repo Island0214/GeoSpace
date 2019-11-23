@@ -36,4 +36,9 @@ public class InputText : InputBase
     {
         return textField.cachedTextGenerator.GetPreferredWidth(text, textField.GetGenerationSettings(GetComponent<RectTransform>().rect.size));
     }
+
+    public void SetTimer()
+    {
+        Destroy(gameObject, 1.5f);
+    }
 }

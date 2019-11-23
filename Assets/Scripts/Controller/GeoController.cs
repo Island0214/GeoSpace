@@ -93,7 +93,6 @@ public class GeoController : MonoBehaviour
 
         NavPanel navPanel = canvasBack.Find("NavPanel").GetComponent<NavPanel>();
         navPanel.OnWritingButtonClick = HandleClickWritingButton;
-        navPanel.OnSpeechButtonClick = HandleClickSpeechButton;
         navPanel.OnShadeButtonClick = HandleClickShadeButton;
         navPanel.OnLockButtonClick = HandleClickLockButton;
         navPanel.OnDisplayButtonClick = HandleClickDisplayButton;
@@ -381,13 +380,8 @@ public class GeoController : MonoBehaviour
     }
     public void HandleClickWritingButton(int i)
     {
-        if (geoUI.writingPanel != null)
+        if (geoUI.writingPanel != null && i == 1)
             geoUI.writingPanel.OpenWritingPanel(geometry);
-    }
-
-    public void HandleClickSpeechButton(int i)
-     {   
-         //To do
     }
 
     public void HandleClickShadeButton(int i)
@@ -424,8 +418,8 @@ public class GeoController : MonoBehaviour
 
     public void HandleClickVoiceButton(int i)
     {
-        Debug.Log("Speech Recognition");
-        ///TODO: 语音识别接口加入
+        // Debug.Log("Speech Recognition");
+        // geoUI.navPanel.SetSpeechButtonStatus(1);
     }
 
     public void HandleElementDisplayChange(int i)

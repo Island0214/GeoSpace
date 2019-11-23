@@ -46,20 +46,18 @@ public class SpreadAuxiliary : Auxiliary
 
     public void AddPlaneGraph()
     {
-        if (circular.type == CircularType.Cylinder)
+        if (circular.IsNormalCircular())
         {
-            if (circular.Vertices[0].y == circular.Vertices[3].y && circular.Vertices[1].y == circular.Vertices[2].y)
+            if (circular.type == CircularType.Cylinder)
             {
                 SpreadCylinder();
                 resolvedBody.isSpread = true;
             }
-        }
-        else if (circular.type == CircularType.Cone)
-        {
-            if (circular.Vertices[1].y == circular.Vertices[2].y)
+            else if (circular.type == CircularType.Cone)
             {
                 SpreadCone();
                 resolvedBody.isSpread = true;
+
             }
         }
     }

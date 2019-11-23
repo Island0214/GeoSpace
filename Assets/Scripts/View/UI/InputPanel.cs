@@ -358,5 +358,17 @@ public class InputPanel : MonoBehaviour
                 break;
         }
     }
+    public void SetTimerMessage(FormInput formInput)
+    {
+        SetFormForMessage(formInput);
 
+        for (int i = 0; i < inputBases.Length; i++) {
+            InputBase inputBase = inputBases[i];
+            if (inputBase is InputText)
+            {
+                InputText inputText = (InputText) inputBase;
+                inputText.SetTimer();
+            }
+        }
+    }
 }

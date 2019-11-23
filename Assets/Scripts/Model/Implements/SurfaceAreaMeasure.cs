@@ -44,6 +44,27 @@ public class SurfaceAreaMeasureTool : MeasureTool
         if (!valid)
             return null;
 
+        if (!(geometry is ResolvedBody))
+        {
+            return null;
+        }
+        else
+        {
+            ResolvedBody resolvedBody = (ResolvedBody)geometry;
+            if (!resolvedBody.isSpinned) {
+                return null;
+            }
+            GeoCircular[] geoCirculars = geometry.GeoCirculars();
+            if (geoCirculars.Length != 0)
+            {
+                GeoCircular geoCircular = geoCirculars[0];
+                Circular circular = geoCircular.Circular();
+                if (!circular.IsNormalCircular()) {
+                    return null;
+                }
+            }
+        }
+        
         GeoVertex[] geoVertices = geometry.GeoVertices();
         int[] ids = new int[geoVertices.Length];
         int index = 0;

@@ -53,6 +53,9 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     //音源
     AudioSource audioSource;
 
+    InputPanel inputPanel;
+    FormInput formInput;
+
     void Start()
     {
         //获取麦克风设备，判断是否有麦克风设备
@@ -60,11 +63,11 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             isHaveMic = true;
             currentDeviceName = Microphone.devices[0];
-            Debug.Log("检测到麦克风设备"+ Microphone.devices.Length);
+            // Debug.Log("检测到麦克风设备"+ Microphone.devices.Length);
         }
         else
         {
-            Debug.Log("无麦克风设备");
+            // Debug.Log("无麦克风设备");
             return;
         }
 
@@ -72,6 +75,8 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         //textBtn = this.transform.GetChild(0).GetComponent<Text>();
         audioSource = this.GetComponent<AudioSource>();
         //textResult = this.transform.parent.GetChild(1).GetComponent<Text>();
+
+        inputPanel = GameObject.Find("/UI/CanvasBack").transform.Find("InputPanel").GetComponent<InputPanel>();
     }
 
     /// <summary>
@@ -131,6 +136,14 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
     }
 
+    private void SetTextMessage(string text)
+    {
+        inputPanel.Clear();
+        formInput = new FormInput(1);
+        formInput.inputs[0] = new FormText(text);
+        inputPanel.SetTimerMessage(formInput);
+    }
+
     /// <summary>
     /// 按下录音按钮
     /// </summary>
@@ -138,8 +151,10 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         //textBtn.text = "松开识别";
-        Debug.Log("按下");
         StartRecording();
+        SetTextMessage("松开后识别录音");
+        StatusButton speechButton = GameObject.Find("SpeechButton").GetComponent<StatusButton>();
+        speechButton.SetStatus(1);
     }
 
     /// <summary>
@@ -149,7 +164,7 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         //textBtn.text = "按住说话";
-        Debug.Log("松开");
+        // Debug.Log("按住说话");
         trueLength = EndRecording();
         if (trueLength > 1)
         {
@@ -159,7 +174,7 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         else
         {
             //textResult.text = "录音时长过短";
-            Debug.Log("录音时长过短");
+            SetTextMessage("录音时长过短");
         }
     }
 
@@ -246,7 +261,7 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             //textResult.text = asrResult;
             res = asrResult;
             GameObject.Find("GeoController").GetComponent<GeoController>().Classify(res);
-            Debug.Log(res);
+            SetTextMessage(res);
         }
     }
 

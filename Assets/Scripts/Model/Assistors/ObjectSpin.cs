@@ -14,9 +14,12 @@ public class ObjectSpin : MonoBehaviour
     VertexUnit[] vertices;
     GeometryBehaviour geometryBehaviour;
     List<GeoEdge> geoEdges;
+    bool Spinning = true;
 
     void Update()
     {
+        if (!Spinning)
+            return;
         foreach (GeoEdge edge in geoEdges)
         {
             if (geometryBehaviour.ContainsEdge(edge))
@@ -29,6 +32,10 @@ public class ObjectSpin : MonoBehaviour
         AddCurFace(transform.localEulerAngles.y);
         if (transform.localEulerAngles.y >= 360 - RotateSpeed / 10)
         {
+            transform.Rotate(Vector3.up * RotateSpeed * Time.deltaTime);
+            AddCurFace(360);
+            geoEdges.Clear();
+            Spinning = false;
             DestroyGameObject();
         }
     }
@@ -115,6 +122,6 @@ public class ObjectSpin : MonoBehaviour
             auxiliaryTool = (SpinAuxiliaryTool)Activator.CreateInstance(type);
             auxiliaryTool.GenerateResolvedBody(geometry);
         }
-        Destroy(gameObject);
+        // Destroy(gameObject);
     }
 }

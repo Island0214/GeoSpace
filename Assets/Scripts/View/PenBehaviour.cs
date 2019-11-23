@@ -73,7 +73,8 @@ public class PenBehaviour : ElementBehaviour
 {
     const string LAYER = "UI";
     const float MAX_TIME = 1f;
-    const float ValidDiff = 0.2f;
+    const float ValidDiff = 0.4f;
+    // const float WorldValidDiff 
 
     LineRenderer lineRenderer;
     int i;
@@ -100,6 +101,7 @@ public class PenBehaviour : ElementBehaviour
 
     Dictionary<Pen, GameObject> penMap;
     RecognizePanel recognizePanel;
+    NavPanel navPanel;
 
     List<Vector3> ShapePositions;
 
@@ -111,6 +113,7 @@ public class PenBehaviour : ElementBehaviour
     public void Init(GeoUI geoUI, GeoController geoController)
     {
         recognizePanel = geoUI.recognizePanel;
+        navPanel = geoUI.navPanel;
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
         this.geoController = geoController;
     }
@@ -442,6 +445,7 @@ public class PenBehaviour : ElementBehaviour
         StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
         lockButton.SetStatus(0);
         recognizeResult = "";
+        navPanel.SetWritingButtonStatus(0);
     }
 
     private void ClickSubmit()

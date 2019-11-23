@@ -9,6 +9,7 @@ public class WritingPanel : MonoBehaviour
 {
     RectTransform penWrapper;
     RecognizePanel recognizePanel;
+    NavPanel navPanel;
     PenBehaviour penBehaviour;
 
     public void Init(GeoUI geoUI, GeoController geoController)
@@ -23,6 +24,7 @@ public class WritingPanel : MonoBehaviour
         penBehaviour = transform.GetComponentInChildren<PenBehaviour>();
         penBehaviour.Init(geoUI, geoController);
         recognizePanel = geoUI.recognizePanel;
+        navPanel = geoUI.navPanel;
     }
 
     public void Clear()

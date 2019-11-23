@@ -75,6 +75,10 @@ public class AddMeasureOperation : Operation
     public void AddMeasure(Geometry geometry, FormInput form)
     {
         Measure measure = measureTool.GenerateMeasure(geometry, form);
+        if (measure == null)
+        {
+            return;
+        }
         measure.InitWithGeometry(geometry);
 
 

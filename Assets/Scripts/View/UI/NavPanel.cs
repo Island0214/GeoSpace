@@ -43,7 +43,7 @@ public class NavPanel : MonoBehaviour
             if (OnSpeechButtonClick != null)
                 OnSpeechButtonClick(current);
         };
-        speechButton.SetStatus(1);
+        speechButton.SetStatus(0);
 
         shadeButton = transform.Find("ShadeButton").GetComponent<StatusButton>();
         shadeButton.Init();
@@ -115,5 +115,8 @@ public class NavPanel : MonoBehaviour
     {
         gridButton.SetStatus(status);
     }
-
+    public void SetWritingButtonStatus(int status)
+    {
+        writingButton.SetStatus(status);
+    }
 }
