@@ -659,7 +659,7 @@ public class GeoController : MonoBehaviour
                             }
                         }
                     }
-                    //Debug.Log(list);
+                    Debug.Log(list);
                     GeometryOperation opt = (GeometryOperation)currentOperation;
                     opt.ReSetSign(list);
                 }
@@ -765,7 +765,7 @@ public class GeoController : MonoBehaviour
         }
         else if (str.IndexOf("中点") != -1)
         {
-              Debug.Log("中点");
+            Debug.Log("中点");
             String line = "";
             for (int i = 1; i < str.Length - 2; i++)
             {
@@ -795,9 +795,12 @@ public class GeoController : MonoBehaviour
             {
                 ele2.fields[0] = str.Substring(str.Length - 2);
             }
-            else
+            else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
             {
                 ele2.fields[0] = str.Substring(str.Length - 1);
+            }
+            else {
+                ele2.fields[0] = "";
             }
 
             FormInput writeInput = new FormInput(4);
@@ -848,9 +851,12 @@ public class GeoController : MonoBehaviour
             {
                 ele2.fields[0] = str.Substring(str.Length - 2);
             }
-            else
+            else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
             {
                 ele2.fields[0] = str.Substring(str.Length - 1);
+            }
+            else {
+                ele2.fields[0] = "";
             }
             //Debug.Log(ele2.fields[0]);
             FormInput writeInput = new FormInput(4);
@@ -900,9 +906,13 @@ public class GeoController : MonoBehaviour
             {
                 ele2.fields[0] = str.Substring(str.Length - 2);
             }
-            else
+            else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
             {
                 ele2.fields[0] = str.Substring(str.Length - 1);
+            }
+            else
+            {
+                ele2.fields[0] = "";
             }
             FormInput writeInput = new FormInput(4);
             writeInput.inputs[0] = text1;
@@ -1018,8 +1028,9 @@ public class GeoController : MonoBehaviour
                 point2 = str.Substring(str.Length - 1);
             }
             else {
-                Debug.Log("point lost error");
-                return;
+                //Debug.Log("point lost error");
+                //return;
+                point2 = "";
             }
 
             FormText text1 = new FormText("过点");
@@ -1114,8 +1125,9 @@ public class GeoController : MonoBehaviour
             }
             else
             {
-                Debug.Log("point lost error");
-                return;
+                //Debug.Log("point lost error");
+                //return;
+                point2 = "";
             }
 
             FormText text1 = new FormText("过点");
@@ -1243,7 +1255,7 @@ public class GeoController : MonoBehaviour
         }
         else if (str.IndexOf("角度") != -1)
         {
-            Debug.Log("测量角度");
+            
 
             String angle = "";
             for (int i = 0; i < str.Length - 1; i++)
@@ -1260,6 +1272,7 @@ public class GeoController : MonoBehaviour
                     }
                 }
             }
+            Debug.Log("测量"+ angle + "角度");
 
             FormText text1 = new FormText("∠");
             String[] eles = angle.Split(' ');
