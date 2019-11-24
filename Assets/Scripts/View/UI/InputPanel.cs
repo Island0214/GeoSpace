@@ -99,7 +99,9 @@ public class InputPanel : MonoBehaviour
         {
             for (int i = 0; i < inputBases.Length; i++)
             {
-                Destroy(inputBases[i].gameObject);
+                if(inputBases[i]!=null && inputBases[i].gameObject!=null){
+                    Destroy(inputBases[i].gameObject);
+                }
             }
 
             inputBases = null;
