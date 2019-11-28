@@ -572,6 +572,7 @@ public class GeoController : MonoBehaviour
 
     public void Classify(String str)
     {
+        try {
         str = str.ToUpper();
         str = str.Replace(" ","");
         /*
@@ -1341,6 +1342,9 @@ public class GeoController : MonoBehaviour
         }
         else
         {
+            Debug.Log("analysis error");
+        }
+        } catch (Exception e) {
             Debug.Log("analysis error");
         }
     }

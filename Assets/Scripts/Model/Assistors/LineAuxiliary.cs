@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,15 +14,19 @@ public class LineAuxiliary : Auxiliary
 
     public override void InitWithGeometry(Geometry geometry)
     {
-        VertexUnit unit1 = geometry.VertexUnit(edge.id1);
-        VertexUnit unit2 = geometry.VertexUnit(edge.id2);
-        units = new VertexUnit[] { };
+        try {
+            VertexUnit unit1 = geometry.VertexUnit(edge.id1);
+            VertexUnit unit2 = geometry.VertexUnit(edge.id2);
+            units = new VertexUnit[] { };
 
-        GeoEdge geoEdge = new GeoEdge(unit1, unit2);
-        elements = new GeoElement[] { geoEdge };
-        
-        dependencies.Add(unit1);
-        dependencies.Add(unit2);
+            GeoEdge geoEdge = new GeoEdge(unit1, unit2);
+            elements = new GeoElement[] { geoEdge };
+            
+            dependencies.Add(unit1);
+            dependencies.Add(unit2);
+        } catch (Exception e) {
+            return;
+        }
     }
 
     public override void RemoveAuxiliary() {}
@@ -43,6 +48,8 @@ public class LineAuxiliaryTool : AuxiliaryTool
     public override bool ValidateInput(Geometry geometry, FormInput formInput)
     {
         FormElement formElement = (FormElement)formInput.inputs[1];
+        if (formInput.inputs[1].ToString().Length < 2)
+            return false;
         if (IsEdge(geometry, formElement))
             return false;
         return true;
