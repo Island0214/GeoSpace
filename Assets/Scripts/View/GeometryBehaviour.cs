@@ -156,6 +156,9 @@ public class GeometryBehaviour : MonoBehaviour
         geometry = null;
         geoCamera.TriggerCenterRAnimation();
 
+        StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
+        lockButton.SetStatus(0);
+        
         // Clear Element
         clearElements();
 

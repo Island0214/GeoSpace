@@ -122,6 +122,6 @@ public class ObjectSpin : MonoBehaviour
             auxiliaryTool = (SpinAuxiliaryTool)Activator.CreateInstance(type);
             auxiliaryTool.GenerateResolvedBody(geometry);
         }
-        // Destroy(gameObject);
+        Destroy(gameObject);
     }
 }

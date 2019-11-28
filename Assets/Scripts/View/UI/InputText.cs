@@ -39,6 +39,6 @@ public class InputText : InputBase
 
     public void SetTimer()
     {
-        Destroy(gameObject, 1.5f);
+        // Destroy(gameObject, 1.5f);
     }
 }

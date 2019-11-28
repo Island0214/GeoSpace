@@ -260,8 +260,14 @@ public class PenBehaviour : ElementBehaviour
         if (Drawing)
         {
             List<Vector3> points = pen.GetPoints();
-            Vector3 start = ScreenPositionToAxis(points[0] + startPoint);
-            Vector3 end = ScreenPositionToAxis(points[points.Count - 1] + startPoint);
+            Vector3 worldStart = points[0] + startPoint;
+            Vector3 worldEnd = points[points.Count - 1] + startPoint;
+            if (!IsValidDrawPoint(worldStart) || !IsValidDrawPoint(worldEnd)) {
+                return;
+            }
+            Vector3 start = ScreenPositionToAxis(worldStart);
+            Vector3 end = ScreenPositionToAxis(worldEnd);
+
 
             foreach (Vector3 position in new Vector3[] { start, end })
             {
@@ -282,6 +288,19 @@ public class PenBehaviour : ElementBehaviour
         }
     }
 
+    private bool IsValidDrawPoint(Vector3 point)
+    {
+        int left = 240;
+        int right = (int)(left + penWrapper.rect.width);
+        int top = 0;
+        int bottom = 180;
+        if (point.x >= right - 180 && point.x <= right && point.y >= top && point.y <= bottom)
+        {
+            return false;
+        }
+        return true;
+    }
+
     private bool IsSamePoint(Vector3 point1, Vector3 point2)
     {
         Vector3 diff = point1 - point2;
@@ -297,7 +316,9 @@ public class PenBehaviour : ElementBehaviour
         Word word = new Word(WordCount++, new List<Pen>(pens));
         words.Add(word);
         pens.Clear();
-        string res = PointsToBitmap(word);
+        string res = PointsToBitmap(word).Replace(" ", "");
+        Debug.Log(res.Length);
+        res = res.Length > 15 || res.Length == 0 ? "空": res;
         recognizePanel.AddWord(res);
         recognizeResult = recognizePanel.GetWords() + res;
     }
@@ -453,7 +474,9 @@ public class PenBehaviour : ElementBehaviour
         if (Drawing)
         {
             AddShape();
-        } else {
+        }
+        else
+        {
             GameObject.Find("GeoController").GetComponent<GeoController>().Classify(recognizePanel.GetWords());
         }
 

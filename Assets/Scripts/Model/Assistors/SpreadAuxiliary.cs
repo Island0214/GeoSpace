@@ -44,6 +44,14 @@ public class SpreadAuxiliary : Auxiliary
         }
     }
 
+    public bool CanSpread() {
+        if (circular.IsNormalCircular())
+        {
+            return true;
+        }
+        return false;
+    }
+
     public void AddPlaneGraph()
     {
         if (circular.IsNormalCircular())
@@ -185,6 +193,10 @@ public class SpreadAuxiliaryTool : AuxiliaryTool
 
         SpreadAuxiliary auxiliary = new SpreadAuxiliary();
         auxiliary.InitWithGeometry(geometry);
+        if (!auxiliary.CanSpread()) 
+        {
+            return null;
+        }
         auxiliary.AddPlaneGraph();
 
         return auxiliary;

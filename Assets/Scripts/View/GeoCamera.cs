@@ -179,7 +179,6 @@ public class GeoCamera : MonoBehaviour
         count = ANIMATE_COUNT;
         iZoom = (defaultOrthographic - orthographic) / count;
         iPositionY = (defaultPositionY - positionY) / count;
-        iPositionZ = (defaultPositionZ - positionZ) / count;
     }
 
     private void AnimateRotate()
@@ -229,8 +228,10 @@ public class GeoCamera : MonoBehaviour
     {
         rotateY += iRotateY;
         rotateX += iRotateX;
+        
         if (positionZ != 0) {
             positionZ -= iPositionZ;
+        } else if (positionZ == 0) {
             iPositionZ = 0;
         }
         SetCameraAttributes();
