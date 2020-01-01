@@ -25,6 +25,10 @@ public class WritingPanel : MonoBehaviour
         penBehaviour.Init(geoUI, geoController);
         recognizePanel = geoUI.recognizePanel;
         navPanel = geoUI.navPanel;
+
+        // 输出当前屏幕宽高
+        Debug.Log("屏幕宽："+UnityEngine.Screen.width);
+        Debug.Log("屏幕高："+UnityEngine.Screen.height);
     }
 
     public void Clear()
