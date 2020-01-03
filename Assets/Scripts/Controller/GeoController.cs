@@ -590,43 +590,6 @@ public class GeoController : MonoBehaviour
             str = str.Replace(" ", "");
 
 
-            // 平台判断
-            if (Application.platform == RuntimePlatform.WindowsPlayer)
-            {
-                //Debug.Log("WindowsPlayer 平台");
-                if (str.Length > 1)
-                {
-                    str = str.Substring(0, str.Length - 1);
-                }
-            }
-            else if (Application.platform == RuntimePlatform.WindowsEditor)
-            {
-                //Debug.Log("WindowsEditor 平台");
-                if (str.Length > 1)
-                {
-                    str = str.Substring(0, str.Length - 1);
-                }
-            }
-            else if (Application.platform == RuntimePlatform.OSXPlayer)
-            {
-                //Debug.Log("OSXPlayer 平台");
-            }
-            else if (Application.platform == RuntimePlatform.OSXEditor)
-            {
-                //Debug.Log("OSXEditor 平台");
-            }
-
-            //输出测试
-            Debug.Log("识别结果：" + str + ", bytelen=" + System.Text.Encoding.Default.GetByteCount(str) + ", charlen=" + str.Length);
-            Debug.Log("识别二进制：" + StringToBinary(str));
-            char[] arr = str.ToCharArray();
-            // foreach (char c in arr)
-            // {
-            //     Debug.Log("Char: " + c);
-            // }
-            //Debug.Log("对比结果：" + "连接AC" + ", bytelen=" + System.Text.Encoding.Default.GetByteCount("连接AC") + ", charlen=" + "连接AC".Length);
-            //Debug.Log("对比二进制：" + StringToBinary("连接AC"));
-
             /*
             正方体/立方体ABCD-A1B1C1D1
             三棱锥P-ABC
