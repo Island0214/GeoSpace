@@ -174,6 +174,7 @@ public class PenBehaviour : ElementBehaviour
 
     private bool IsValidPoint(Vector3 vector3)
     {
+        // TODO: 漂移
         if (vector3.x < xRange.x || vector3.x > xRange.y || vector3.y < yRange.x || vector3.y > yRange.y)
         {
             return false;

@@ -51,18 +51,36 @@ public class GeoCamera : MonoBehaviour
 
     private void InitViewport()
     {
-        float left = UIConstants.NavPlaneWidth + UIConstants.PlaneSpaceing;
-        float top = UIConstants.ToolPlaneHeight + UIConstants.PlaneSpaceing * 2;
-        float right = UIConstants.StatePlaneWidth + UIConstants.PlaneSpaceing * 2;
-        float bottom = UIConstants.InputPlaneHeight + UIConstants.PlaneSpaceing * 2;
-
         float screenWidth = Screen.width;
         float screenHeight = Screen.height;
+        Debug.Log("In GeoCamera.cs: s_width="+screenWidth+",s_height="+screenHeight);
+
+        int refer_width = 2560;
+        int refer_height = 1440;
+
+        float factor1 = screenWidth / refer_width;
+        float factor2 = screenHeight / refer_height;
+        float factor = Mathf.Min(factor1, factor2);
+        Debug.Log("factor1: "+factor1+",factor2: "+factor2);
+
+        // 在这里获取缩放后的宽度
+
+        Debug.Log("NavPlane width:"+UIConstants.NavPlaneWidth);
+
+        float left = (UIConstants.NavPlaneWidth + UIConstants.PlaneSpaceing)*factor;
+        float top = (UIConstants.ToolPlaneHeight + UIConstants.PlaneSpaceing * 2)*factor;
+        float right = (UIConstants.StatePlaneWidth + UIConstants.PlaneSpaceing * 2)*factor;
+        float bottom = (UIConstants.InputPlaneHeight + UIConstants.PlaneSpaceing * 2)*factor;
+
+        
 
         float x = left / screenWidth;
         float y = bottom / screenHeight;
         float width = screenWidth - left - right;
         float height = screenHeight - top - bottom;
+
+        Debug.Log("In GeoCamera.cs: width="+width+",height="+height);
+
         float widthRatio = width / screenWidth;
         float heightRatio = height / screenHeight;
         _camera.rect = new Rect(x, y, widthRatio, heightRatio);

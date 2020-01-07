@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+
 
 public enum GeoState
 {
@@ -29,6 +32,7 @@ public class GeoUI
     public WritingPanel writingPanel;
     public RecognizePanel recognizePanel;
 }
+
 
 public class GeoController : MonoBehaviour
 {
@@ -56,8 +60,26 @@ public class GeoController : MonoBehaviour
 
     Operation currentOperation;
 
+    const int MIN_WINDOW_WIDTH = 1440;
+    const int MIN_WINDOW_HEIGHT = 900;
+
     void Start()
     {
+        // 检测分辨率
+        int screen_width = UnityEngine.Screen.width;
+        int screen_height = UnityEngine.Screen.height;
+        Debug.Log("屏幕宽："+screen_width);
+        Debug.Log("屏幕高："+screen_height);
+        if(screen_width < MIN_WINDOW_WIDTH || screen_height < MIN_WINDOW_HEIGHT){
+            Debug.Log("当前分辨率不符合要求");
+            // TODO: 弹出对话框：“分辨率不符合要求，即将退出”
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
+        }
+
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
         navigationBehaviour = GameObject.Find("/3D/Navigation").GetComponent<NavigationBehaviour>();
         gridBehaviour = GameObject.Find("/3D/Grid").GetComponent<GridBehaviour>();
