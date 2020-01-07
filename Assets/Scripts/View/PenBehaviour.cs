@@ -202,11 +202,6 @@ public class PenBehaviour : ElementBehaviour
         if (Input.GetMouseButton(0))
         {
             Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
-            //Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - new Vector3(0,0,0);
-            // 输出当前鼠标位置
-            Debug.Log("当前鼠标input: x:"+Input.mousePosition.x+",当前鼠标y:"+Input.mousePosition.y);
-            Debug.Log("当前点point: x:"+point.x+",当前点y:"+point.y);
-            Debug.Log("startPoint: ("+startPoint.x+","+startPoint.y+")");
             if (!pen.GetPoints().Contains(point))
             {
                 pen.AddPoint(point);
@@ -383,8 +378,7 @@ public class PenBehaviour : ElementBehaviour
         // file.Close();
         // Texture2D.DestroyImmediate(png);
         png = null;
-        return "test";
-        //return geoController.HandleRecognizeResult(base64);
+        return geoController.HandleRecognizeResult(base64);
     }
 
     private List<Vector2> GetPointsBetweenStartAndEnd(Vector2 start, Vector2 end)
