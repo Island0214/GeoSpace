@@ -16,6 +16,7 @@ public enum GeoState
     Condition,
     Auxiliary,
     Measure,
+    Writing
 }
 
 public class GeoUI
@@ -160,7 +161,10 @@ public class GeoController : MonoBehaviour
 
             if (state == GeoState.Normal)
                 return canCameraRotate;
-            return currentOperation.CanRotateCamera;
+            if (currentOperation != null)
+                return currentOperation.CanRotateCamera;
+            else 
+                return false;
         };
         panRecognizer.gestureBeginEvent += (r) =>
         {
@@ -195,6 +199,11 @@ public class GeoController : MonoBehaviour
     private void SetState(GeoState newState)
     {
         state = newState;
+    }
+
+    public void EndWriting()
+    {
+        SetState(GeoState.Normal);
     }
 
     public GeoState GetState()
@@ -382,7 +391,15 @@ public class GeoController : MonoBehaviour
     public void HandleClickWritingButton(int i)
     {
         if (geoUI.writingPanel != null && i == 1)
+        {
+            Debug.Log(state);
+            currentOperation = new WritingOperation(this, geometry);
+            currentOperation.Start();
+
             geoUI.writingPanel.OpenWritingPanel(geometry);
+
+            SetState(GeoState.Writing);
+        }
     }
 
     public void HandleClickShadeButton(int i)
@@ -686,6 +703,7 @@ public class GeoController : MonoBehaviour
 
                 currentOperation.Start();
 
+                currentOperation.Start();
 
             }
             else if (str.Substring(0, 3) == "三棱锥")
