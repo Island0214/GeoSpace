@@ -630,8 +630,8 @@ public class GeoController : MonoBehaviour
             连接点作平面                 连接ABC..作平面
             测量长度、角度、面积          ...的长度/角度/面积
              */
-            if (state != GeoState.Normal)
-                return;
+            //if (state != GeoState.Normal)
+            //    return;
             if (!(str.IndexOf("旋转体") != -1) && str.IndexOf("旋转") != -1)
             {
                 Debug.Log("旋转");
