@@ -110,12 +110,39 @@ public class PenBehaviour : ElementBehaviour
     GeometryBehaviour geometryBehaviour;
     GeoController geoController;
 
+    const int RENDER_WIDTH_16_9 = 2560;
+    const int RENDER_HEIGHT_16_9 = 1440;
+    const int RENDER_WIDTH_16_10 = 2560;
+    const int RENDER_HEIGHT_16_10 = 1600;
+
+    // Used to fix scale
+    const int RENDER_WIDTH = 2560;
+    int screen_width;
+    int screen_height;
+    float ratio = 0f;
+    float factor_x = 0f;
+    float factor_y = 0f;
+    int offset = 240;
+    Vector3 delta;
+
+
     public void Init(GeoUI geoUI, GeoController geoController)
     {
         recognizePanel = geoUI.recognizePanel;
         navPanel = geoUI.navPanel;
         geometryBehaviour = GameObject.Find("/3D/Geometry").GetComponent<GeometryBehaviour>();
         this.geoController = geoController;
+    }
+
+    public void InitScaleParameters()
+    {
+        screen_width = UnityEngine.Screen.width;
+        screen_height = UnityEngine.Screen.height;
+        ratio = (float)screen_width / screen_height;
+        factor_x = (float)RENDER_WIDTH / screen_width;
+        factor_y = (float)RENDER_WIDTH / ratio / screen_height;
+        delta = new Vector3(-(-startPoint.x * factor_x + offset), 0, 0);
+        Debug.Log("screen:(" + screen_width + "," + screen_height + "), " + "fx:" + factor_x + ", fy:" + factor_y + ", delta:" + delta.x);
     }
 
     public void SetDrawing(bool Drawing)
@@ -143,6 +170,7 @@ public class PenBehaviour : ElementBehaviour
         penWrapper = (RectTransform)transform;
         width = penWrapper.rect.width;
         height = penWrapper.rect.height;
+        Debug.Log("penWrapper width:" + penWrapper.rect.width + ", height:" + penWrapper.rect.height);
         xRange = new Vector2(0, width);
         yRange = new Vector2(-height, 0);
         Camera[] cameras = Camera.allCameras;
@@ -152,6 +180,8 @@ public class PenBehaviour : ElementBehaviour
                 curCamera = cameras[i];
         }
         startPoint = curCamera.WorldToScreenPoint(penWrapper.parent.position) - new Vector3(width, 0, 1);
+        // fix scale bugs
+        InitScaleParameters();
 
         btnSubmit = transform.parent.Find("ButtonSubmit").GetComponent<Button>();
         btnCancel = transform.parent.Find("ButtonCancel").GetComponent<Button>();
@@ -174,7 +204,6 @@ public class PenBehaviour : ElementBehaviour
 
     private bool IsValidPoint(Vector3 vector3)
     {
-        // TODO: 漂移
         if (vector3.x < xRange.x || vector3.x > xRange.y || vector3.y < yRange.x || vector3.y > yRange.y)
         {
             return false;
@@ -201,7 +230,10 @@ public class PenBehaviour : ElementBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
+            // Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
+            Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+            point = ScaleHandwritingPoint(point);
+  
             if (!pen.GetPoints().Contains(point))
             {
                 pen.AddPoint(point);
@@ -214,6 +246,17 @@ public class PenBehaviour : ElementBehaviour
         {
             AddPen(pen);
         }
+    }
+
+    // 按照屏幕比率进行放缩，得到新的对应的笔迹点
+    private Vector3 ScaleHandwritingPoint(Vector3 point)
+    {
+        // 获取当前屏幕显示分辨率，判断屏幕比例
+        // delta = ( -(startPoint.x * factor_x - 实际左下角.x), 0, 0 )
+        //       = ( -(startPoint.x * factor_x + 240), 0, 0 )
+        point = new Vector3(point.x * factor_x, point.y * factor_y, 0) - new Vector3(startPoint.x * factor_x, startPoint.y * factor_y, 0);
+        point = point + delta;
+        return point;
     }
 
     private Vector3 ScreenPositionToAxis(Vector3 mousePosition)
@@ -319,7 +362,9 @@ public class PenBehaviour : ElementBehaviour
         pens.Clear();
         string res = PointsToBitmap(word).Replace(" ", "");
         Debug.Log(res.Length);
-        res = res.Length > 15 || res.Length == 0 ? "空": res;
+        //res = res.Length > 15 || res.Length == 0 ? "空": res;
+        // 有时手写会出现点击手写按钮就开始识别的情况，会识别出一个“空”字，故暂时屏蔽
+        res = res.Length > 15 || res.Length == 0 ? "" : res;
         recognizePanel.AddWord(res);
         recognizeResult = recognizePanel.GetWords() + res;
     }
@@ -365,18 +410,20 @@ public class PenBehaviour : ElementBehaviour
                 }
             }
         }
-
         string base64 = System.Convert.ToBase64String(png.EncodeToPNG());
-        // string contents = Application.dataPath + "/temp";
-        // string pngName = "image";
-        // byte[] bytes = png.EncodeToPNG();
-        // if (!Directory.Exists(contents))
-        //     Directory.CreateDirectory(contents);
-        // FileStream file = File.Open(contents + "/" + pngName + ".png", FileMode.Create);
-        // BinaryWriter writer = new BinaryWriter(file);
-        // writer.Write(bytes);
-        // file.Close();
-        // Texture2D.DestroyImmediate(png);
+        /*
+        string contents = Application.dataPath + "/temp";
+        string pngName = "image";
+        byte[] bytes = png.EncodeToPNG();
+        if (!Directory.Exists(contents))
+            Directory.CreateDirectory(contents);
+        FileStream file = File.Open(contents + "/" + pngName + ".png", FileMode.Create);
+        BinaryWriter writer = new BinaryWriter(file);
+        writer.Write(bytes);
+        file.Close();
+        Texture2D.DestroyImmediate(png);
+        png = null;
+        */
         png = null;
         return geoController.HandleRecognizeResult(base64);
     }

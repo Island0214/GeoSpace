@@ -610,13 +610,11 @@ public class GeoController : MonoBehaviour
         {
             str = str.ToUpper();
             str = str.Replace(" ", "");
-
-
             /*
             正方体/立方体ABCD-A1B1C1D1
             三棱锥P-ABC
-            旋转体  矩形旋转体、三角形旋转体
-            长宽高  
+            旋转体  矩形旋转体、三角形旋转体  旋转
+            长、宽、高  
 
             作空间中一点A(1,1,1)
             作两点、线段中点              作AB中点C
@@ -630,7 +628,7 @@ public class GeoController : MonoBehaviour
              */
             if (state != GeoState.Normal)
                 return;
-            if (str == "旋转")
+            if (!(str.IndexOf("旋转体") != -1) && str.IndexOf("旋转") != -1)
             {
                 Debug.Log("旋转");
                 Tool tool = geoUI.toolPanel.toolGroups[2].Tools[0];
@@ -640,7 +638,7 @@ public class GeoController : MonoBehaviour
                 currentOperation = new AddAuxiliaryOperation(this, geoCamera, stateController, geometry, geometryBehaviour, geoUI, tool);
                 currentOperation.Start();
             }
-            else if (str == "展开")
+            else if (str.IndexOf("展开") != -1)
             {
                 Debug.Log("展开");
                 Tool tool = geoUI.toolPanel.toolGroups[2].Tools[1];
@@ -652,23 +650,35 @@ public class GeoController : MonoBehaviour
             }
             else if (str.Length < 3)
             {
-                Debug.Log("input error");
+                Debug.Log("can not recognize!");
             }
-            else if (str.Substring(0, 3) == "正方体" || str.Substring(0, 3) == "立方体")
+            else if (str.IndexOf("正方体") != -1 || str.IndexOf("立方体") != -1)
             {
+                int tar = -1;
+                if (str.IndexOf("正方体") != -1)
+                {
+                    tar = str.IndexOf("正方体");
+                }
+                else
+                {
+                    tar = str.IndexOf("立方体");
+                }
+                if (tar == -1)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
+                }
                 Debug.Log("正方体");
                 Tool tool = geoUI.toolPanel.toolGroups[0].Tools[0];
                 currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
                 String list = "";
-
                 if (str.Length > 3)
                 {
-                    //Debug.Log(str.Substring(3));
-                    String cuboidName = str.Substring(3);
-
-                    if (cuboidName.Length >= 9)
+                    Debug.Log(str.Substring(3));
+                    String cuboidName = str.Substring(tar + 3);
+                    int itemCount = 0;
+                    if (cuboidName.Length >= 8)
                     {
-
                         for (int i = 0; i < cuboidName.Length; i++)
                         {
                             String item = cuboidName.Substring(i, 1);
@@ -677,12 +687,14 @@ public class GeoController : MonoBehaviour
                                 if (i == cuboidName.Length - 1)
                                 {
                                     list += item;
+                                    itemCount++;
                                 }
                                 else
                                 {
                                     if (Regex.IsMatch(cuboidName.Substring(i + 1, 1), @"^[0-9]*$"))
                                     {
                                         list += cuboidName.Substring(i, 2);
+                                        itemCount++;
                                         if (i != cuboidName.Length - 2)
                                         {
                                             list += " ";
@@ -692,13 +704,25 @@ public class GeoController : MonoBehaviour
                                     else
                                     {
                                         list += item + " ";
+                                        itemCount++;
                                     }
                                 }
                             }
+                            else if (cuboidName.Substring(i, 1) != "-")
+                            {
+                                break;
+                            }
+                        }//for
+                        if (itemCount == 8)
+                        {
+                            Debug.Log(list);
+                            GeometryOperation opt = (GeometryOperation)currentOperation;
+                            opt.ReSetSign(list);
                         }
-                        Debug.Log(list);
-                        GeometryOperation opt = (GeometryOperation)currentOperation;
-                        opt.ReSetSign(list);
+                        else
+                        {
+                            // default name
+                        }
                     }
                     else
                     {
@@ -708,9 +732,8 @@ public class GeoController : MonoBehaviour
 
                 currentOperation.Start();
 
-
             }
-            else if (str.Substring(0, 3) == "三棱锥")
+            else if (str.IndexOf("三棱锥") != -1)
             {
                 Debug.Log("三棱锥");
                 Tool tool = geoUI.toolPanel.toolGroups[0].Tools[1];
@@ -721,10 +744,9 @@ public class GeoController : MonoBehaviour
                 {
                     Debug.Log(str.Substring(3));
                     String triName = str.Substring(3);
-
-                    if (triName.Length >= 5)
+                    int itemCount = 0;
+                    if (triName.Length >= 4)
                     {
-
                         for (int i = 0; i < triName.Length; i++)
                         {
                             String item = triName.Substring(i, 1);
@@ -733,12 +755,14 @@ public class GeoController : MonoBehaviour
                                 if (i == triName.Length - 1)
                                 {
                                     list += item;
+                                    itemCount++;
                                 }
                                 else
                                 {
                                     if (Regex.IsMatch(triName.Substring(i + 1, 1), @"^[0-9]*$"))
                                     {
                                         list += triName.Substring(i, 2);
+                                        itemCount++;
                                         if (i != triName.Length - 2)
                                         {
                                             list += " ";
@@ -748,13 +772,21 @@ public class GeoController : MonoBehaviour
                                     else
                                     {
                                         list += item + " ";
+                                        itemCount++;
                                     }
                                 }
                             }
                         }
-                        Debug.Log(list);
-                        GeometryOperation opt = (GeometryOperation)currentOperation;
-                        opt.ReSetSign(list);
+                        if (itemCount == 4)
+                        {
+                            Debug.Log(list);
+                            GeometryOperation opt = (GeometryOperation)currentOperation;
+                            opt.ReSetSign(list);
+                        }
+                        else
+                        {
+                            // default name
+                        }
                     }
                     else
                     {
@@ -771,7 +803,7 @@ public class GeoController : MonoBehaviour
                 Tool tool = geoUI.toolPanel.toolGroups[0].Tools[2];
                 currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
                 currentOperation.Start();
-                if (str == "矩形旋转体" || str == "长方形旋转体")
+                if (str.IndexOf("矩形旋转体") != -1 || str.IndexOf("长方形旋转体") != -1)
                 {
                     Tool tool1 = geoUI.toolPanel.toolGroups[1].Tools[0];
                     Debug.Log(tool1.Description);
@@ -783,7 +815,7 @@ public class GeoController : MonoBehaviour
                     currentOperation.Start();
 
                 }
-                else if (str == "三角形旋转体")
+                else if (str.IndexOf("三角形旋转体") != -1)
                 {
                     Tool tool1 = geoUI.toolPanel.toolGroups[1].Tools[1];
                     Debug.Log(tool1.Description);
@@ -804,42 +836,59 @@ public class GeoController : MonoBehaviour
             {
                 Debug.Log("中点");
                 String line = "";
-                for (int i = 1; i < str.Length - 2; i++)
+                int itemCount = 0;
+                for (int i = 0; i < str.IndexOf("中点"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
+                        itemCount++;
                         if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
-                            line += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                            line += str.Substring(i, 1) + str.Substring(i + 1, 1);
+                            i++;
                         }
                         else
                         {
-                            line += str.Substring(i, 1) + " ";
+                            line += str.Substring(i, 1);
                         }
+
+                        if (itemCount == 2)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            line += " ";
+                        }
+                    }
+                }
+                String point = "";
+                for (int i = str.IndexOf("中点") + 2; i < str.Length; i++)
+                {
+                    if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                    {
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        {
+                            point += str.Substring(i, 1) + str.Substring(i + 1, 1);
+                        }
+                        else
+                        {
+                            point += str.Substring(i, 1);
+                        }
+                        break;
                     }
                 }
 
                 FormText text1 = new FormText("作");
                 String[] eles = line.Split(' ');
-                FormElement ele1 = new FormElement(eles.Length - 1);
-                for (int i = 0; i < eles.Length - 1; i++)
+                FormElement ele1 = new FormElement(eles.Length);
+                for (int i = 0; i < eles.Length; i++)
                 {
                     ele1.fields[i] = eles[i];
                 }
                 FormText text2 = new FormText("中点");
                 FormElement ele2 = new FormElement(1);
-                if (Regex.IsMatch(str.Substring(str.Length - 2), @"^[A-Za-z0-9]+$"))
-                {
-                    ele2.fields[0] = str.Substring(str.Length - 2);
-                }
-                else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
-                {
-                    ele2.fields[0] = str.Substring(str.Length - 1);
-                }
-                else
-                {
-                    ele2.fields[0] = "";
-                }
+                ele2.fields[0] = point;
 
                 FormInput writeInput = new FormInput(4);
                 writeInput.inputs[0] = text1;
@@ -856,15 +905,19 @@ public class GeoController : MonoBehaviour
                 opt.SetWriteInput(writeInput);
                 currentOperation.Start();
             }
-            else if ((str.IndexOf("一点") != -1 && str.IndexOf("线段") != -1) || ((str.IndexOf("作线段") != -1 || str.IndexOf("做线段") != -1) && str.IndexOf("的点") != -1))
+            else if ((str.IndexOf("线段") != -1 && str.IndexOf("一点") != -1) ||
+                ((str.IndexOf("线段") != -1) && str.IndexOf("的点") != -1) ||
+                ((str.IndexOf("作") != -1 || str.IndexOf("做") != -1) && (str.IndexOf("一点") != -1 || str.IndexOf("的点") != -1) && !(str.IndexOf("空间") != -1)))
             {
                 Debug.Log("取线段一点");
 
                 String line = "";
-                for (int i = 1; i < str.Length - 2; i++)
+                int itemCount = 0;
+                for (int i = 0; i < str.IndexOf("点"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
+                        itemCount++;
                         if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
                             line += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
@@ -873,9 +926,38 @@ public class GeoController : MonoBehaviour
                         {
                             line += str.Substring(i, 1) + " ";
                         }
+
+                        if (itemCount == 2)
+                        {
+                            break;
+                        }
+
                     }
                 }
-                //Debug.Log(line);
+                if (itemCount < 2)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
+                }
+
+                String point = "";
+                for (int i = str.IndexOf("点") + 1; i < str.Length; i++)
+                {
+                    if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                    {
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        {
+                            point += str.Substring(i, 1) + str.Substring(i + 1, 1);
+                        }
+                        else
+                        {
+                            point += str.Substring(i, 1);
+                        }
+                        break;
+                    }
+                }
+
+                Debug.Log(line + " * " + point);
                 FormText text1 = new FormText("作线段");
                 String[] eles = line.Split(' ');
                 FormElement ele1 = new FormElement(eles.Length - 1);
@@ -885,18 +967,7 @@ public class GeoController : MonoBehaviour
                 }
                 FormText text2 = new FormText("的点");
                 FormElement ele2 = new FormElement(1);
-                if (Regex.IsMatch(str.Substring(str.Length - 2), @"^[A-Za-z0-9]+$"))
-                {
-                    ele2.fields[0] = str.Substring(str.Length - 2);
-                }
-                else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
-                {
-                    ele2.fields[0] = str.Substring(str.Length - 1);
-                }
-                else
-                {
-                    ele2.fields[0] = "";
-                }
+                ele2.fields[0] = point;
                 //Debug.Log(ele2.fields[0]);
                 FormInput writeInput = new FormInput(4);
                 writeInput.inputs[0] = text1;
@@ -917,18 +988,53 @@ public class GeoController : MonoBehaviour
             {
                 Debug.Log("重心");
                 String face = "";
-                for (int i = 1; i < str.Length - 3; i++)
+                int itemCount = 0;
+                int tar = -1;
+                if (str.IndexOf("重心") != -1)
+                {
+                    tar = str.IndexOf("重心");
+                }
+                else
+                {
+                    tar = str.IndexOf("中心");
+                }
+                for (int i = 0; i < str.IndexOf("心"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
+                        itemCount++;
                         if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
-                            face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                            face += str.Substring(i, 1) + str.Substring(i + 1, 1);
                         }
                         else
                         {
-                            face += str.Substring(i, 1) + " ";
+                            face += str.Substring(i, 1);
                         }
+
+                        face += " ";
+                    }
+                }
+                if (itemCount < 3)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
+                }
+
+                String point = "";
+                for (int i = str.IndexOf("心"); i < str.Length; i++)
+                {
+                    if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                    {
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        {
+                            point += str.Substring(i, 1) + str.Substring(i + 1, 1);
+                        }
+                        else
+                        {
+                            point += str.Substring(i, 1);
+                        }
+                        break;
                     }
                 }
 
@@ -941,18 +1047,7 @@ public class GeoController : MonoBehaviour
                 }
                 FormText text2 = new FormText("的重心");
                 FormElement ele2 = new FormElement(1);
-                if (Regex.IsMatch(str.Substring(str.Length - 2), @"^[A-Za-z0-9]+$"))
-                {
-                    ele2.fields[0] = str.Substring(str.Length - 2);
-                }
-                else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
-                {
-                    ele2.fields[0] = str.Substring(str.Length - 1);
-                }
-                else
-                {
-                    ele2.fields[0] = "";
-                }
+                ele2.fields[0] = point;
                 FormInput writeInput = new FormInput(4);
                 writeInput.inputs[0] = text1;
                 writeInput.inputs[1] = ele1;
@@ -968,34 +1063,37 @@ public class GeoController : MonoBehaviour
                 opt.SetWriteInput(writeInput);
                 currentOperation.Start();
             }
-            else if (str.IndexOf("连接") != -1 && Regex.IsMatch(str.Substring(2), @"^[A-Za-z0-9]+$"))
+            else if (str.IndexOf("连接") != -1 && !(str.IndexOf("平面") != -1))
             {
                 Debug.Log("连接两点");
 
                 String line = "";
-                for (int i = 2; i < str.Length - 1; i++)
+                int itemCount = 0;
+                for (int i = str.IndexOf("连接"); i < str.Length; i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
-                        if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        itemCount++;
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
                             line += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
                         }
                         else
                         {
                             line += str.Substring(i, 1) + " ";
-                            if (i == str.Length - 2)
-                            {
-                                line += str.Substring(i + 1);
-                            }
+                        }
+                        if (itemCount == 2)
+                        {
+                            break;
                         }
                     }
-                    else
-                    {
-                        break;
-                    }
                 }
-
+                if (itemCount < 2)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
+                }
+                Debug.Log(line);
                 FormText text1 = new FormText("连接");
                 String[] eles = line.Split(' ');
                 FormElement ele1 = new FormElement(eles.Length);
@@ -1023,7 +1121,7 @@ public class GeoController : MonoBehaviour
             {
                 Debug.Log("线段垂线");
                 String point1 = "";
-                for (int i = 1; i < 4; i++)
+                for (int i = 0; i < str.IndexOf("线段"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
@@ -1041,37 +1139,50 @@ public class GeoController : MonoBehaviour
                     }
                 }
 
-                String face = "";
-                for (int i = 5; i < str.Length - 2; i++)
+                String line = "";
+                int itemCount = 0;
+                for (int i = str.IndexOf("线段"); i < str.IndexOf("垂线"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
+                        itemCount++;
                         if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
-                            face += str.Substring(i, 2) + " ";
+                            line += str.Substring(i, 2) + " ";
                             i++;
                         }
                         else
                         {
-                            face += str.Substring(i, 1) + " ";
+                            line += str.Substring(i, 1) + " ";
+                        }
+                        if (itemCount == 2)
+                        {
+                            break;
                         }
                     }
                 }
+                if (itemCount < 2)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
+                }
 
                 String point2 = "";
-                if (Regex.IsMatch(str.Substring(str.Length - 2), @"^[A-Za-z0-9]+$"))
+                for (int i = str.IndexOf("垂线"); i < str.Length; i++)
                 {
-                    point2 = str.Substring(str.Length - 2);
-                }
-                else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
-                {
-                    point2 = str.Substring(str.Length - 1);
-                }
-                else
-                {
-                    //Debug.Log("point lost error");
-                    //return;
-                    point2 = "";
+                    if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                    {
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        {
+                            point2 += str.Substring(i, 2);
+                            i++;
+                        }
+                        else
+                        {
+                            point2 += str.Substring(i, 1);
+                        }
+                        break;
+                    }
                 }
 
                 FormText text1 = new FormText("过点");
@@ -1079,9 +1190,9 @@ public class GeoController : MonoBehaviour
                 FormElement ele1 = new FormElement(1);
                 ele1.fields[0] = point1;
                 //Debug.Log(ele1);
-                FormText text2 = new FormText("作平面");
+                FormText text2 = new FormText("作线段");
                 //Debug.Log(text2);
-                String[] eles = face.Split(' ');
+                String[] eles = line.Split(' ');
                 FormElement ele2 = new FormElement(eles.Length - 1);
                 for (int i = 0; i < eles.Length - 1; i++)
                 {
@@ -1120,7 +1231,7 @@ public class GeoController : MonoBehaviour
                 Debug.Log("面垂线");
 
                 String point1 = "";
-                for (int i = 1; i < 4; i++)
+                for (int i = 0; i < str.IndexOf("平面"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
@@ -1138,37 +1249,47 @@ public class GeoController : MonoBehaviour
                     }
                 }
 
-                String line = "";
-                for (int i = 5; i < str.Length - 2; i++)
+                String face = "";
+                int itemCount = 0;
+                for (int i = str.IndexOf("平面") + 2; i < str.IndexOf("垂线"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
+                        itemCount++;
                         if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
-                            line += str.Substring(i, 2) + " ";
+                            face += str.Substring(i, 2) + " ";
                             i++;
                         }
                         else
                         {
-                            line += str.Substring(i, 1) + " ";
+                            face += str.Substring(i, 1) + " ";
                         }
+
                     }
+                }
+                if (itemCount < 3)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
                 }
 
                 String point2 = "";
-                if (Regex.IsMatch(str.Substring(str.Length - 2), @"^[A-Za-z0-9]+$"))
+                for (int i = str.IndexOf("垂线") + 2; i < str.Length; i++)
                 {
-                    point2 = str.Substring(str.Length - 2);
-                }
-                else if (Regex.IsMatch(str.Substring(str.Length - 1), @"^[A-Za-z]+$"))
-                {
-                    point2 = str.Substring(str.Length - 1);
-                }
-                else
-                {
-                    //Debug.Log("point lost error");
-                    //return;
-                    point2 = "";
+                    if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                    {
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        {
+                            point2 += str.Substring(i, 2);
+                            i++;
+                        }
+                        else
+                        {
+                            point2 += str.Substring(i, 1);
+                        }
+                        break;
+                    }
                 }
 
                 FormText text1 = new FormText("过点");
@@ -1176,9 +1297,9 @@ public class GeoController : MonoBehaviour
                 FormElement ele1 = new FormElement(1);
                 ele1.fields[0] = point1;
                 //Debug.Log(ele1);
-                FormText text2 = new FormText("作线段");
+                FormText text2 = new FormText("作平面");
                 //Debug.Log(text2);
-                String[] eles = line.Split(' ');
+                String[] eles = face.Split(' ');
                 FormElement ele2 = new FormElement(eles.Length - 1);
                 for (int i = 0; i < eles.Length - 1; i++)
                 {
@@ -1211,16 +1332,18 @@ public class GeoController : MonoBehaviour
                 opt.SetWriteInput(writeInput);
                 currentOperation.Start();
             }
-            else if (str.IndexOf("连接") != -1 && (str.IndexOf("作平面") != -1 || str.IndexOf("做平面") != -1))
+            else if ((str.IndexOf("作平面") != -1 || str.IndexOf("做平面") != -1) && !(str.IndexOf("中心") != -1 || str.IndexOf("重心") != -1) && !(str.IndexOf("垂线") != -1))
             {
                 Debug.Log("平面");
 
                 String face = "";
-                for (int i = 2; i < str.Length - 3; i++)
+                int itemCount = 0;
+                for (int i = 0; i < str.Length; i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
-                        if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        itemCount++;
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
                             face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
                         }
@@ -1229,6 +1352,11 @@ public class GeoController : MonoBehaviour
                             face += str.Substring(i, 1) + " ";
                         }
                     }
+                }
+                if (itemCount < 3)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
                 }
 
                 FormText text1 = new FormText("连接");
@@ -1258,11 +1386,13 @@ public class GeoController : MonoBehaviour
                 Debug.Log("测量长度");
 
                 String line = "";
-                for (int i = 0; i < str.Length - 1; i++)
+                int itemCount = 0;
+                for (int i = 0; i < str.Length; i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
-                        if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        itemCount++;
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
                             line += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
                         }
@@ -1270,7 +1400,16 @@ public class GeoController : MonoBehaviour
                         {
                             line += str.Substring(i, 1) + " ";
                         }
+                        if (itemCount == 2)
+                        {
+                            break;
+                        }
                     }
+                }
+                if (itemCount < 2)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
                 }
 
                 FormText text1 = new FormText("线段");
@@ -1296,14 +1435,16 @@ public class GeoController : MonoBehaviour
             }
             else if (str.IndexOf("角度") != -1)
             {
-
+                Debug.Log("测量角度");
 
                 String angle = "";
-                for (int i = 0; i < str.Length - 1; i++)
+                int itemCount = 0;
+                for (int i = 0; i < str.Length; i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
-                        if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        itemCount++;
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
                             angle += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
                         }
@@ -1311,17 +1452,23 @@ public class GeoController : MonoBehaviour
                         {
                             angle += str.Substring(i, 1) + " ";
                         }
+
+                        if (itemCount == 3)
+                        {
+                            break;
+                        }
                     }
                 }
+                if (itemCount < 3)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
+                }
+
                 Debug.Log("测量" + angle + "角度");
 
                 FormText text1 = new FormText("∠");
                 String[] eles = angle.Split(' ');
-                if (eles.Length - 1 != 3)
-                {
-                    Debug.Log("angle input error");
-                    return;
-                }
                 FormElement ele1 = new FormElement(eles.Length - 1);
                 for (int i = 0; i < eles.Length - 1; i++)
                 {
@@ -1346,11 +1493,13 @@ public class GeoController : MonoBehaviour
                 Debug.Log("测量面积");
 
                 String face = "";
-                for (int i = 1; i < str.Length - 1; i++)
+                int itemCount = 0;
+                for (int i = 0; i < str.Length; i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
-                        if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        itemCount++;
+                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                         {
                             face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
                         }
@@ -1359,6 +1508,11 @@ public class GeoController : MonoBehaviour
                             face += str.Substring(i, 1) + " ";
                         }
                     }
+                }
+                if (itemCount < 3)
+                {
+                    Debug.Log("can not recognize!");
+                    return;
                 }
 
                 FormText text1 = new FormText("平面");
@@ -1384,12 +1538,16 @@ public class GeoController : MonoBehaviour
             }
             else
             {
-                Debug.Log("analysis error");
+                Debug.Log("analysis error :" + str);
+                //if (str.Contains("连接"))
+                //{
+                //  Debug.Log("************");
+                //}
             }
         }
         catch (Exception e)
         {
-            Debug.Log("analysis error");
+            Debug.Log("analysis error：" + e);
         }
     }
 

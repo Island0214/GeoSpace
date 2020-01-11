@@ -20,7 +20,7 @@ public class WritingPanel : MonoBehaviour
         penWrapper = transform.Find("Wrapper").GetComponent<RectTransform>();
         penWrapper.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, writingPanel.rect.width);
         penWrapper.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, writingPanel.rect.height);
-
+        Debug.Log("writingPanel width:" + writingPanel.rect.width + ", height:" + writingPanel.rect.height);
         penBehaviour = transform.GetComponentInChildren<PenBehaviour>();
         penBehaviour.Init(geoUI, geoController);
         recognizePanel = geoUI.recognizePanel;
