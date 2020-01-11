@@ -364,6 +364,8 @@ public class PenBehaviour : ElementBehaviour
         words.Add(word);
         pens.Clear();
         string res = PointsToBitmap(word).Replace(" ", "");
+        if (res == "")
+            res = "空";
 
         recognizePanel.AddWord(res);
         recognizeResult = recognizePanel.GetWords() + res;
