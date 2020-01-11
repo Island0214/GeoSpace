@@ -25,7 +25,7 @@ public class LineAuxiliary : Auxiliary
             dependencies.Add(unit1);
             dependencies.Add(unit2);
         } catch (Exception e) {
-            return;
+            Debug.Log(e.Message);
         }
     }
 
