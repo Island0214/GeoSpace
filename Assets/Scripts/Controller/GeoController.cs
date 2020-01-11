@@ -386,27 +386,15 @@ public class GeoController : MonoBehaviour
         {
             case ToolGroupType.Geometry:
                 GeometryOperation(tool);
-                //Classify("正方体ABCD-A1B1C1D1");
-                //Classify("三棱锥P-ABC");
-                //Classify("三角形旋转体");
                 break;
             case ToolGroupType.Condition:
                 AddConditionOperation(tool);
-                //Classify("旋转");
                 break;
             case ToolGroupType.Auxiliary:
                 AddAuxiliaryOperation(tool);
-                //Classify("连接AD1");
-                //Classify("面ABCD的面积");
-                //Classify("作AB中点P");
-                //Classify("连接A1BC1作平面");
                 break;
             case ToolGroupType.Measure:
                 AddMeasureOperation(tool);
-                //Classify("过点B1作平面A1BC1的垂线交于点P");
-                //Classify("角AD1D的角度");
-                //Classify("过点P作平面A1B1C1D1的垂线交于点O");
-                //Classify("连接AD1");
                 break;
         }
     }
@@ -1005,15 +993,6 @@ public class GeoController : MonoBehaviour
                 Debug.Log("重心");
                 String face = "";
                 int itemCount = 0;
-                int tar = -1;
-                if (str.IndexOf("重心") != -1)
-                {
-                    tar = str.IndexOf("重心");
-                }
-                else
-                {
-                    tar = str.IndexOf("中心");
-                }
                 for (int i = 0; i < str.IndexOf("心"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
@@ -1403,7 +1382,7 @@ public class GeoController : MonoBehaviour
 
                 String line = "";
                 int itemCount = 0;
-                for (int i = 0; i < str.Length; i++)
+                for (int i = 0; i < str.IndexOf("长度"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
@@ -1455,7 +1434,7 @@ public class GeoController : MonoBehaviour
 
                 String angle = "";
                 int itemCount = 0;
-                for (int i = 0; i < str.Length; i++)
+                for (int i = 0; i < str.IndexOf("角度"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
@@ -1510,7 +1489,7 @@ public class GeoController : MonoBehaviour
 
                 String face = "";
                 int itemCount = 0;
-                for (int i = 0; i < str.Length; i++)
+                for (int i = 0; i < str.IndexOf("面积"); i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
