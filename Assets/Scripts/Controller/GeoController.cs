@@ -19,6 +19,7 @@ public enum GeoState
     Condition,
     Auxiliary,
     Measure,
+    Writing
 }
 
 public class GeoUI
@@ -182,7 +183,10 @@ public class GeoController : MonoBehaviour
 
             if (state == GeoState.Normal)
                 return canCameraRotate;
-            return currentOperation.CanRotateCamera;
+            if (currentOperation != null)
+                return currentOperation.CanRotateCamera;
+            else
+                return false;
         };
         panRecognizer.gestureBeginEvent += (r) =>
         {
@@ -217,6 +221,11 @@ public class GeoController : MonoBehaviour
     private void SetState(GeoState newState)
     {
         state = newState;
+    }
+
+    public void EndWriting()
+    {
+        SetState(GeoState.Normal);
     }
 
     public GeoState GetState()
@@ -404,7 +413,15 @@ public class GeoController : MonoBehaviour
     public void HandleClickWritingButton(int i)
     {
         if (geoUI.writingPanel != null && i == 1)
+        {
+            Debug.Log(state);
+            currentOperation = new WritingOperation(this, geometry);
+            currentOperation.Start();
+
             geoUI.writingPanel.OpenWritingPanel(geometry);
+
+            SetState(GeoState.Writing);
+        }
     }
 
     public void HandleClickShadeButton(int i)
@@ -615,7 +632,6 @@ public class GeoController : MonoBehaviour
             三棱锥P-ABC
             旋转体  矩形旋转体、三角形旋转体  旋转
             长、宽、高  
-
             作空间中一点A(1,1,1)
             作两点、线段中点              作AB中点C
             线段描点                     取AB上一点C

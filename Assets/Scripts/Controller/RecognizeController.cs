@@ -126,8 +126,7 @@ public class RecognizeController : MonoBehaviour
             {
                 
                 Debug.Log(ex.Message);
-                return ex.Message;
-            
+                return "";
             }
     }
 

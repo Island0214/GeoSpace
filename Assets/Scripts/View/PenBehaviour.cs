@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.IO;
+using System.Text;
 
 public class Pen
 {
@@ -211,7 +212,7 @@ public class PenBehaviour : ElementBehaviour
         return true;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (!Drawing)
         {
@@ -300,13 +301,15 @@ public class PenBehaviour : ElementBehaviour
         curLineRenderer.positionCount = pen.GetPoints().Count;
         curLineRenderer.SetPositions(pen.GetPoints().ToArray());
         penMap.Add(pen, penObject);
+        pens.Add(pen);
 
         if (Drawing)
         {
             List<Vector3> points = pen.GetPoints();
             Vector3 worldStart = points[0] + startPoint;
             Vector3 worldEnd = points[points.Count - 1] + startPoint;
-            if (!IsValidDrawPoint(worldStart) || !IsValidDrawPoint(worldEnd)) {
+            if (!IsValidDrawPoint(worldStart) || !IsValidDrawPoint(worldEnd))
+            {
                 return;
             }
             Vector3 start = ScreenPositionToAxis(worldStart);
@@ -361,10 +364,7 @@ public class PenBehaviour : ElementBehaviour
         words.Add(word);
         pens.Clear();
         string res = PointsToBitmap(word).Replace(" ", "");
-        Debug.Log(res.Length);
-        //res = res.Length > 15 || res.Length == 0 ? "空": res;
-        // 有时手写会出现点击手写按钮就开始识别的情况，会识别出一个“空”字，故暂时屏蔽
-        res = res.Length > 15 || res.Length == 0 ? "" : res;
+
         recognizePanel.AddWord(res);
         recognizeResult = recognizePanel.GetWords() + res;
     }
@@ -410,8 +410,8 @@ public class PenBehaviour : ElementBehaviour
                 }
             }
         }
+
         string base64 = System.Convert.ToBase64String(png.EncodeToPNG());
-        /*
         string contents = Application.dataPath + "/temp";
         string pngName = "image";
         byte[] bytes = png.EncodeToPNG();
@@ -422,8 +422,6 @@ public class PenBehaviour : ElementBehaviour
         writer.Write(bytes);
         file.Close();
         Texture2D.DestroyImmediate(png);
-        png = null;
-        */
         png = null;
         return geoController.HandleRecognizeResult(base64);
     }
@@ -512,6 +510,7 @@ public class PenBehaviour : ElementBehaviour
         penMap.Clear();
 
         StatusButton lockButton = GameObject.Find("LockButton").GetComponent<StatusButton>();
+        geoController.EndWriting();
         lockButton.SetStatus(0);
         recognizeResult = "";
         navPanel.SetWritingButtonStatus(0);
