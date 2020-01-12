@@ -102,10 +102,13 @@ public class SpinAuxiliaryTool : AuxiliaryTool
                 showFace = true;
             }
             geometry.AddGeoCircular(circular);
-            VertexSpace circle1 = new VertexSpace(0, vertex4.Position().y, 0);
-            VertexSpace circle2 = new VertexSpace(0, vertex3.Position().y, 0);
-            geometry.AddGeoCircle(new GeoCircle(circle1, radius1, CircleDirection.Y, showFace, FaceType.SpreadCylinderCircle));
-            geometry.AddGeoCircle(new GeoCircle(circle2, radius2, CircleDirection.Y, showFace, FaceType.SpreadCylinderCircle));
+
+            for (int i = 0; i < vertexUnits.Length; i++) {
+                if (vertexUnits[i].Position().z > 0) {
+                    VertexSpace circle = new VertexSpace(0, vertexUnits[i].Position().y, 0);
+                    geometry.AddGeoCircle(new GeoCircle(circle, vertexUnits[i].Position().z, CircleDirection.Y, showFace, FaceType.SpreadCylinderCircle));
+                }
+            }
         }
         // Cone
         else if (vertexUnits.Length == 3)
@@ -123,8 +126,12 @@ public class SpinAuxiliaryTool : AuxiliaryTool
                 showFace = true;
             }
             geometry.AddGeoCircular(circular);
-            VertexSpace circle1 = new VertexSpace(0, vertex3.Position().y, 0);
-            geometry.AddGeoCircle(new GeoCircle(circle1, radius, CircleDirection.Y, showFace, FaceType.SpreadConeCircle));
+            for (int i = 0; i < vertexUnits.Length; i++) {
+                if (vertexUnits[i].Position().z > 0) {
+                    VertexSpace circle = new VertexSpace(0, vertexUnits[i].Position().y, 0);
+                    geometry.AddGeoCircle(new GeoCircle(circle, vertexUnits[i].Position().z, CircleDirection.Y, showFace, FaceType.SpreadCylinderCircle));
+                }
+            }
         }
         geometryBehaviour.InitGeometry(geometry);
 

@@ -9,6 +9,7 @@ public class Circular
     public float radius1;
     public float radius2;
     public CircularType type;
+    public int circleCount;
 
     public Circular(Vector3[] vs, float radius1, float radius2, CircularType type)
     {
@@ -16,6 +17,18 @@ public class Circular
         this.radius1 = radius1;
         this.radius2 = radius2;
         this.type = type;
+        int count = 0;
+
+        if (Vertices.Length == 3)
+            count = 1;
+        else if (Vertices.Length == 4)
+            count = 2;
+
+        if (Vertices[0].z != 0)
+            count++;
+        if (Vertices[1].z != 0)
+            count++;
+        this.circleCount = count;
     }
 
     public bool IsNormalCircular()

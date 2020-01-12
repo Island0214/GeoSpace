@@ -39,7 +39,8 @@ public class ResolvedBody : Geometry
         if (!vertex.isBase)
             return;
         Vector3 position = vertex.Position();
-        SetVerticesAbsPosition(i, position);
+        vertexResolvedBodies[i].SetAbsPosition(position);
+        // SetVerticesAbsPosition(i, position);
     }
 
     public override VertexUnit[] VerticesOfMoveVertex(VertexUnit vertex)
