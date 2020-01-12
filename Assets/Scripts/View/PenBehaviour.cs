@@ -566,6 +566,7 @@ public class PenBehaviour : ElementBehaviour
     private void ClickSubmit()
     {
         transform.parent.gameObject.SetActive(false);
+        String command = recognizePanel.GetWords();
         recognizePanel.Clear();
         Clear();
         if (Drawing)
@@ -574,7 +575,7 @@ public class PenBehaviour : ElementBehaviour
         }
         else
         {
-            GameObject.Find("GeoController").GetComponent<GeoController>().Classify(recognizePanel.GetWords());
+            GameObject.Find("GeoController").GetComponent<GeoController>().Classify(command);
         }
     }
 
