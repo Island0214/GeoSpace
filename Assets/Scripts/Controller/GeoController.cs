@@ -6,7 +6,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 
 
 public enum GeoState
@@ -62,8 +61,8 @@ public class GeoController : MonoBehaviour
 
     Operation currentOperation;
 
-    const int MIN_WINDOW_WIDTH = 1440;
-    const int MIN_WINDOW_HEIGHT = 900;
+    const int MIN_WINDOW_WIDTH = 800;
+    const int MIN_WINDOW_HEIGHT = 600;
 
     void Start()
     {
@@ -72,7 +71,7 @@ public class GeoController : MonoBehaviour
         int screen_height = UnityEngine.Screen.height;
         Debug.Log("屏幕宽："+screen_width);
         Debug.Log("屏幕高："+screen_height);
-        if(screen_width < MIN_WINDOW_WIDTH || screen_height < MIN_WINDOW_HEIGHT){
+        if(screen_width < MIN_WINDOW_WIDTH && screen_height < MIN_WINDOW_HEIGHT){
             Debug.Log("当前分辨率不符合要求");
             // TODO: 弹出对话框：“分辨率不符合要求，即将退出”
             #if UNITY_EDITOR

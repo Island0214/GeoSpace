@@ -231,16 +231,37 @@ public class PenBehaviour : ElementBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            // Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
-            Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
-            point = ScaleHandwritingPoint(point);
-  
+            Vector3 point = new Vector3(0,0,0);
+            //Vector3 point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+            //point = ScaleHandwritingPoint(point);
+            if(Drawing){
+                point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0) - startPoint;
+                Vector3 fixPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+                fixPoint = ScaleHandwritingPoint(fixPoint);
+                if (!pen.GetPoints().Contains(fixPoint))
+                {
+                    pen.AddPoint(fixPoint);
+                    SetData(i, fixPoint);
+                    i++;
+                }
+            }else{
+                point = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+                point = ScaleHandwritingPoint(point);
+                if (!pen.GetPoints().Contains(point))
+                {
+                    pen.AddPoint(point);
+                    SetData(i, point);
+                    i++;
+                }
+            }
+            /*
             if (!pen.GetPoints().Contains(point))
             {
                 pen.AddPoint(point);
                 SetData(i, point);
                 i++;
             }
+            */
             waitTime = 0;
         }
         if (Input.GetMouseButtonUp(0))
@@ -260,8 +281,17 @@ public class PenBehaviour : ElementBehaviour
         return point;
     }
 
+    // 反向还原被放缩的点，用于绘制旋转体
+    private Vector3 ReductionScalePoint(Vector3 point){
+        point = point - delta;
+        point = point + new Vector3(startPoint.x * factor_x, startPoint.y * factor_y, 0);
+        point = new Vector3(point.x / factor_x, point.y / factor_y, 0);
+        return point;
+    }
+
     private Vector3 ScreenPositionToAxis(Vector3 mousePosition)
     {
+        // TODO: 坐标偏移
         Ray ray = Camera.main.ScreenPointToRay(mousePosition);
         Vector3 position = new Vector3(0, 0, 0);
         Plane screenPlane = new Plane(-ray.direction, position);
@@ -277,6 +307,7 @@ public class PenBehaviour : ElementBehaviour
         {
             position.z = 0;
         }
+        
         return position;
     }
 
@@ -293,6 +324,8 @@ public class PenBehaviour : ElementBehaviour
         penObject.transform.SetParent(penWrapper.transform);
         rect.position = new Vector3(0, 0, 1);
         rect.localScale = new Vector3(1, 1, 1);
+        //rect.localScale = new Vector3(1f/factor_x, 1f/factor_x, 1f/factor_x);
+
         rect.pivot = new Vector2(0, 1);
         rect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, penWrapper.rect.width);
         rect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, penWrapper.rect.height);
@@ -306,8 +339,13 @@ public class PenBehaviour : ElementBehaviour
         if (Drawing)
         {
             List<Vector3> points = pen.GetPoints();
-            Vector3 worldStart = points[0] + startPoint;
-            Vector3 worldEnd = points[points.Count - 1] + startPoint;
+            //Vector3 worldStart = points[0] + startPoint;
+            //Vector3 worldEnd = points[points.Count - 1] + startPoint;
+            // 修复缩放漂移, 固定在yoz平面
+            Vector3 worldStart = points[0];
+            Vector3 worldEnd = points[points.Count - 1];
+            worldStart = ReductionScalePoint(worldStart);
+            worldEnd = ReductionScalePoint(worldEnd);
             if (!IsValidDrawPoint(worldStart) || !IsValidDrawPoint(worldEnd))
             {
                 return;
