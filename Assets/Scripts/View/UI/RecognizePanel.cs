@@ -8,10 +8,12 @@ using UnityEngine.EventSystems;
 public class RecognizePanel : MonoBehaviour
 {
     InputField input;
+    InputPanel inputPanel;
 
     public void Init()
     {
         input = transform.Find("InputField").GetComponent<InputField>();
+        inputPanel = GameObject.Find("/UI/CanvasBack").transform.Find("InputPanel").GetComponent<InputPanel>();
         Clear();
     }
 
@@ -29,6 +31,7 @@ public class RecognizePanel : MonoBehaviour
     public void showRecognizePanel()
     {
         gameObject.SetActive(true);
+        inputPanel.Clear();
     }
 
     public string GetWords()

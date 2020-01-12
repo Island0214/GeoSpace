@@ -125,6 +125,7 @@ public class PenBehaviour : ElementBehaviour
     float factor_y = 0f;
     int offset = 240;
     Vector3 delta;
+    Pen prePen;
 
 
     public void Init(GeoUI geoUI, GeoController geoController)
@@ -317,6 +318,11 @@ public class PenBehaviour : ElementBehaviour
             return;
         if (pen.GetPoints().Count <= 1)
             return;
+        // if (prePen != null && penWrapper.Find(prePen.ToString()) == null) {
+        //     AddPen(prePen);
+        // } else {
+        //     prePen = pen;
+        // }
         pens.Add(pen);
         GameObject penObject = new GameObject(pen.ToString());
         penObject.layer = LayerMask.NameToLayer(LAYER); ;
@@ -333,8 +339,8 @@ public class PenBehaviour : ElementBehaviour
         InitRenderer(curLineRenderer);
         curLineRenderer.positionCount = pen.GetPoints().Count;
         curLineRenderer.SetPositions(pen.GetPoints().ToArray());
+        curLineRenderer.Simplify(1);
         penMap.Add(pen, penObject);
-        pens.Add(pen);
 
         if (Drawing)
         {
@@ -402,6 +408,8 @@ public class PenBehaviour : ElementBehaviour
         words.Add(word);
         pens.Clear();
         string res = PointsToBitmap(word).Replace(" ", "");
+        if (res == "")
+            res = "空";
 
         recognizePanel.AddWord(res);
         recognizeResult = recognizePanel.GetWords() + res;
@@ -543,6 +551,7 @@ public class PenBehaviour : ElementBehaviour
 
     private void Clear()
     {
+        prePen = null;
         foreach (KeyValuePair<Pen, GameObject> pair in penMap)
             Destroy(pair.Value);
         penMap.Clear();
@@ -556,6 +565,9 @@ public class PenBehaviour : ElementBehaviour
 
     private void ClickSubmit()
     {
+        transform.parent.gameObject.SetActive(false);
+        recognizePanel.Clear();
+        Clear();
         if (Drawing)
         {
             AddShape();
@@ -564,10 +576,6 @@ public class PenBehaviour : ElementBehaviour
         {
             GameObject.Find("GeoController").GetComponent<GeoController>().Classify(recognizePanel.GetWords());
         }
-
-        transform.parent.gameObject.SetActive(false);
-        recognizePanel.Clear();
-        Clear();
     }
 
     private void ClickCancel()

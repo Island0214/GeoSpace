@@ -1541,7 +1541,7 @@ public class GeoController : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log("analysis error：" + e);
+            Debug.Log(e.Message);
         }
     }
 
