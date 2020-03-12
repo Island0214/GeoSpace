@@ -433,7 +433,9 @@ public class AddAuxiliaryOperation : Operation
             A = vertexs[i];
             B = vertexs[i + 1];
             C = vertexs[i + 2];
-            if (((B.x - A.x) / (C.x - A.x) == (B.y - A.y) / (C.y - A.y)) && ((B.x - A.x) / (C.x - A.x) == (B.z - A.z) / (C.z - A.z)))
+
+            //if (((B.x - A.x) / (C.x - A.x) == (B.y - A.y) / (C.y - A.y)) && ((B.x - A.x) / (C.x - A.x) == (B.z - A.z) / (C.z - A.z)))
+            if(ThreePointsCollinear(A,B,C))
             {
                 continue;
             }
@@ -442,7 +444,7 @@ public class AddAuxiliaryOperation : Operation
                 break;
             }
         }
-
+        Debug.Log(A + "**" + B + "**" + C);
         //求平面法线
         Vector3 normalVector;  //平面法向量
         Vector3 AB = new Vector3(B.x - A.x, B.y - A.y, B.z - A.z);
@@ -473,6 +475,23 @@ public class AddAuxiliaryOperation : Operation
         return new Vector3(-rotateX-90,rotateY,0f);
 
 
+    }
+
+    public bool ThreePointsCollinear(Vector3 A, Vector3 B, Vector3 C) {
+        double edge_A = PointsDistance(A, B);
+        double edge_B = PointsDistance(B, C);
+        double edge_C = PointsDistance(A, C);
+        double p = 0.5 * (edge_A + edge_B + edge_C);
+        if (p * (p - edge_A) * (p - edge_B) * (p - edge_C) == 0) //area==0
+            return true; 
+        return false;
+    }
+    public double PointsDistance(Vector3 A, Vector3 B)
+    {
+        var x1 = A.x - B.x;
+        var y1 = A.y - B.y;
+        var z1 = A.z - B.z;
+        return System.Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1);
     }
 
     public void ChangeFaceColorIndex(GeoFace geoface,int colorindex)
