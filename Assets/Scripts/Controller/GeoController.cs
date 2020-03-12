@@ -666,39 +666,32 @@ public class GeoController : MonoBehaviour
                 {
                     tar = str.IndexOf("立方体");
                 }
-                if (tar == -1)
-                {
-                    Debug.Log("can not recognize!");
-                    return;
-                }
+                
                 Debug.Log("正方体");
                 Tool tool = geoUI.toolPanel.toolGroups[0].Tools[0];
                 currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
                 String list = "";
                 if (str.Length > 3)
                 {
-                    Debug.Log(str.Substring(3));
-                    String cuboidName = str.Substring(tar + 3);
+                    //Debug.Log(str.Substring(3));
                     int itemCount = 0;
-                    if (cuboidName.Length >= 8)
-                    {
-                        for (int i = 0; i < cuboidName.Length; i++)
+                    for (int i = tar+3; i < str.Length; i++)
                         {
-                            String item = cuboidName.Substring(i, 1);
-                            if (Regex.IsMatch(cuboidName.Substring(i, 1), @"^[A-Za-z]+$"))
+                            String item = str.Substring(i, 1);
+                            if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                             {
-                                if (i == cuboidName.Length - 1)
+                                if (i == str.Length - 1)
                                 {
                                     list += item;
                                     itemCount++;
                                 }
                                 else
                                 {
-                                    if (Regex.IsMatch(cuboidName.Substring(i + 1, 1), @"^[0-9]*$"))
+                                    if (Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
                                     {
-                                        list += cuboidName.Substring(i, 2);
+                                        list += str.Substring(i, 2);
                                         itemCount++;
-                                        if (i != cuboidName.Length - 2)
+                                        if (i != str.Length - 2)
                                         {
                                             list += " ";
                                         }
@@ -711,34 +704,35 @@ public class GeoController : MonoBehaviour
                                     }
                                 }
                             }
-                            else if (cuboidName.Substring(i, 1) != "-")
-                            {
-                                break;
-                            }
-                        }//for
-                        if (itemCount == 8)
-                        {
+                    }//for
+                    if (itemCount == 8)
+                    {
                             Debug.Log(list);
                             GeometryOperation opt = (GeometryOperation)currentOperation;
                             opt.ReSetSign(list);
-                        }
-                        else
-                        {
-                            // default name
-                        }
                     }
                     else
                     {
-                        // default name
+                            // default name
                     }
+              
+                    
                 }
 
                 currentOperation.Start();
 
             }
-            else if (str.IndexOf("三棱锥") != -1)
+            else if (str.IndexOf("三棱锥") != -1 || str.IndexOf("四面体") != -1)
             {
                 Debug.Log("三棱锥");
+                int index = -1;
+                if (str.IndexOf("三棱锥") != -1) {
+                    index = str.IndexOf("三棱锥");
+                }
+                else{
+                    index = str.IndexOf("四面体");
+                }
+         
                 Tool tool = geoUI.toolPanel.toolGroups[0].Tools[1];
                 currentOperation = new GeometryOperation(this, toolController, stateController, tool, geometryBehaviour);
                 String list = "";
@@ -750,7 +744,7 @@ public class GeoController : MonoBehaviour
                     int itemCount = 0;
                     if (triName.Length >= 4)
                     {
-                        for (int i = 0; i < triName.Length; i++)
+                        for (int i = index+3; i < triName.Length; i++)
                         {
                             String item = triName.Substring(i, 1);
                             if (Regex.IsMatch(triName.Substring(i, 1), @"^[A-Za-z]+$"))
@@ -990,9 +984,18 @@ public class GeoController : MonoBehaviour
             else if (str.IndexOf("重心") != -1 || str.IndexOf("中心") != -1)
             {
                 Debug.Log("重心");
+                int tar = -1;
+                if (str.IndexOf("重心") != -1)
+                {
+                    tar = str.IndexOf("重心");
+                }
+                else {
+                    tar = str.IndexOf("中心");
+                }
+
                 String face = "";
                 int itemCount = 0;
-                for (int i = 0; i < str.IndexOf("心"); i++)
+                for (int i = 0; i < tar; i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
@@ -1016,7 +1019,7 @@ public class GeoController : MonoBehaviour
                 }
 
                 String point = "";
-                for (int i = str.IndexOf("心"); i < str.Length; i++)
+                for (int i = tar+2; i < str.Length; i++)
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
@@ -1326,27 +1329,53 @@ public class GeoController : MonoBehaviour
                 opt.SetWriteInput(writeInput);
                 currentOperation.Start();
             }
-            else if ((str.IndexOf("作平面") != -1 || str.IndexOf("做平面") != -1) && !(str.IndexOf("中心") != -1 || str.IndexOf("重心") != -1) && !(str.IndexOf("垂线") != -1))
+            else if ((str.IndexOf("作平面") != -1 || str.IndexOf("做平面") != -1)|| str.IndexOf("连接") != -1)
             {
-                Debug.Log("平面");
-
+                Debug.Log("连接点作平面");
+                
                 String face = "";
                 int itemCount = 0;
-                for (int i = 0; i < str.Length; i++)
+
+                int tar = -1;
+                if ((str.IndexOf("作平面") != -1 || str.IndexOf("做平面") != -1) && str.IndexOf("连接") == -1)
                 {
-                    if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                    tar = str.IndexOf("平面");
+                    for (int i = tar+2; i < str.Length; i++)
                     {
-                        itemCount++;
-                        if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                        if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                         {
-                            face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
-                        }
-                        else
-                        {
-                            face += str.Substring(i, 1) + " ";
+                            itemCount++;
+                            if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                            {
+                                face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                            }
+                            else
+                            {
+                                face += str.Substring(i, 1) + " ";
+                            }
                         }
                     }
                 }
+                else
+                {
+                    tar = str.IndexOf("连接");
+                    for (int i = tar + 2; i < str.Length; i++)
+                    {
+                        if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
+                        {
+                            itemCount++;
+                            if (i != str.Length - 1 && Regex.IsMatch(str.Substring(i + 1, 1), @"^[0-9]*$"))
+                            {
+                                face += str.Substring(i, 1) + str.Substring(i + 1, 1) + " ";
+                            }
+                            else
+                            {
+                                face += str.Substring(i, 1) + " ";
+                            }
+                        }
+                    }
+                }
+                
                 if (itemCount < 3)
                 {
                     Debug.Log("can not recognize!");
