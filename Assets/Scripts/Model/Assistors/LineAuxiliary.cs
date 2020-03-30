@@ -52,6 +52,12 @@ public class LineAuxiliaryTool : AuxiliaryTool
             return false;
         if (IsEdge(geometry, formElement))
             return false;
+        string[] fields = formElement.fields;
+        int i1 = geometry.SignVertex(fields[0]);
+        int i2 = geometry.SignVertex(fields[1]);
+        if(i1 == i2){
+            return false;
+        }
         return true;
     }
 

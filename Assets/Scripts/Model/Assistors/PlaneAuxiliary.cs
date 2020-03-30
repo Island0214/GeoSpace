@@ -60,6 +60,15 @@ public class PlaneAuxiliaryTool : AuxiliaryTool
         FormElement formElement = (FormElement)formInput.inputs[1];
         if (IsFace(geometry, formElement))
             return false;
+        string[] fields = formElement.fields;
+        int[] ids = new int[fields.Length];
+        for (int i = 0; i < fields.Length; i++)
+            ids[i] = geometry.SignVertex(fields[i]);
+        if (!isPlane(ids, geometry))
+        {
+            Debug.Log("无法构成平面");
+            return false;
+        }
         return true;
     }
 
@@ -74,9 +83,47 @@ public class PlaneAuxiliaryTool : AuxiliaryTool
         int[] ids = new int[fields.Length];
         for (int i = 0; i < fields.Length; i++)
             ids[i] = geometry.SignVertex(fields[i]);
+        
+
         PlaneAuxiliary auxiliary = new PlaneAuxiliary(ids);
 
         return auxiliary;
+    }
+
+    public bool isPlane(int[] ids, Geometry geometry) {
+        Vector3 A = new Vector3();
+        Vector3 B = new Vector3();
+        Vector3 C = new Vector3();
+        for (int i = 0; i < ids.Length - 2; i++)
+        {
+            A = geometry.UnitVector(ids[i]);
+            B = geometry.UnitVector(ids[i+1]);
+            C = geometry.UnitVector(ids[i+2]);
+
+            //if (((B.x - A.x) / (C.x - A.x) == (B.y - A.y) / (C.y - A.y)) && ((B.x - A.x) / (C.x - A.x) == (B.z - A.z) / (C.z - A.z)))
+            if (!ThreePointsCollinear(A, B, C))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    public bool ThreePointsCollinear(Vector3 A, Vector3 B, Vector3 C)
+    {
+        double edge_A = PointsDistance(A, B);
+        double edge_B = PointsDistance(B, C);
+        double edge_C = PointsDistance(A, C);
+        double p = 0.5 * (edge_A + edge_B + edge_C);
+        if (p * (p - edge_A) * (p - edge_B) * (p - edge_C) == 0) //area==0
+            return true;
+        return false;
+    }
+    public double PointsDistance(Vector3 A, Vector3 B)
+    {
+        var x1 = A.x - B.x;
+        var y1 = A.y - B.y;
+        var z1 = A.z - B.z;
+        return System.Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1);
     }
 }
 

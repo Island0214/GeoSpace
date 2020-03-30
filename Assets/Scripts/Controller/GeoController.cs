@@ -617,20 +617,18 @@ public class GeoController : MonoBehaviour
             /*
             正方体/立方体ABCD-A1B1C1D1
             三棱锥P-ABC
-            旋转体  矩形旋转体、三角形旋转体  旋转
-            长、宽、高  
+            旋转体  矩形旋转体、三角形旋转体  旋转、展开
+            测量长、宽、高  
             作空间中一点A(1,1,1)
             作两点、线段中点              作AB中点C
             线段描点                     取AB上一点C
             作平面重心                   作面ABC..重心M
             连接两点                     连接MN 
+            连接点作平面                 连接ABC..作平面
             过点作线段垂线               过点A作线段MN垂线交线段于点P
             过点作平面垂线               过点A作面ABC..垂线交面于点Q
-            连接点作平面                 连接ABC..作平面
             测量长度、角度、面积          ...的长度/角度/面积
              */
-            //if (state != GeoState.Normal)
-            //    return;
             if (!(str.IndexOf("旋转体") != -1) && str.IndexOf("旋转") != -1)
             {
                 Debug.Log("旋转");
@@ -824,7 +822,7 @@ public class GeoController : MonoBehaviour
                     currentOperation.Start();
                 }
             }
-            else if (str.IndexOf("空间一点") != -1)
+            else if (str.IndexOf("空间一点") != -1 || str.IndexOf("空间1点") != -1)
             {
                 Debug.Log("取空间一点");
 
@@ -902,7 +900,7 @@ public class GeoController : MonoBehaviour
                 opt.SetWriteInput(writeInput);
                 currentOperation.Start();
             }
-            else if ((str.IndexOf("线段") != -1 && str.IndexOf("一点") != -1) ||
+            else if ((str.IndexOf("线段") != -1 && (str.IndexOf("一点") != -1 || str.IndexOf("1点") != -1)) ||
                 ((str.IndexOf("线段") != -1) && str.IndexOf("的点") != -1) ||
                 ((str.IndexOf("作") != -1 || str.IndexOf("做") != -1) && (str.IndexOf("一点") != -1 || str.IndexOf("的点") != -1) && !(str.IndexOf("空间") != -1)))
             {
@@ -910,7 +908,7 @@ public class GeoController : MonoBehaviour
 
                 String line = "";
                 int itemCount = 0;
-                for (int i = 0; i < str.IndexOf("点"); i++)
+                for (int i = 0; i < str.IndexOf("点")-1; i++)  // -1, due to "1点"
                 {
                     if (Regex.IsMatch(str.Substring(i, 1), @"^[A-Za-z]+$"))
                     {
@@ -1060,7 +1058,7 @@ public class GeoController : MonoBehaviour
                 opt.SetWriteInput(writeInput);
                 currentOperation.Start();
             }
-            else if (str.IndexOf("连接") != -1 && !(str.IndexOf("平面") != -1))
+            else if (str.IndexOf("连接") != -1 && !(str.IndexOf("面") != -1))
             {
                 Debug.Log("连接两点");
 
