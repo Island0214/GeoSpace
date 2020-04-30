@@ -144,10 +144,24 @@ public class ToolPanel : MonoBehaviour
 
     private void SetTip(string tip, float buttonPosX)
     {
+        Font font = Resources.Load<Font>(UIConstants.TextFont);
+
+        int fontsize = (int)UIConstants.TextFontSize;
+        font.RequestCharactersInTexture(tip, fontsize, FontStyle.Normal);
+        CharacterInfo characterInfo;
+        float width = 0f;
+        for (int i = 0; i < tip.Length; i++)
+        {
+            font.GetCharacterInfo(tip[i], out characterInfo, fontsize);
+            width += characterInfo.advance;
+        }
+
+
         Text textField = toolTip.transform.Find("Text").GetComponent<Text>();
         textField.text = tip;
 
-        float width = textField.cachedTextGenerator.GetPreferredWidth(tip, textField.GetGenerationSettings(GetComponent<RectTransform>().rect.size));
+        // float width = textField.cachedTextGenerator.GetPreferredWidth(tip, textField.GetGenerationSettings(GetComponent<RectTransform>().rect.size));
+
         width += UIConstants.ToolTipSpacing;
         RectTransform rt = toolTip.GetComponent<RectTransform>();
         float posX = buttonPosX + UIConstants.ToolButtonWidth / 2 + UIConstants.ToolButtonSpacing;

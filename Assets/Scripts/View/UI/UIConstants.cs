@@ -38,6 +38,8 @@ public static class UIConstants
     public static string AreaFormat = "0.###";
     public static string AngleFormat = "0.###°";
 
+    public static string TextFont = "FZYouHJVFWTWH1";
+
     public static string SignFormat(string sign, int subSize)
     {
         string text = "";

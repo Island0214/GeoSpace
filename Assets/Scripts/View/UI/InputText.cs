@@ -34,7 +34,20 @@ public class InputText : InputBase
 
     public override float PreferredWidth()
     {
-        return textField.cachedTextGenerator.GetPreferredWidth(text, textField.GetGenerationSettings(GetComponent<RectTransform>().rect.size));
+        Font font = Resources.Load<Font>(UIConstants.TextFont);
+
+        int fontsize = (int)UIConstants.TextFontSize;
+        font.RequestCharactersInTexture(text, fontsize, FontStyle.Normal);
+        CharacterInfo characterInfo;
+        float width = 0f;
+        for (int i = 0; i < text.Length; i++)
+        {
+            font.GetCharacterInfo(text[i], out characterInfo, fontsize);
+            width += characterInfo.advance;
+        }
+
+        return width;
+        // return textField.cachedTextGenerator.GetPreferredWidth(text, textField.GetGenerationSettings(GetComponent<RectTransform>().rect.size));
     }
 
     public void SetTimer()

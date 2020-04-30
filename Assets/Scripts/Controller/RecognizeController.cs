@@ -8,15 +8,16 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using UnityEngine.Networking;
 
 public class RecognizeController : MonoBehaviour
 {
     WritingPanel writingPanel;
     PenBehaviour penBehaviour;
 
-    private static readonly string clientId =  "tgalsFoilzd4LTyNDf4Mq7mp";
+    private static readonly string clientId = "tgalsFoilzd4LTyNDf4Mq7mp";
 
-    private static readonly string clientSecret  = "FNfIOtGiAIKnib2FrHHeAaj8Aog98edZ";
+    private static readonly string clientSecret = "FNfIOtGiAIKnib2FrHHeAaj8Aog98edZ";
 
     public void Init(WritingPanel writingPanel)
     {
@@ -33,7 +34,7 @@ public class RecognizeController : MonoBehaviour
             {
                 sb.Append(item);
             }
-    
+
             if (Regex.IsMatch(item.ToString(), @"[A-Za-z0-9]"))
             {
                 sb.Append(item);
@@ -47,168 +48,193 @@ public class RecognizeController : MonoBehaviour
     {
 
         try
-        {   
+        {
             string img = WebUtility.UrlEncode(base64);
             string token = GetAccessToken();
-     
+
             token = new Regex(
                     "\"access_token\":\"(?<token>[^\"]*?)\"",
                     RegexOptions.CultureInvariant
                     | RegexOptions.Compiled
                     ).Match(token).Groups["token"].Value.Trim();
 
-                   Debug.Log(token);
-                //var url = "https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting";
-                string host = "https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting?access_token=" + token;
-                Encoding encoding = Encoding.Default;
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(host);
-                request.Method = "post";
-                request.KeepAlive = true;
-                String str = "image=" + img;
-                byte[] buffer = encoding.GetBytes(str);
-                request.ContentLength = buffer.Length;
-                request.GetRequestStream().Write(buffer, 0, buffer.Length);
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.Default);
-                string result = reader.ReadToEnd();
-                Debug.Log(result);
-                // var list = new List<KeyValuePair<string, string>>
-                //                {
-                //                    new KeyValuePair<string, string>("access_token", token),
-                //                    new KeyValuePair<string, string>("image", img),
-                //                    new KeyValuePair<string, string>("language_type", "CHN_ENG")
-                //                };
-                // var data = new List<string>();
-                // foreach (var pair in list)
-                //     data.Add(pair.Key + "=" + pair.Value);
-                // string json = HttpPost(url, string.Join("&", data.ToArray()));
-                // Debug.Log(json);
-                 var regex = new Regex(
-                    "\"words\": \"(?<word>[\\s\\S]*?)\"",
-                    RegexOptions.CultureInvariant
-                    | RegexOptions.Compiled
-                    );
-                var recognize = new StringBuilder();
-                foreach (Match match in regex.Matches(result))
-                {
-                    recognize.AppendLine(match.Groups["word"].Value.Trim() );
-                }
-
-                String res = recognize.ToString();
-                // 去除其中换行符，空格，制表符
-                // res = res.Replace("\n", "").Replace(" ","").Replace("\t","").Replace("\r","");
-                // 只保留数字、字母、汉字
-                res = FilterChar(res);
-
-                // 输出测试
-                Debug.Log("识别结果：" + res + ", bytelen=" + System.Text.Encoding.Default.GetByteCount(res) + ", charlen=" + res.Length);
-                // char[] arr = res.ToCharArray();
-
-                // 平台判断
-                // if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
-                // {
-                //     Debug.Log("Windows 平台");
-                //     if (res.Length > 1)
-                //     {
-                //         //res = res.Substring(0, res.Length - 1);
-                //     }
-                // }
-                // else if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
-                // {
-                //     Debug.Log("OSX 平台");
-                // }
-
-            
-                return res;
-
-            }
-            catch (Exception ex)
+            Debug.Log(token);
+            //var url = "https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting";
+            string host = "https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting?access_token=" + token;
+            Encoding encoding = Encoding.Default;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(host);
+            request.Method = "post";
+            request.KeepAlive = true;
+            String str = "image=" + img;
+            byte[] buffer = encoding.GetBytes(str);
+            request.ContentLength = buffer.Length;
+            request.GetRequestStream().Write(buffer, 0, buffer.Length);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.Default);
+            string result = reader.ReadToEnd();
+            Debug.Log(result);
+            // var list = new List<KeyValuePair<string, string>>
+            //                {
+            //                    new KeyValuePair<string, string>("access_token", token),
+            //                    new KeyValuePair<string, string>("image", img),
+            //                    new KeyValuePair<string, string>("language_type", "CHN_ENG")
+            //                };
+            // var data = new List<string>();
+            // foreach (var pair in list)
+            //     data.Add(pair.Key + "=" + pair.Value);
+            // string json = HttpPost(url, string.Join("&", data.ToArray()));
+            // Debug.Log(json);
+            var regex = new Regex(
+               "\"words\": \"(?<word>[\\s\\S]*?)\"",
+               RegexOptions.CultureInvariant
+               | RegexOptions.Compiled
+               );
+            var recognize = new StringBuilder();
+            foreach (Match match in regex.Matches(result))
             {
-                
-                Debug.Log(ex.Message);
-                return "";
+                recognize.AppendLine(match.Groups["word"].Value.Trim());
             }
+
+            String res = recognize.ToString();
+            // 去除其中换行符，空格，制表符
+            // res = res.Replace("\n", "").Replace(" ","").Replace("\t","").Replace("\r","");
+            // 只保留数字、字母、汉字
+            res = FilterChar(res);
+
+            // 输出测试
+            Debug.Log("识别结果：" + res + ", bytelen=" + System.Text.Encoding.Default.GetByteCount(res) + ", charlen=" + res.Length);
+            // char[] arr = res.ToCharArray();
+
+            // 平台判断
+            // if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
+            // {
+            //     Debug.Log("Windows 平台");
+            //     if (res.Length > 1)
+            //     {
+            //         //res = res.Substring(0, res.Length - 1);
+            //     }
+            // }
+            // else if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor)
+            // {
+            //     Debug.Log("OSX 平台");
+            // }
+
+
+            // return res;
+            return "";
+        }
+        catch (Exception ex)
+        {
+
+            Debug.Log(ex.Message);
+            return "";
+        }
     }
 
 
 
-        public static string GetAccessToken()
-        {
-            string url = "https://aip.baidubce.com/oauth/2.0/token";
-            var list = new List<KeyValuePair<string, string>>
+    public string GetAccessToken()
+    {
+        string url = "https://aip.baidubce.com/oauth/2.0/token";
+        var list = new List<KeyValuePair<string, string>>
                            {
                                new KeyValuePair<string, string>("grant_type", "client_credentials"),
                                new KeyValuePair<string, string>("client_id", clientId),
                                new KeyValuePair<string, string>("client_secret", clientSecret)
                            };
-            var data = new List<string>();
-            foreach (var pair in list)
-                data.Add(pair.Key + "=" + pair.Value);
-            return HttpGet(url, string.Join("&", data.ToArray()));
-        }
+        var data = new List<string>();
+        foreach (var pair in list)
+            data.Add(pair.Key + "=" + pair.Value);
 
+        var res = StartCoroutine(GetRequest(url, string.Join("&", data.ToArray())));
+        
+        return HttpGet(url, string.Join("&", data.ToArray()));
+    }
 
-
-
-
-        public static string HttpGet(string url, string data)
+    public IEnumerator GetRequest(string uri, string data)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri + (data == "" ? "" : "?") + data))
         {
-            var request = (HttpWebRequest)WebRequest.Create(url + (data == "" ? "" : "?") + data);
-            request.Method = "GET";
-            request.ContentType = "text/html;charset=UTF-8";
-            using (var response = (HttpWebResponse)request.GetResponse())
+            Debug.Log(uri + (data == "" ? "" : "?") + data);
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = uri.Split('/');
+            int page = pages.Length - 1;
+
+            if (webRequest.isNetworkError)
             {
-                Stream stream = response.GetResponseStream();
-                string s = null;
-                if (stream != null)
-                {
-                    using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
-                    {
-                        s = reader.ReadToEnd();
-                        reader.Close();
-                    }
-                    stream.Close();
-                }
-                return s;
+                Debug.Log(pages[page] + ": Error: " + webRequest.error);
+            }
+            else
+            {
+                // Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.data);
+                Debug.Log(webRequest.downloadHandler.text);
             }
         }
- 
-        public static string HttpPost(string url, string data)
+    }
+
+
+
+
+    public static string HttpGet(string url, string data)
+    {
+        var request = (HttpWebRequest)WebRequest.Create(url + (data == "" ? "" : "?") + data);
+        request.Method = "GET";
+        request.ContentType = "text/html;charset=UTF-8";
+        using (var response = (HttpWebResponse)request.GetResponse())
         {
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = Encoding.UTF8.GetByteCount(data);
-            Stream stream = request.GetRequestStream();
-            var writer = new StreamWriter(stream, Encoding.GetEncoding("gb2312"));
-            writer.Write(data);
-            writer.Close();
- 
-            using (var response = (HttpWebResponse)request.GetResponse())
+            Stream stream = response.GetResponseStream();
+            string s = null;
+            if (stream != null)
             {
-                Stream res = response.GetResponseStream();
-                if (res != null)
+                using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
                 {
-                    var reader = new StreamReader(res, Encoding.GetEncoding("utf-8"));
-                    string retString = reader.ReadToEnd();
+                    s = reader.ReadToEnd();
                     reader.Close();
-                    res.Close();
-                    return retString;
                 }
+                stream.Close();
             }
-            return "";
+            return s;
         }
+    }
 
+    public static string HttpPost(string url, string data)
+    {
+        var request = (HttpWebRequest)WebRequest.Create(url);
+        request.Method = "POST";
+        request.ContentType = "application/x-www-form-urlencoded";
+        request.ContentLength = Encoding.UTF8.GetByteCount(data);
+        Stream stream = request.GetRequestStream();
+        var writer = new StreamWriter(stream, Encoding.GetEncoding("gb2312"));
+        writer.Write(data);
+        writer.Close();
 
-        public static String getFileBase64(String fileName) 
+        using (var response = (HttpWebResponse)request.GetResponse())
         {
-            FileStream filestream = new FileStream(fileName, FileMode.Open);
-            byte[] arr = new byte[filestream.Length];
-            filestream.Read(arr, 0, (int)filestream.Length);
-            string baser64 = Convert.ToBase64String(arr);
-            filestream.Close();
-            return baser64;
+            Stream res = response.GetResponseStream();
+            if (res != null)
+            {
+                var reader = new StreamReader(res, Encoding.GetEncoding("utf-8"));
+                string retString = reader.ReadToEnd();
+                reader.Close();
+                res.Close();
+                return retString;
+            }
         }
+        return "";
+    }
+
+
+    public static String getFileBase64(String fileName)
+    {
+        FileStream filestream = new FileStream(fileName, FileMode.Open);
+        byte[] arr = new byte[filestream.Length];
+        filestream.Read(arr, 0, (int)filestream.Length);
+        string baser64 = Convert.ToBase64String(arr);
+        filestream.Close();
+        return baser64;
+    }
 
 
 }

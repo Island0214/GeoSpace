@@ -63,11 +63,11 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             isHaveMic = true;
             currentDeviceName = Microphone.devices[0];
-            // Debug.Log("检测到麦克风设备"+ Microphone.devices.Length);
+            Debug.Log("检测到麦克风设备"+ Microphone.devices.Length);
         }
         else
         {
-            // Debug.Log("无麦克风设备");
+            Debug.Log("无麦克风设备");
             return;
         }
 
@@ -105,6 +105,7 @@ public class BaiduASR : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         lastPressTimestamp = GetTimestampOfNowWithMillisecond();
 
         saveAudioClip = Microphone.Start(currentDeviceName, isLoop, recordMaxLength, recordFrequency);
+        // saveAudioClip = Microphone.Init();
 
         return true;
     }
